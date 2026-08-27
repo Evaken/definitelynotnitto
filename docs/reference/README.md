@@ -35,9 +35,11 @@ Settles:
 - Scenery is dense roadside foliage with a city skyline behind.
 - A `STAGING` prompt in green sits under the tree with a large arrow, so the
   game told the driver what to do next.
-- A tall thin vertical bar runs down the far left edge. **Purpose unconfirmed** —
-  most likely progress down the strip for both cars, but do not treat that as
-  settled.
+- A tall thin vertical bar runs down the far left edge. It is a **staging**
+  gauge, not whole-track progress: it shows how much further the car has to roll
+  to reach the line. Judging a metre or so of roll-in from behind the car is the
+  one thing this camera makes genuinely hard, which is presumably why the
+  original gave it its own instrument.
 
 ## `car-showroom.png` — Car Showroom (v1.51)
 

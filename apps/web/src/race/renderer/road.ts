@@ -62,11 +62,12 @@ export function drawSky(ctx: CanvasRenderingContext2D): void {
 /**
  * The road surface, its shoulders and its markings.
  *
- * `travelled` is how far the car has come down the strip. Everything on the
- * ground sits at a fixed world position and is drawn relative to that, so the
- * scene moves at exactly the rate the simulation says the car is moving.
+ * `cameraM` is where the camera sits on the strip, not where the car is -- the
+ * camera trails the car by `CAR_Z`. Everything on the ground has a fixed world
+ * position and is drawn relative to the camera, so the scene moves at exactly
+ * the rate the simulation says the car is moving.
  */
-export function drawRoad(ctx: CanvasRenderingContext2D, travelled: number): void {
+export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
   const ground = ctx.createLinearGradient(0, HORIZON_Y, 0, VIEW_BOTTOM);
   ground.addColorStop(0, COLORS.grassFar);
   ground.addColorStop(1, COLORS.grassNear);
@@ -75,7 +76,7 @@ export function drawRoad(ctx: CanvasRenderingContext2D, travelled: number): void
 
   // Stepped from the far plane inwards so nearer bands paint over further ones
   // and the edges stay clean.
-  const phase = ((travelled % BAND_M) + BAND_M) % BAND_M;
+  const phase = ((cameraM % BAND_M) + BAND_M) % BAND_M;
   const bandCount = Math.ceil((FAR_PLANE_M - Z_NEAR) / BAND_M);
 
   for (let i = bandCount; i >= 0; i--) {
@@ -89,7 +90,7 @@ export function drawRoad(ctx: CanvasRenderingContext2D, travelled: number): void
     const halfFar = roadHalfWidth(zFar);
 
     // Indexed in world space, so the stripes do not crawl along the surface.
-    const alternate = Math.floor((travelled + zNear) / BAND_M) % 2 === 0;
+    const alternate = Math.floor((cameraM + zNear) / BAND_M) % 2 === 0;
 
     band(ctx, yNear, yFar, halfNear, halfFar, alternate ? COLORS.roadNear : COLORS.roadFar);
 
@@ -162,7 +163,7 @@ function edgeBand(
  * an absolute world distance and shrinks with the same 1/z as the road, which
  * is what stops the scenery sliding relative to the surface.
  */
-export function drawRoadside(ctx: CanvasRenderingContext2D, travelled: number): void {
+export function drawRoadside(ctx: CanvasRenderingContext2D, cameraM: number): void {
   interface Item {
     readonly z: number;
     readonly xM: number;
@@ -172,17 +173,17 @@ export function drawRoadside(ctx: CanvasRenderingContext2D, travelled: number): 
 
   const items: Item[] = [];
 
-  const firstTree = Math.floor((travelled - CAR_Z) / TREE_SPACING_M);
-  for (let i = firstTree; i * TREE_SPACING_M - travelled < FAR_PLANE_M; i++) {
-    const z = i * TREE_SPACING_M - travelled;
+  const firstTree = Math.floor(cameraM / TREE_SPACING_M);
+  for (let i = firstTree; i * TREE_SPACING_M - cameraM < FAR_PLANE_M; i++) {
+    const z = i * TREE_SPACING_M - cameraM;
     if (!isVisible(z)) continue;
     items.push({ z, xM: -7 - hash(i) * 4, kind: 'tree', seed: hash(i) });
     items.push({ z, xM: 7 + hash(i * 7919) * 4, kind: 'tree', seed: hash(i * 104729) });
   }
 
-  const firstPost = Math.floor((travelled - CAR_Z) / POST_SPACING_M);
-  for (let i = firstPost; i * POST_SPACING_M - travelled < FAR_PLANE_M; i++) {
-    const z = i * POST_SPACING_M - travelled;
+  const firstPost = Math.floor(cameraM / POST_SPACING_M);
+  for (let i = firstPost; i * POST_SPACING_M - cameraM < FAR_PLANE_M; i++) {
+    const z = i * POST_SPACING_M - cameraM;
     if (!isVisible(z)) continue;
     items.push({ z, xM: -5.4, kind: 'post', seed: hash(i * 31) });
   }

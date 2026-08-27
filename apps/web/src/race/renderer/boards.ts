@@ -1,4 +1,4 @@
-import { TRACK_MARKS, metresToFeet, type PassState } from '@nitto/game-core';
+import { TRACK_MARKS, metresToFeet, stagingZoneStart, type PassState } from '@nitto/game-core';
 import { BOARD_LEFT, BOARD_RIGHT, COLORS, POSITION_BAR } from './layout.js';
 
 /**
@@ -8,6 +8,9 @@ import { BOARD_LEFT, BOARD_RIGHT, COLORS, POSITION_BAR } from './layout.js';
  * top of each board, a red LED elapsed time under it, and a dark panel below
  * that fills in as the car passes each mark.
  */
+
+/** How far back the staging bar starts caring, metres before the line. */
+const APPROACH_FROM_M = 9;
 
 interface Box {
   readonly x: number;
@@ -142,15 +145,21 @@ function ledPanel(
 }
 
 /**
- * Progress down the strip, as a vertical bar on the far left.
+ * The staging approach bar, down the far left.
  *
- * The original has a bar in this position whose purpose is not confirmed --
- * see `docs/reference/README.md`. Progress is the most likely reading and the
- * most useful thing to put there, so that is what it does until better evidence
- * turns up.
+ * Not a progress bar for the whole quarter mile -- that would spend its entire
+ * length in the bottom pixel while the driver is doing the one thing this view
+ * makes hard, which is judging a metre and a half of roll-in from behind the
+ * car. It shows only the last stretch up to the line, with the staging window
+ * marked, so "how much further" is readable at a glance.
+ *
+ * Once the run is under way there is nothing left to approach, so it hands the
+ * space over to distance covered.
  */
-export function drawPositionBar(ctx: CanvasRenderingContext2D, state: PassState): void {
+export function drawStagingBar(ctx: CanvasRenderingContext2D, state: PassState): void {
   const box = POSITION_BAR;
+  const zoneStart = stagingZoneStart();
+  const staging = state.clockStartTick === null;
 
   ctx.fillStyle = '#0a0d12';
   ctx.fillRect(box.x, box.y, box.w, box.h);
@@ -158,47 +167,62 @@ export function drawPositionBar(ctx: CanvasRenderingContext2D, state: PassState)
   ctx.lineWidth = 1;
   ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
 
-  // Bottom of the bar is the start line, top is the finish.
-  const yFor = (metres: number) => {
-    const t = Math.max(0, Math.min(1, metres / TRACK_MARKS.quarterMile));
-    return box.y + box.h - t * box.h;
-  };
+  const inner = { x: box.x + 3, y: box.y + 3, w: box.w - 6, h: box.h - 6 };
 
-  const gradient = ctx.createLinearGradient(0, box.y, 0, box.y + box.h);
+  if (staging) {
+    // Bottom of the bar is APPROACH_FROM_M behind the line; the top is the line
+    // itself. So t runs 0 at the far end to 1 at the stage line.
+    const yFor = (metres: number) => {
+      const t = (metres + APPROACH_FROM_M) / APPROACH_FROM_M;
+      return inner.y + inner.h - Math.max(0, Math.min(1, t)) * inner.h;
+    };
+
+    ctx.fillStyle = '#1b2029';
+    ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+
+    // The window itself, which is the thing being aimed at.
+    const windowTop = yFor(0);
+    const windowBottom = yFor(zoneStart);
+    const settled = state.phase === 'staged' || state.phase === 'tree';
+    ctx.fillStyle = settled ? 'rgba(63, 211, 90, 0.85)' : 'rgba(232, 163, 23, 0.8)';
+    ctx.fillRect(inner.x, windowTop, inner.w, windowBottom - windowTop);
+
+    // The stage line closes the top of the window.
+    ctx.fillStyle = COLORS.laneLine;
+    ctx.fillRect(inner.x, windowTop - 1, inner.w, 2);
+
+    const carY = yFor(state.positionM);
+    const past = state.positionM > 0;
+    ctx.fillStyle = past ? COLORS.red : COLORS.text;
+    ctx.fillRect(box.x - 1, carY - 2, box.w + 2, 4);
+
+    ctx.save();
+    ctx.translate(box.x + box.w / 2, inner.y + inner.h - 4);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = '8px Verdana, sans-serif';
+    ctx.fillStyle = COLORS.textDim;
+    ctx.fillText('STAGING', 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  const t = Math.max(0, Math.min(1, state.positionM / TRACK_MARKS.quarterMile));
+  const filled = t * inner.h;
+  const gradient = ctx.createLinearGradient(0, inner.y, 0, inner.y + inner.h);
   gradient.addColorStop(0, '#7a4a06');
   gradient.addColorStop(1, '#e8a317');
   ctx.fillStyle = gradient;
-  ctx.fillRect(box.x + 3, box.y + 3, box.w - 6, box.h - 6);
-
-  // The marks, so the bar reads as a strip rather than a meter.
-  ctx.strokeStyle = 'rgba(0,0,0,0.45)';
-  for (const distance of [
-    TRACK_MARKS.sixtyFoot,
-    TRACK_MARKS.threeThirty,
-    TRACK_MARKS.eighthMile,
-    TRACK_MARKS.thousandFoot,
-  ]) {
-    const y = yFor(distance);
-    ctx.beginPath();
-    ctx.moveTo(box.x + 3, y);
-    ctx.lineTo(box.x + box.w - 3, y);
-    ctx.stroke();
-  }
-
-  const carY = yFor(Math.max(0, state.positionM));
-  ctx.fillStyle = COLORS.green;
-  ctx.fillRect(box.x - 1, carY - 3, box.w + 2, 6);
-  ctx.strokeStyle = '#0a0d12';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(box.x - 0.5, carY - 3.5, box.w + 1, 7);
+  ctx.fillRect(inner.x, inner.y + inner.h - filled, inner.w, filled);
 
   ctx.save();
-  ctx.translate(box.x + box.w / 2, box.y + box.h - 6);
+  ctx.translate(box.x + box.w / 2, inner.y + inner.h - 4);
   ctx.rotate(-Math.PI / 2);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.font = '8px Verdana, sans-serif';
-  ctx.fillStyle = '#0a0d12';
+  ctx.fillStyle = COLORS.text;
   ctx.fillText(`${Math.max(0, metresToFeet(state.positionM)).toFixed(0)} FT`, 0, 0);
   ctx.restore();
 }

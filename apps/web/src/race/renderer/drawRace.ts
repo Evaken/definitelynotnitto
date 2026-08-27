@@ -1,4 +1,4 @@
-import { TRACK_MARKS, type PassState } from '@nitto/game-core';
+import { TRACK_MARKS, stagingZoneStart, type PassState } from '@nitto/game-core';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -8,12 +8,12 @@ import {
   VIEW,
   VIEW_CENTER_X,
 } from './layout.js';
-import { isVisible, project, roadHalfWidth } from './projection.js';
+import { cameraPosition, isVisible, project, roadHalfWidth } from './projection.js';
 import { drawRoad, drawRoadside, drawSky } from './road.js';
 import { DEFAULT_PAINT, PLACEHOLDER_CAR, suspensionMotion } from './carSprite.js';
 import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
 import { drawCluster } from './cluster.js';
-import { drawBoards, drawPositionBar } from './boards.js';
+import { drawBoards, drawStagingBar } from './boards.js';
 
 /**
  * Draws one frame of the race.
@@ -32,14 +32,16 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   ctx.fillStyle = COLORS.frame;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  const travelled = state.positionM;
+  // Measured from the camera, which trails the car. Handing these functions the
+  // car's position instead would draw the whole world CAR_Z metres too close.
+  const cameraM = cameraPosition(state.positionM);
 
   drawSky(ctx);
-  drawRoad(ctx, travelled);
-  drawRoadside(ctx, travelled);
-  drawStagingLines(ctx, travelled);
-  drawDistanceMarks(ctx, travelled);
-  drawChristmasTree(ctx, state);
+  drawRoad(ctx, cameraM);
+  drawRoadside(ctx, cameraM);
+  drawStagingLines(ctx, cameraM);
+  drawDistanceMarks(ctx, cameraM);
+  drawChristmasTree(ctx, state, cameraM);
   drawPlayerCar(ctx, state);
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);
@@ -49,7 +51,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   ctx.strokeRect(VIEW.x + 0.5, VIEW.y + 0.5, VIEW.w - 1, VIEW.h - 1);
 
   drawBoards(ctx, state);
-  drawPositionBar(ctx, state);
+  drawStagingBar(ctx, state);
   drawCluster(ctx, state, state.prevInput.throttle);
 }
 
@@ -82,23 +84,24 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
  * Lines rather than the shaded band the side-on view used: from behind, a band
  * is foreshortened into almost nothing, so the two edges have to carry it.
  */
-function drawStagingLines(ctx: CanvasRenderingContext2D, travelled: number): void {
-  const zoneStartM = -1.2;
+function drawStagingLines(ctx: CanvasRenderingContext2D, cameraM: number): void {
+  const zoneStart = stagingZoneStart() - cameraM;
+  const stageLine = -cameraM;
 
   ctx.save();
   ctx.beginPath();
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
   ctx.clip();
 
-  surfaceBand(ctx, zoneStartM - travelled, -travelled, 'rgba(232, 163, 23, 0.22)');
-  surfaceLine(ctx, zoneStartM - travelled, COLORS.accent, 0.12);
-  surfaceLine(ctx, -travelled, COLORS.laneLine, 0.2);
+  surfaceBand(ctx, zoneStart, stageLine, 'rgba(232, 163, 23, 0.28)');
+  surfaceLine(ctx, zoneStart, COLORS.accent, 0.14);
+  surfaceLine(ctx, stageLine, COLORS.laneLine, 0.22);
 
   ctx.restore();
 }
 
 /** The distance marks, painted across the surface where they actually are. */
-function drawDistanceMarks(ctx: CanvasRenderingContext2D, travelled: number): void {
+function drawDistanceMarks(ctx: CanvasRenderingContext2D, cameraM: number): void {
   ctx.save();
   ctx.beginPath();
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
@@ -112,14 +115,14 @@ function drawDistanceMarks(ctx: CanvasRenderingContext2D, travelled: number): vo
   ];
 
   for (const [distance, label] of marks) {
-    const z = distance - travelled;
+    const z = distance - cameraM;
     if (!isVisible(z) || z > 160) continue;
     surfaceLine(ctx, z, 'rgba(232, 234, 238, 0.7)', 0.1);
     markerPost(ctx, z, label);
   }
 
   // The finish line gets a chequered band.
-  const finishZ = TRACK_MARKS.quarterMile - travelled;
+  const finishZ = TRACK_MARKS.quarterMile - cameraM;
   if (isVisible(finishZ) && finishZ < 200) chequered(ctx, finishZ);
 
   ctx.restore();

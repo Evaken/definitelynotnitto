@@ -41,8 +41,7 @@ and `PRE-STAGED` / `STAGED` boxes above it. Timing boards flank the strip
 carrying a sponsor logo and a red LED elapsed time.
 
 **`PROJECT_SPEC.md` said "side-on 2D drag racing" and Stage 1 was built that
-way.** The spec has since been corrected. The renderer has not been yet — see
-`ROADMAP.md`.
+way.** Both the spec and the renderer have since been corrected.
 
 ### The instrument cluster
 
@@ -95,6 +94,14 @@ Source: `car-showroom.png` and `garage-paint-shop.webp`.
 Three-quarter front for the showroom, garage and the status-bar thumbnail;
 rear three-quarter for the strip. The status-bar thumbnail carries the player's
 actual paint — yellow in the paint shop, dark in the showroom.
+
+### The left-hand bar is a staging gauge
+
+Source: `race-view-two-civics.webp`, read by someone who played the original.
+
+Not whole-track progress — it shows how far the car still has to roll to reach
+the line. That is the one thing a chase camera makes genuinely hard to judge,
+which is presumably why it got its own instrument.
 
 ### A persistent bottom status bar
 
@@ -153,7 +160,6 @@ Still unknown:
 
 - Was staging done by creeping, or by a button?
 - What did the two round buttons under the sliders do?
-- What is the tall vertical bar down the far left edge of the race screen?
 
 ### Christmas tree — `assumed`
 

@@ -14,9 +14,9 @@ import { CLUSTER, COLORS } from './layout.js';
  */
 
 /** Where the gas slider is drawn. Exported so the drag surface can sit on it. */
-export const GAS_SLIDER = { x: 700, y: 384, w: 26, h: 168 } as const;
+export const GAS_SLIDER = { x: 694, y: 402, w: 34, h: 140 } as const;
 /** The clutch bar. A readout here, not a control -- see below. */
-export const CLUTCH_SLIDER = { x: 754, y: 384, w: 26, h: 168 } as const;
+export const CLUTCH_SLIDER = { x: 748, y: 402, w: 34, h: 140 } as const;
 
 const DIALS = {
   boost: { cx: 232, cy: 468, r: 62 },
@@ -44,11 +44,11 @@ export function drawCluster(ctx: CanvasRenderingContext2D, state: PassState, thr
   ctx.lineTo(CANVAS_RIGHT, CLUSTER.y + 0.5);
   ctx.stroke();
 
-  drawBoost(ctx, state);
+  drawBoost(ctx);
   drawTacho(ctx, state);
   drawSpeedo(ctx, state);
 
-  drawSlider(ctx, GAS_SLIDER, throttle, 'GAS PEDAL', COLORS.green);
+  drawSlider(ctx, GAS_SLIDER, throttle, 'GAS', COLORS.green);
   drawSlider(ctx, CLUTCH_SLIDER, state.clutchEngagement, 'CLUTCH', COLORS.amber, true);
 
   drawGearColumn(ctx, state);
@@ -61,7 +61,7 @@ const CANVAS_RIGHT = CLUSTER.x + CLUSTER.w;
 // Dials
 // ---------------------------------------------------------------------------
 
-function drawBoost(ctx: CanvasRenderingContext2D, state: PassState): void {
+function drawBoost(ctx: CanvasRenderingContext2D): void {
   const { cx, cy, r } = DIALS.boost;
   // Nothing produces boost until forced induction arrives in Stage 3, so the
   // needle sits at rest. The gauge stays regardless, as the original's did.
@@ -230,15 +230,21 @@ function drawSlider(
     ctx.fillRect(box.x - 3, handleY - 3, box.w + 6, 6);
   }
 
-  ctx.save();
-  ctx.translate(box.x + box.w / 2, box.y + box.h + 8);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  ctx.font = '9px Verdana, sans-serif';
+  // Above the bar, horizontal. Rotated underneath, these ran off the bottom of
+  // the canvas and lost half their text.
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = 'bold 9px Verdana, sans-serif';
   ctx.fillStyle = COLORS.textDim;
-  ctx.fillText(readOnly ? `${label} (AUTO)` : label, 0, 0);
-  ctx.restore();
+  ctx.fillText(label, box.x + box.w / 2, box.y - 14);
+
+  ctx.font = '8px Verdana, sans-serif';
+  ctx.fillStyle = readOnly ? COLORS.textDim : COLORS.accent;
+  ctx.fillText(
+    readOnly ? 'AUTO' : `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%`,
+    box.x + box.w / 2,
+    box.y - 4,
+  );
 }
 
 /**
@@ -279,8 +285,8 @@ function drawGearColumn(ctx: CanvasRenderingContext2D, state: PassState): void {
 
 /** Two lamps: wheelspin on the left, limiter on the right. */
 function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
-  lamp(ctx, 812, 470, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
-  lamp(ctx, 812, 520, COLORS.green, state.limiterActive, 'LIMIT');
+  lamp(ctx, 816, 448, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
+  lamp(ctx, 816, 508, COLORS.green, state.limiterActive, 'LIMIT');
 }
 
 function lamp(

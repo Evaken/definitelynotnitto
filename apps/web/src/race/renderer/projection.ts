@@ -1,5 +1,6 @@
 import {
   CAMERA_HEIGHT_M,
+  CAR_Z,
   FOCAL_LENGTH,
   HORIZON_Y,
   ROAD_HALF_WIDTH_M,
@@ -70,4 +71,21 @@ export const Z_NEAR = (FOCAL_LENGTH * CAMERA_HEIGHT_M) / (VIEW_BOTTOM - HORIZON_
 /** True if a point is in front of the camera and worth drawing. */
 export function isVisible(z: number): boolean {
   return z > MIN_Z;
+}
+
+/**
+ * Where the camera sits, in world metres.
+ *
+ * Behind the car by `CAR_Z`, which is what makes it a chase camera. Every
+ * distance handed to `project` has to be measured from here and not from the
+ * car -- confusing the two draws the whole world `CAR_Z` metres too close, which
+ * puts the staging lines behind the driver and turns the tree into a wall.
+ */
+export function cameraPosition(carPositionM: number): number {
+  return carPositionM - CAR_Z;
+}
+
+/** Distance from the camera to a fixed point on the strip. */
+export function depthOf(worldM: number, cameraM: number): number {
+  return worldM - cameraM;
 }
