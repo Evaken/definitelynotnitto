@@ -3,7 +3,12 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 1 complete. Stage 2 is next.**
+**Current stage: Stage 1 complete. A view rebuild comes before Stage 2.**
+
+Surviving screenshots turned up in [`docs/reference/`](docs/reference/) after
+Stage 1 was finished, and they show the race view is wrong: the original used a
+chase camera from behind both cars, not the side-on view the spec described and
+this project built. See "The race view" below.
 
 ---
 
@@ -65,7 +70,50 @@ Completion criteria met:
 
 ---
 
-## Next: Stage 2 — Nitto Driving Feel
+## Before Stage 2: rebuild the race view
+
+`PROJECT_SPEC.md` said "side-on 2D drag racing" twice. It was wrong, and Stage 1
+was built to it. `docs/reference/race-view-two-civics.webp` shows what it should
+be. The spec is corrected; the renderer is not.
+
+**Why this comes before Stage 2 rather than waiting for Stage 14.** Stage 2 is
+driving feel — tuning launches and shifts against instruments that do not exist
+yet is work that gets thrown away. And every stage after this adds more UI on
+top of the view, so it only gets more expensive.
+
+What changes:
+
+- `apps/web/src/race/renderer/**` — about 850 lines, rewritten
+- The HUD becomes a bottom instrument cluster: boost, tachometer, speedometer,
+  gear column, gas and clutch sliders
+- The tree moves to the centre of the view, one bulb column per lane
+- Timing boards flank the strip
+
+What does **not** change:
+
+- `packages/game-core` — all 2,200 lines of it. The simulation is
+  one-dimensional and has no idea where the camera is. Checked: zero references
+  to rendering anywhere in it.
+- All 116 tests except the six in `renderer/car.test.ts`, which cover the
+  side-on body bounce
+
+The seam that makes this affordable is `drawRace(ctx, state)` — one function,
+called in one place. Keep it that way.
+
+### Do the same for car art
+
+Two angles are needed per car: three-quarter front for the showroom, garage and
+status-bar thumbnail, rear three-quarter for the strip. Ten cars makes twenty
+renders, each tintable in three separate zones because the paint shop is HSB
+sliders rather than preset colours.
+
+Do not try to solve that now. Put the seam where art plugs in — a `CarArtwork`
+interface with `drawRear` and `drawThreeQuarter` — and draw procedural
+placeholder art behind it. Vector art recolours for free, so the paint shop
+works from day one, and real artwork drops in per car later without touching the
+race screen, showroom or paint shop.
+
+## Then Stage 2 — Nitto Driving Feel
 
 Much of Stage 2's groundwork exists because building it later would have meant
 rewriting the launch model. What already works:
@@ -104,6 +152,7 @@ Stage 3 is yours.
 |---|---|---|
 | ✅ | 0 — Project Foundation | Skeleton, data models, navigation shell |
 | ✅ | 1 — Basic Drag Race Simulator | A drivable quarter-mile pass and a timing slip |
+| ⚠️ | *(view rebuild)* | *Chase camera and instrument cluster — the spec had the view wrong* |
 | ▶️ | **2 — Nitto Driving Feel** | **Tuning the launch and shift feel, best-ET tracking, calibration tests** |
 | | 3 — Garage and Parts Shop | 25–40 Civic parts, install/remove, the first progression loop |
 | | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
@@ -145,8 +194,16 @@ that asserts an exact ET now means rewriting it later.
   from Nitto 1320 Challenge.** It currently runs about 15.7s at 87mph. That is
   reasonable for a real 2003 Civic Si; whether it matches the original game is
   unknown. Calibration is Stage 15.
-- **The control scheme is a design decision, not a reconstruction.** The
-  original's is unknown. See HISTORICAL_NOTES.md.
+- **The race view is side-on and should not be.** The original used a chase
+  camera. See above; the spec has been corrected.
+- **The starter car is the wrong Civic.** The original's is a sixth-generation
+  EK hatchback; this project models an EP3. Different engine family, ~1,400rpm
+  more redline, much less torque. Every figure in BALANCE_NOTES.md is therefore
+  externally wrong while remaining internally consistent.
+- **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
+  slider. Leaving it out is a project decision, not an oversight — but the
+  neutral-rev launch technique exists *because* of that choice.
+- **`COMMUNITY` is missing from the navigation.** The original had eight tabs.
 - **The staging window is deliberately unrealistic** at 1.2 m, against the 7
   inches NHRA runs. A realistic window is not a playable target.
 - **The tree style is a guess.** A Sportsman tree at one second a step is

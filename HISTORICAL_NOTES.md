@@ -6,10 +6,13 @@ what has been invented to get the game running.
 PROJECT_SPEC 11.12 and 11.13: document uncertain behaviour rather than inventing
 certainty, and isolate unknown rules behind configuration.
 
-**As of Stage 1, no primary sources have been consulted.** Every entry below is
-either real-world drag racing practice or an outright assumption. Nothing here
-is confirmed against the original game. This document should get longer and more
-confident, not shorter.
+**Three surviving screenshots are now in [`docs/reference/`](docs/reference/).**
+They are the only primary sources this project has, and everything tagged
+`sourced` traces back to one of them. Everything else is still real-world drag
+racing practice or an outright assumption.
+
+This document should get longer and more confident, not shorter. Add sources to
+`docs/reference/` as you find them and record what they settle here.
 
 ## Confidence levels
 
@@ -21,16 +24,106 @@ Values in `packages/game-core/src/config/historical.ts` carry one of these tags:
 | `real-world` | Correct for real drag racing, unverified for the game. |
 | `assumed` | A plausible guess. Suspect it. |
 
-**Nothing is currently tagged `sourced`.**
+A `sourced` entry must say *which* screenshot settles it, so the claim can be
+re-checked.
+
+---
+
+## Confirmed — `sourced`
+
+### The race view is from behind the cars, not side-on
+
+Source: `race-view-two-civics.webp`.
+
+A chase camera down the strip, both lanes in shot, cars in rear three-quarter
+view. The tree stands in the centre between the lanes with a bulb column each,
+and `PRE-STAGED` / `STAGED` boxes above it. Timing boards flank the strip
+carrying a sponsor logo and a red LED elapsed time.
+
+**`PROJECT_SPEC.md` said "side-on 2D drag racing" and Stage 1 was built that
+way.** The spec has since been corrected. The renderer has not been yet — see
+`ROADMAP.md`.
+
+### The instrument cluster
+
+Source: `race-view-two-civics.webp`.
+
+Along the bottom: a `BOOST PRESS` dial, a large `RPM x1000` tachometer with a
+red zone, and an `MPH` dial reading to 160. To their right, `GAS PEDAL` and
+`CLUTCH FEATHER` as vertical sliders. On the far right a gear column reading
+`6 5 4 3 2 1 N R` top to bottom with the current gear highlighted.
+
+The boost dial is present and idle on a naturally aspirated car rather than
+hidden, so the cluster is fixed and gauges simply read zero when nothing is
+fitted.
+
+### Eight navigation tabs, not seven
+
+Source: all three screenshots.
+
+`MAIN | CHALLENGE INFO | GARAGE | RACE TRACK | PARTS SHOP | CAR SHOWROOM | TEAM | COMMUNITY`
+
+The spec lists seven and omits `COMMUNITY`.
+
+### The Garage has four sub-sections
+
+Source: `garage-paint-shop.webp`.
+
+`◀ BACK | MODIFICATIONS | TUNE AND DYNO | PAINT SHOP | MAINTENANCE`
+
+Which maps onto the stage plan almost exactly: Modifications is Stage 3, Tune
+and Dyno is Stage 4, Maintenance is Stage 5, Paint Shop is Stage 8.
+
+### Paint is HSB sliders over three zones, and costs $1,500
+
+Source: `garage-paint-shop.webp`.
+
+Hue, saturation and brightness sliders applied to `BODY COLOR`,
+`GRAPHICS COLOR` and `NUMBER COLOR` independently, plus a named graphics preset
+from a dropdown (`Lightning`), a typed car number and a drop-shadow toggle.
+
+This rules out flat pre-coloured car art: the artwork has to be tintable in
+separate zones. The spec's layered approach in section 4.14 is right.
+
+$1,500 to apply is the only confirmed price in the project. Money is called
+`Account Balance`.
+
+### Car art is needed at two angles
+
+Source: `car-showroom.png` and `garage-paint-shop.webp`.
+
+Three-quarter front for the showroom, garage and the status-bar thumbnail;
+rear three-quarter for the strip. The status-bar thumbnail carries the player's
+actual paint — yellow in the paint shop, dark in the showroom.
+
+### A persistent bottom status bar
+
+Source: all three screenshots.
+
+`SELECTED CAR:` with thumbnail and name, `EDIT MY ACCOUNT`, and a live incoming
+challenge count.
 
 ---
 
 ## Open questions
 
-### Controls — `assumed`
+### Controls — partly `sourced`
 
-The original's control scheme is unknown. The current one is a deliberate
-design decision rather than a reconstruction:
+`race-view-two-civics.webp` settles three of these:
+
+- **The throttle really was a slider** (`GAS PEDAL`), not a key. What we
+  arrived at independently turns out to be right.
+- **There really was a gear selector** with reverse and neutral, reading
+  `6 5 4 3 2 1 N R`. Ours matches.
+- **There really was a clutch control** (`CLUTCH FEATHER`), a second slider
+  beside the throttle.
+
+The clutch is **deliberately not implemented** — a project decision, not an
+unknown. Nobody who played the original used it, and leaving it out is what
+makes the current launch work the way it does. Reinstating it would change the
+launch model; see the note below.
+
+The key bindings are still ours:
 
 | Control | Action |
 |---|---|
@@ -47,18 +140,20 @@ neutral and needs both a gear and throttle before it moves.
 The throttle is sprung: letting go of the slider closes it over about a second,
 the way a pedal returns. `THROTTLE_RELEASE_MS` sets how long.
 
-There is no clutch pedal, so the clutch follows the throttle. The consequence
-worth knowing about: the way to launch properly is to hold revs in neutral on
-the brakes and select first as the tree drops, which is what a real drag racer
+Because the clutch is omitted, the clutch follows the throttle instead. The
+consequence worth knowing: the way to launch properly is to hold revs in neutral
+on the brakes and select first as the tree drops, which is what a real drag racer
 does. That was not scripted — it falls out of the physics, and it is about
 0.7 seconds a quarter quicker than simply opening the throttle in gear.
 
-Specific things to find out:
+**That technique only exists because there is no clutch control.** If the clutch
+is ever added, expect the launch model and every launch-related test to change.
 
-- Was the throttle analogue in any sense, or a held key?
-- Was there a clutch control at all?
-- Did the car have a gear selector including reverse and neutral?
+Still unknown:
+
 - Was staging done by creeping, or by a button?
+- What did the two round buttons under the sliders do?
+- What is the tall vertical bar down the far left edge of the race screen?
 
 ### Christmas tree — `assumed`
 
@@ -119,19 +214,29 @@ The Civic's reverse ratio is a real-world figure. Reverse exists so a driver who
 rolls through the stage line can back up; whether the original allowed that is
 unknown.
 
-### Civic Si specification — `real-world`, NOT calibrated
+### Civic Si — wrong generation, `sourced`
 
-The torque curve, mass, gearing and grip figures approximate a real 2002–2005
-EP3 Civic Si (K20A3, ~160hp). They produce a quarter mile of roughly 15.7s at
-87mph, which is reasonable for that car in the real world.
+Source: `garage-paint-shop.webp` and `race-view-two-civics.webp`.
 
-**The original game's stock Civic performance is unknown.** PROJECT_SPEC 15
+The starter car is called `Civic SI Hatchback`, and the render is unmistakably
+a **sixth-generation EK hatchback** (1996–2000) — the low, wide shape with
+sixth-gen headlights. **Not** the EP3 this project modelled.
+
+That is not a cosmetic difference. Our car data is a K20A3: 160hp, peak torque
+around 5,000rpm, 6,800rpm redline. The EK-era Si is a B16 — similar peak power
+but far less torque, made much higher up, with a redline north of 8,000rpm. A
+peakier, more gear-sensitive car that would want shifting differently.
+
+**`data/cars/civic-si.ts` still describes the EP3 and is now known to be the
+wrong car.** Correcting it means a new torque curve, redline, gearing and mass.
+It is deliberately not done yet: it changes every measured figure in
+`BALANCE_NOTES.md` at once, so it belongs with the calibration work rather than
+being slipped in alongside a renderer rewrite.
+
+**The original game's stock Civic performance is still unknown.** PROJECT_SPEC 15
 notes a *fully modified* Civic should reach the low 8s, which says nothing about
 the stock car. Until a figure is found, Stage 1's tests assert only wide
 plausibility bands (13–19s).
-
-Which Civic Si the original used is also unconfirmed — the EP3 hatchback and the
-earlier EM1 coupe are both plausible for the 2004–2006 window.
 
 ### Economy — not yet implemented
 
@@ -143,7 +248,9 @@ No prices beyond a placeholder showroom figure on the Civic. Stage 3 onwards.
 
 Not yet pursued:
 
-- Internet Archive captures of the original site (2004–2006).
+- Internet Archive captures of the original site (2004–2006). The paint-shop
+  screenshot was taken from `nitto1320.com/forum/showthread.php?t=16`, so the
+  site ran a forum — archived threads may carry tunes, prices and ET figures.
 - Period forum threads with tune guides — PROJECT_SPEC 4.3 notes these should
   become regression tests.
 - Surviving screenshots for UI layout (Stage 14) and for confirming which

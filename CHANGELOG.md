@@ -1,5 +1,39 @@
 # Changelog
 
+## Primary sources found — the race view is wrong
+
+Three surviving screenshots of the original are now in `docs/reference/`. They
+are the first primary sources this project has had, and they contradict the
+specification.
+
+**The race view should be a chase camera from behind both cars, not side-on.**
+`PROJECT_SPEC.md` stated "side-on 2D drag racing" twice and Stage 1 was built to
+it. The spec is corrected and the rebuild is tracked in `ROADMAP.md`, ahead of
+Stage 2 — tuning driving feel against instruments that do not exist yet would be
+work thrown away, and every later stage adds more UI on top of the view.
+
+Also settled:
+
+- Eight navigation tabs, not seven — `COMMUNITY` was missing from the spec.
+- The Garage has four sub-sections: Modifications, Tune and Dyno, Paint Shop,
+  Maintenance — which matches the stage plan almost exactly.
+- The instrument cluster: boost, tachometer, speedometer, gas and clutch
+  sliders, and a gear column reading `6 5 4 3 2 1 N R`. The boost dial stays
+  visible and idle on a naturally aspirated car.
+- The throttle really was a slider and the gear selector really did include
+  reverse and neutral — both arrived at independently and both correct.
+- There really was a clutch control. It stays deliberately unimplemented, and
+  that is now recorded as a decision rather than an unknown.
+- Paint is hue/saturation/brightness sliders over three separately tinted zones,
+  costing $1,500 flat — the only confirmed price in the project.
+- **The starter car is the wrong Civic.** The original's is a sixth-generation
+  EK hatchback; this project models an EP3. Different engine family: a B16 revs
+  past 8,000rpm and makes far less torque, much higher up. Left uncorrected for
+  now because it moves every figure in `BALANCE_NOTES.md` at once.
+
+Nothing in `packages/game-core` changed. The simulation is one-dimensional and
+has no idea where the camera is.
+
 ## Stage 1d — Shut-down area
 
 The car no longer stops dead on the finish line. It crosses the traps at speed

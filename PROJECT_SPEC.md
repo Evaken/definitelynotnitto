@@ -5,6 +5,12 @@
 **Primary development method:** Claude Code and/or OpenAI Codex, working one defined stage at a time  
 **Status:** Planning / pre-production specification
 
+> **Primary sources live in [`docs/reference/`](docs/reference/).** Where a
+> screenshot contradicts this document, the screenshot wins — and this document
+> should be corrected. It has been wrong once already: it described the race
+> view as side-on, and Stage 1 was built that way before a screenshot showed
+> otherwise. `HISTORICAL_NOTES.md` records what is confirmed and what is guessed.
+
 ---
 
 ## 1. Project Vision
@@ -30,7 +36,7 @@ The target game is **Nitto 1320 Challenge**, specifically the pre-2007 version r
 Key characteristics of this target:
 
 - Small car roster, approximately 10 normal road cars plus a few special late-game cars.
-- Side-on 2D drag racing.
+- Chase-camera drag racing, viewed from behind both cars looking down the strip. (**Corrected 2026-08 from "side-on 2D" — see `docs/reference/`.**)
 - No steering.
 - Manual staging and launch timing.
 - Manual shifting.
@@ -81,6 +87,16 @@ The game should **not** be designed around hundreds of cars. The small roster is
 ## 4. Core Game Features
 
 ### 4.1 Garage
+
+The Garage is not a single screen. The original split it into four sub-sections
+(`docs/reference/garage-paint-shop.webp`):
+
+```text
+BACK | MODIFICATIONS | TUNE AND DYNO | PAINT SHOP | MAINTENANCE
+```
+
+Which lines up with the staging of this plan: Modifications is Stage 3, Tune and
+Dyno is Stage 4, Maintenance is Stage 5, Paint Shop is Stage 8.
 
 Players should be able to:
 
@@ -183,7 +199,18 @@ The dyno should be mechanically connected to the same underlying vehicle model u
 
 ### 4.5 Drag Race Gameplay
 
-The race is a side-on quarter-mile drag simulation.
+The race is a quarter-mile drag simulation viewed **from behind the cars**,
+looking down the strip, with both lanes in shot.
+
+> **Corrected.** This section previously said "side-on". A surviving screenshot
+> (`docs/reference/race-view-two-civics.webp`) shows the original used a chase
+> camera. Stage 1 was built side-on on the strength of the original wording;
+> `ROADMAP.md` tracks the rebuild. Do not reintroduce a side-on view.
+
+The screen carries a Christmas tree in the centre between the lanes, timing
+boards flanking the strip, and an instrument cluster along the bottom: boost,
+tachometer, speedometer, a gas-pedal slider, a clutch slider, and a gear
+indicator reading `6 5 4 3 2 1 N R`.
 
 There is no steering.
 
@@ -457,7 +484,7 @@ The UI should deliberately retain an early-2000s browser-game character.
 Core navigation should resemble:
 
 ```text
-MAIN | CHALLENGE INFO | GARAGE | RACE TRACK | PARTS SHOP | CAR SHOWROOM | TEAM
+MAIN | CHALLENGE INFO | GARAGE | RACE TRACK | PARTS SHOP | CAR SHOWROOM | TEAM | COMMUNITY
 ```
 
 The game should **not** be redesigned as a generic modern SaaS dashboard.

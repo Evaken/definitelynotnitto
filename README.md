@@ -9,6 +9,11 @@ tuning that actually matters.
 Stage 1 of 16 is done: one car (a stock Honda Civic Si), one lane, and a clock.
 [ROADMAP.md](ROADMAP.md) lists all sixteen stages and what is next.
 
+> **The race view is currently side-on and it should not be.** Surviving
+> screenshots ([`docs/reference/`](docs/reference/)) show the original used a
+> chase camera from behind both cars. The spec said otherwise and Stage 1 was
+> built to it. Rebuilding the view is the next job.
+
 ---
 
 ## Running it
@@ -65,6 +70,7 @@ apps/web/              React + Vite client. Canvas renderer, controls, HUD.
 | [BALANCE_NOTES.md](BALANCE_NOTES.md) | Measured performance and the effect of each driving lever |
 | [CHANGELOG.md](CHANGELOG.md) | What changed and why |
 | [PROJECT_SPEC.md](PROJECT_SPEC.md) | The full spec — build lists and completion criteria per stage (§8) |
+| [docs/reference/](docs/reference/) | Surviving screenshots of the original. These outrank the spec |
 | [CLAUDE.md](CLAUDE.md) | Orientation for an AI coding agent |
 
 ## Contributing

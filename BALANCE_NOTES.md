@@ -7,6 +7,18 @@ Stage 15, once there is a roster to calibrate and evidence to calibrate against.
 This file exists to record what the current numbers actually are, so a future
 change that moves them is visible.
 
+## Everything below describes the wrong car
+
+The starter car is a **sixth-generation EK Civic hatchback**
+(`docs/reference/garage-paint-shop.webp`), not the EP3 this project models. A
+B16 revs past 8,000rpm and makes far less torque, much higher up, than the
+K20A3 in `data/cars/civic-si.ts`.
+
+So every figure here is internally consistent and externally wrong. They still
+serve their purpose — showing which driving levers matter and by how much — but
+do not treat them as targets. Correcting the car is calibration work; see
+`HISTORICAL_NOTES.md`.
+
 ## Current measured performance
 
 Honda Civic Si, stock, as of Stage 1. Well-driven pass, seed 7, staged mid-window
@@ -79,6 +91,10 @@ Nothing is known about stock ETs, which is what Stage 1 through 6 actually need.
 
 ## Prices
 
-Only one price exists: the Civic Si at $12,000, a placeholder with no basis.
+**Confirmed:** applying paint in the Paint Shop costs **$1,500** flat
+(`docs/reference/garage-paint-shop.webp`). The only real price the project has.
+Money is called `Account Balance` in the original.
+
+Otherwise only the Civic Si at $12,000, a placeholder with no basis.
 Part prices, repair costs, prize money and progression pacing arrive in Stages 3
 and 6, and want their own research pass.

@@ -8,6 +8,13 @@ current, lists all sixteen at a glance, and records the known limitations.
 `PROJECT_SPEC.md` then gives the build list and completion criteria for whichever
 stage you are picking up (section 8).
 
+**`docs/reference/` holds surviving screenshots of the original.** They outrank
+everything else, the spec included. The spec has already been wrong once in a way
+that cost a stage of work: it stated flatly, twice, that the race view was
+"side-on", and it was built that way before a screenshot showed the original used
+a chase camera. Check a claim against the screenshots before building on it, and
+treat the spec's confident sentences with the same suspicion as its hedged ones.
+
 ## Commands
 
 ```bash
@@ -57,9 +64,10 @@ Adding a car means adding a file to `data/cars/`.
 
 **Uncertain history goes in config, not code.** Anything not confirmed about the
 original game lives in `config/historical.ts` with a confidence tag
-(`sourced` / `real-world` / `assumed`) and a note. Nothing is currently
-`sourced`. Correcting a historical detail must never require editing simulation
-logic. Document what you do not know — do not invent certainty.
+(`sourced` / `real-world` / `assumed`) and a note. A `sourced` entry has to name
+the screenshot that settles it. Correcting a historical detail must never require
+editing simulation logic. Document what you do not know — do not invent
+certainty.
 
 **Build one stage at a time.** Read ahead as much as you like — the whole plan
 is in `ROADMAP.md` and `PROJECT_SPEC.md` §8, and knowing what is coming is how
@@ -105,6 +113,18 @@ the arithmetic instead of needing a guessed tolerance.
 **A free-rolling wheel never reaches exactly zero.** The only thing slowing it
 is a tyre force proportional to the slip causing it, so it approaches rest
 asymptotically. Judge "stopped" against a threshold.
+
+## Known-wrong, deliberately not yet fixed
+
+Both are recorded in `ROADMAP.md` with the reasoning. Do not "fix" either in
+passing — each is its own piece of work.
+
+- **The race view is side-on; it should be a chase camera.** Rebuilding it is
+  the next task, ahead of Stage 2.
+- **The starter car is the wrong Civic.** The original's is a sixth-generation
+  EK hatchback; `data/cars/civic-si.ts` models an EP3. Different engine family
+  entirely. Changing it moves every number in `BALANCE_NOTES.md` at once, so it
+  belongs with calibration.
 
 ## Git
 
