@@ -4,6 +4,8 @@ interface ThrottleSliderProps {
   /** Current opening, 0 at the bottom to 1 at the top. */
   value: number;
   onChange: (value: number) => void;
+  /** Called when the slider is let go, so the throttle can spring shut. */
+  onRelease: () => void;
 }
 
 /**
@@ -14,10 +16,12 @@ interface ThrottleSliderProps {
  * in rolls the car gently enough to stage.  A keyboard cannot express that,
  * which is why the throttle is deliberately not bound to one.
  *
- * The value stays where it is left rather than springing back, so a run does
- * not need the pointer held down for fifteen seconds.
+ * Sprung, like a real throttle: let go and it closes over about a second. The
+ * component only reports the release -- the closing itself happens in the
+ * simulation loop, so it advances in step with the physics rather than on a
+ * separate animation of its own.
  */
-export function ThrottleSlider({ value, onChange }: ThrottleSliderProps) {
+export function ThrottleSlider({ value, onChange, onRelease }: ThrottleSliderProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   /** Which pointer is currently dragging, if any. */
   const draggingRef = useRef<number | null>(null);
@@ -66,6 +70,7 @@ export function ThrottleSlider({ value, onChange }: ThrottleSliderProps) {
     } catch {
       // Nothing to release.
     }
+    onRelease();
   };
 
   const percent = Math.round(value * 100);

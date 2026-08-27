@@ -26,10 +26,8 @@ export function RaceTrackScreen() {
   // Memoised so the session is not torn down and restarted on every render.
   const tune = useMemo(() => stockTune(car), [car]);
 
-  const { canvasRef, snapshot, startPass, throttle, setThrottle, width, height } = useRaceSession(
-    car,
-    tune,
-  );
+  const { canvasRef, snapshot, startPass, throttle, setThrottle, releaseThrottle, width, height } =
+    useRaceSession(car, tune);
 
   const prompt = snapshot.rolledThrough
     ? 'Rolled through the stage line — select R and back up into the window.'
@@ -53,7 +51,7 @@ export function RaceTrackScreen() {
               height={height}
               aria-label="Drag strip"
             />
-            <ThrottleSlider value={throttle} onChange={setThrottle} />
+            <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />
           </div>
 
           <p className="race__prompt">{prompt}</p>
@@ -71,7 +69,7 @@ export function RaceTrackScreen() {
             <h3 className="panel__heading">Controls</h3>
             <div className="panel__body keymap">
               <div>
-                <kbd>drag</kbd> Throttle, 0&ndash;100%
+                <kbd>drag</kbd> Throttle &mdash; springs shut on release
               </div>
               <div>
                 <kbd>W</kbd> Gear up &nbsp;R &rarr; N &rarr; 1 &rarr; 2&hellip;

@@ -169,6 +169,50 @@ describe('staging', () => {
     expect(state.treeSchedule).not.toBeNull();
   });
 
+  it('does not start the clock for a car that rolls straight through', () => {
+    // Driving past the line on the way in is a mistake made before the race
+    // began, not a foul. Starting the clock there would hand out a red light
+    // with no way to undo it.
+    const state = createPassState(CIVIC_SI, tune, 1);
+    shift(state, 'up');
+
+    let guard = 0;
+    while (state.positionM < 1.5 && guard++ < 60 * SIM_HZ) stepPass(state, input(0.3));
+
+    expect(state.positionM).toBeGreaterThan(0);
+    expect(state.clockStartTick).toBeNull();
+    expect(state.foul).toBe(false);
+    expect(state.phase).toBe('approach');
+  });
+
+  it('lets a car that rolled through reverse back in and stage normally', () => {
+    const state = createPassState(CIVIC_SI, tune, 1);
+    shift(state, 'up');
+
+    let guard = 0;
+    while (state.positionM < 1.5 && guard++ < 60 * SIM_HZ) stepPass(state, input(0.3));
+    while (Math.abs(state.speedMs) > 0 && guard++ < 70 * SIM_HZ) stepPass(state, input(0, true));
+
+    // Back up into the window: 1 -> N -> R.
+    shift(state, 'down');
+    shift(state, 'down');
+    expect(state.gear).toBe(REVERSE_GEAR);
+
+    while (state.positionM > -0.5 && guard++ < 80 * SIM_HZ) {
+      stepPass(state, input(state.speedMs > -0.4 ? 0.16 : 0));
+    }
+    while (Math.abs(state.speedMs) > 0 && guard++ < 90 * SIM_HZ) stepPass(state, input(0, true));
+
+    expect(state.positionM).toBeGreaterThanOrEqual(stagingZoneStart());
+    expect(state.positionM).toBeLessThanOrEqual(0);
+
+    // And the tree arms as though nothing had happened.
+    while (state.treeSchedule === null && guard++ < 95 * SIM_HZ) stepPass(state, input(0, true));
+    expect(state.treeSchedule).not.toBeNull();
+    expect(state.phase).toBe('tree');
+    expect(state.foul).toBe(false);
+  });
+
   it('abandons the tree if the car backs out of the window', () => {
     const state = stagedCar();
     shift(state, 'down');

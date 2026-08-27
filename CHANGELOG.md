@@ -1,5 +1,29 @@
 # Changelog
 
+## Stage 1b — Control fixes
+
+- **The throttle is sprung.** Let go of the slider and it closes over about a
+  second, the way a pedal does, rather than staying where it was dropped. The
+  spring lives in `game-core` because it changes how the car drives, and is
+  stepped alongside the physics rather than on an animation of its own.
+- **Rolling through the stage line no longer starts the clock or draws a red
+  light.** Driving past the line on the way in is a mistake made before the race
+  began, not a foul — the clock only starts once the car has actually staged.
+  Reverse back into the window, settle, and the tree arms as normal.
+- **Fixed reset leaving the game unresponsive.** The frame pacer's accumulator
+  was only drained by running the simulation, so a finished pass left on screen
+  banked every millisecond of wall time. Reset after a couple of minutes and the
+  new pass was simulated to death in a single frame — often straight past its
+  own timeout — which looked like the button doing nothing. It is now drained
+  while a pass is finished and rebased on every reset, from either the button or
+  the R key.
+- **Copy the timing slip as an image.** A button on the slip paints it to a
+  canvas and puts a PNG on the clipboard, ready to paste into a chat or a forum
+  post. No dependency, no DOM screenshotting.
+
+Frame pacing moved into a `FrameClock` with its own tests, since the accumulator
+bug above was invisible by inspection and is now a regression test.
+
 ## Stage 1a — Manual control rework
 
 Reworked the car from a keyboard toy into something that has to be driven.

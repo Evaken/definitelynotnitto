@@ -1,9 +1,13 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TimingSlip } from '@nitto/game-core';
+import { copySlipToClipboard } from './slipImage.js';
 
 interface TimingSlipCardProps {
   slip: TimingSlip;
   carName: string;
 }
+
+type CopyState = 'idle' | 'copied' | 'failed';
 
 /**
  * The slip handed over at the end of a run, laid out like a real one: printed
@@ -21,6 +25,7 @@ export function TimingSlipCard({ slip, carName }: TimingSlipCardProps) {
       </div>
     );
   }
+
 
   return (
     <div className="slip">
@@ -44,7 +49,50 @@ export function TimingSlipCard({ slip, carName }: TimingSlipCardProps) {
       </div>
 
       {slip.foul && <div className="slip__foul">Red Light &mdash; Foul</div>}
+
+      <CopySlipButton slip={slip} carName={carName} />
     </div>
+  );
+}
+
+const COPY_LABELS: Record<CopyState, string> = {
+  idle: 'Copy as image',
+  copied: 'Copied to clipboard',
+  failed: 'Copy failed',
+};
+
+/**
+ * Puts the slip on the clipboard as a picture, so a run can be pasted straight
+ * into a chat or a forum post rather than retyped.
+ */
+function CopySlipButton({ slip, carName }: TimingSlipCardProps) {
+  const [state, setState] = useState<CopyState>('idle');
+  const resetTimer = useRef<number | undefined>(undefined);
+
+  // A slip left showing "Copied" after the component goes away would try to set
+  // state on something that no longer exists.
+  useEffect(() => () => window.clearTimeout(resetTimer.current), []);
+
+  const copy = useCallback(async () => {
+    try {
+      await copySlipToClipboard(slip, carName);
+      setState('copied');
+    } catch {
+      setState('failed');
+    }
+    window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setState('idle'), 2200);
+  }, [slip, carName]);
+
+  return (
+    <button
+      type="button"
+      className="button button--secondary slip__copy"
+      onClick={copy}
+      disabled={slip.incomplete}
+    >
+      {COPY_LABELS[state]}
+    </button>
   );
 }
 

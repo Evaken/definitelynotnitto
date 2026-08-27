@@ -30,12 +30,14 @@ Completion criteria met:
 ### Stage 1 — Basic Drag Race Simulator
 
 - Side-view drag strip on a fixed 960×440 canvas at 58 px/m.
-- Drag-slider throttle, 0–100%, the only way to open the throttle.
+- Drag-slider throttle, 0–100%, sprung shut on release, and the only way to open
+  the throttle.
 - Gear selector R / N / 1…n; the car starts in neutral and needs a gear *and*
   throttle to move. Reverse works.
 - Manual braking.
 - Staging as a driving problem: stop the nose inside a 1.2 m window on momentum
-  or on the brakes, or roll through and reverse back.
+  or on the brakes, or roll through and reverse back in without penalty.
+- Timing slip copyable to the clipboard as an image.
 - Christmas tree (Pro and Sportsman both implemented, Pro selected).
 - Rev limiter, shift dead time.
 - Slip-ratio tyre model with dynamic weight transfer — wheelspin and bogging

@@ -44,6 +44,9 @@ The throttle is **not** on the keyboard. How far and how fast the slider is
 pushed is the launch, and a key can only express on or off. The car starts in
 neutral and needs both a gear and throttle before it moves.
 
+The throttle is sprung: letting go of the slider closes it over about a second,
+the way a pedal returns. `THROTTLE_RELEASE_MS` sets how long.
+
 There is no clutch pedal, so the clutch follows the throttle. The consequence
 worth knowing about: the way to launch properly is to hold revs in neutral on
 the brakes and select first as the tree drops, which is what a real drag racer
@@ -72,9 +75,13 @@ inches NHRA runs its beams at. At any playable zoom level a 7-inch window is
 too fine a target to hit by feathering a throttle, so it is widened on purpose.
 
 The driver has to bring the car to a stop with its nose inside that window,
-either by timing a coast or by braking. Rolling through the stage line does not
-stage the car — it starts the clock, which before the green is a red light — so
-overshooting means selecting reverse and backing up.
+either by timing a coast or by braking. Rolling through the stage line on the
+way in does not stage the car and does not foul it — the clock only starts once
+the car has staged — so overshooting simply means selecting reverse, backing up
+into the window, and letting the tree arm again.
+
+Once the tree *is* armed, crossing the stage line before the green is a red
+light, as it should be.
 
 Where in the window the car stops is a real trade-off: stopping close to the
 stage line leaves less ground to cover before the clock starts, so the light is

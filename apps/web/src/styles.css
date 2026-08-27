@@ -405,6 +405,19 @@ body {
   background: var(--bad);
 }
 
+.slip__copy {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 5px 8px;
+  font-size: 10px;
+}
+
+.slip__copy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* --- Debug telemetry ---------------------------------------------------- */
 
 .debug {

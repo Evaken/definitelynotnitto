@@ -406,14 +406,19 @@ function updateTiming(state: PassState): void {
   const previousPosition = state.positionM - travelled;
 
   if (state.clockStartTick === null) {
+    // The clock only means anything once the car has actually staged. A driver
+    // who rolls straight through the window on the way in has not started a
+    // run and has not fouled -- they have simply driven past the line, and the
+    // way back is reverse. Starting the clock there would hand out a red light
+    // for a mistake made before the race began, with no way to undo it.
+    if (state.treeSchedule === null) return;
+
     if (state.positionM >= 0 && travelled > 0) {
       state.clockStartTick = state.tick + crossingFraction(previousPosition, travelled, 0);
       state.phase = 'running';
 
-      const green = state.treeSchedule?.greenTick;
-      // Crossing the line before the green -- or before the tree ran at all --
-      // is a red light.
-      state.foul = green === undefined || state.clockStartTick < green;
+      // Leaving before the green is a red light.
+      state.foul = state.clockStartTick < state.treeSchedule.greenTick;
       state.lights = { ...state.lights, red: state.foul };
     }
     return;

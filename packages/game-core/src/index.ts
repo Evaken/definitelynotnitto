@@ -42,6 +42,7 @@ export {
   DRIVELINE,
   ENVIRONMENT,
   STAGING,
+  THROTTLE_RELEASE_MS,
   TRACK_MARKS,
   TRAP_LENGTH_M,
   TREE,
@@ -62,6 +63,7 @@ export {
   MAX_PASS_TICKS,
 } from './sim/pass.js';
 export { buildTimingSlip } from './sim/timing.js';
+export { quantiseThrottle, springThrottleClosed } from './sim/throttle.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';
 export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';

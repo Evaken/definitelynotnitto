@@ -201,3 +201,17 @@ export const DEFAULT_BINDINGS = {
 } as const;
 
 export const CONTROLS_CONFIDENCE: Confidence = 'assumed';
+
+/**
+ * How long the throttle takes to close on its own once the slider is let go.
+ *
+ * A real throttle is sprung: take your foot off and it shuts. Leaving the
+ * slider wherever it was dropped would mean the car pulls away by itself the
+ * moment the driver stops paying attention to it, which is neither how a car
+ * behaves nor something a player can plan around.
+ */
+export const THROTTLE_RELEASE_MS = uncertain(
+  1000,
+  'assumed',
+  'Return-spring feel. Not sourced.',
+);

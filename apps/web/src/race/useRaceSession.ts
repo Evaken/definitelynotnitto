@@ -9,7 +9,9 @@ import {
   isPassComplete,
   metresToFeet,
   msToMph,
+  quantiseThrottle,
   replayPass,
+  springThrottleClosed,
   stepPass,
   type Car,
   type PassState,
@@ -19,6 +21,7 @@ import {
   type Tune,
 } from '@nitto/game-core';
 import { KeyboardReader } from './input/keyboard.js';
+import { FrameClock, TICK_MS } from './frameClock.js';
 import { drawRace } from './renderer/drawRace.js';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './renderer/layout.js';
 
@@ -65,9 +68,6 @@ export interface RaceSnapshot {
 
 /** How many rendered frames pass between React updates. */
 const FRAMES_PER_SNAPSHOT = 4;
-/** Never simulate more than this much wall time in one frame. */
-const MAX_FRAME_MS = 100;
-const TICK_MS = 1000 / SIM_HZ;
 
 function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnapshot {
   const complete = isPassComplete(state);
@@ -106,13 +106,36 @@ export function useRaceSession(car: Car, tune: Tune) {
   // The slider writes here every time it moves. The loop reads it every tick,
   // which keeps a 60Hz drag from having to re-render the component tree.
   const throttleRef = useRef(0);
+  const draggingRef = useRef(false);
+  /** Last value pushed to React, so the spring-back only re-renders on change. */
+  const throttleShownRef = useRef(0);
   const [throttle, setThrottleState] = useState(0);
+
+  /**
+   * Bumped every time a pass is started.
+   *
+   * The render loop watches it and resets its own bookkeeping when it changes.
+   * Without this the loop's timing accumulator survives a reset -- and since it
+   * is only drained while a pass is running, a finished pass left sitting on
+   * screen banks every millisecond of wall time until the next one is simulated
+   * away in a single frame. Reset after a couple of minutes and the fresh pass
+   * is consumed the instant it is created, which reads as the reset button
+   * doing nothing at all.
+   */
+  const generationRef = useRef(0);
 
   const [snapshot, setSnapshot] = useState<RaceSnapshot>(() => snapshotOf(stateRef.current, null));
 
   const setThrottle = useCallback((value: number) => {
+    draggingRef.current = true;
     throttleRef.current = value;
+    throttleShownRef.current = value;
     setThrottleState(value);
+  }, []);
+
+  /** Let go of the slider: the throttle springs shut on its own from here. */
+  const releaseThrottle = useCallback(() => {
+    draggingRef.current = false;
   }, []);
 
   const startPass = useCallback(() => {
@@ -124,6 +147,9 @@ export function useRaceSession(car: Car, tune: Tune) {
     recorderRef.current = new TimelineRecorder(seed);
     verifiedRef.current = null;
     throttleRef.current = 0;
+    throttleShownRef.current = 0;
+    draggingRef.current = false;
+    generationRef.current++;
     setThrottleState(0);
     setSnapshot(snapshotOf(stateRef.current, null));
   }, [car, tune]);
@@ -143,43 +169,61 @@ export function useRaceSession(car: Car, tune: Tune) {
     const detach = keyboard.attach();
 
     let frameHandle = 0;
-    let lastFrameMs = performance.now();
-    let accumulator = 0;
+    const clock = new FrameClock(performance.now());
     let frameCount = 0;
     let resetHeld = false;
     let finishHandled = false;
+    let generation = generationRef.current;
     let lastPhase: RacePhase = stateRef.current.phase;
 
     const loop = (now: number) => {
       frameHandle = requestAnimationFrame(loop);
 
       const keys = keyboard.read();
-      if (keys.reset && !resetHeld) {
-        startPass();
-        lastFrameMs = now;
-        accumulator = 0;
-        finishHandled = false;
-      }
+      if (keys.reset && !resetHeld) startPass();
       resetHeld = keys.reset;
 
+      // A new pass -- from either the key or the button -- clears everything
+      // the loop was carrying about the old one.
+      if (generation !== generationRef.current) {
+        generation = generationRef.current;
+        clock.reset(now);
+        finishHandled = false;
+        lastPhase = stateRef.current.phase;
+      }
+
       const state = stateRef.current;
-      const input: RaceInput = {
-        throttle: throttleRef.current,
-        brake: keys.brake,
-        shiftUp: keys.shiftUp,
-        shiftDown: keys.shiftDown,
-      };
+      const ticks = clock.advance(now, isPassComplete(state));
 
-      // Fixed-step accumulator: the simulation always advances in whole 1ms
-      // ticks regardless of the display's refresh rate, so a slow frame or a
-      // 144Hz monitor cannot change the outcome of a pass.
-      accumulator += Math.min(now - lastFrameMs, MAX_FRAME_MS);
-      lastFrameMs = now;
+      for (let i = 0; i < ticks && !isPassComplete(state); i++) {
+        // The throttle closes on its own once the slider is let go, the way a
+        // sprung pedal does. Stepped alongside the simulation rather than on an
+        // animation of its own, so it advances at exactly the rate the physics
+        // sees.
+        if (!draggingRef.current) {
+          throttleRef.current = springThrottleClosed(throttleRef.current, TICK_MS);
+        }
 
-      while (accumulator >= TICK_MS && !isPassComplete(state)) {
+        const input: RaceInput = {
+          // Quantised here, at the one place the value crosses into the
+          // simulator, so a recorded pass stays compact and replays exactly.
+          throttle: quantiseThrottle(throttleRef.current),
+          brake: keys.brake,
+          shiftUp: keys.shiftUp,
+          shiftDown: keys.shiftDown,
+        };
+
         recorderRef.current.record(state.tick, input);
         stepPass(state, input);
-        accumulator -= TICK_MS;
+      }
+
+      // The slider is a controlled component, so the spring has to reach React
+      // to be seen. Compared at display precision, so a closing throttle
+      // re-renders about a hundred times rather than once per tick.
+      const shown = quantiseThrottle(throttleRef.current);
+      if (!draggingRef.current && shown !== throttleShownRef.current) {
+        throttleShownRef.current = shown;
+        setThrottleState(shown);
       }
 
       drawRace(ctx, state);
@@ -209,6 +253,10 @@ export function useRaceSession(car: Car, tune: Tune) {
     function verifyReplay(state: PassState): boolean | null {
       if (!import.meta.env.DEV) return null;
       const live = buildTimingSlip(state);
+      // A pass that timed out never raced. Replaying it would re-simulate the
+      // full timeout synchronously -- minutes of ticks in one frame -- to check
+      // a slip with nothing on it.
+      if (live.incomplete) return null;
       const again = replayPass(car, tune, recorderRef.current.build()).slip;
       return JSON.stringify(live) === JSON.stringify(again);
     }
@@ -227,6 +275,7 @@ export function useRaceSession(car: Car, tune: Tune) {
     startPass,
     throttle,
     setThrottle,
+    releaseThrottle,
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
   };
