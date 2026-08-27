@@ -65,6 +65,7 @@ export {
 } from './sim/pass.js';
 export { buildTimingSlip } from './sim/timing.js';
 export { quantiseThrottle, springThrottleClosed } from './sim/throttle.js';
+export { optimalShiftRpm, shouldShiftUp } from './sim/shift.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';
 export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';

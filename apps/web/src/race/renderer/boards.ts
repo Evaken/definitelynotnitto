@@ -9,8 +9,28 @@ import { BOARD_LEFT, BOARD_RIGHT, COLORS, POSITION_BAR } from './layout.js';
  * that fills in as the car passes each mark.
  */
 
-/** How far back the staging bar starts caring, metres before the line. */
-const APPROACH_FROM_M = 9;
+/**
+ * How much strip the staging bar shows either side of the window, in metres.
+ *
+ * Five puts the car's spawn point (STAGING.startLineOffsetM) just inside the
+ * bottom of the bar, so the marker is on the scale from the moment the run
+ * starts, and leaves the same distance above for reading back an overshoot.
+ */
+const BAR_REACH_M = 5;
+
+/**
+ * Where a point on the strip sits on the staging bar: 0 at the bottom, 1 at the
+ * top, clamped at both ends so the car marker pins rather than disappearing.
+ *
+ * Pulled out of the drawing code because it is the part that can be wrong
+ * silently -- an earlier version inverted this and collapsed the window to
+ * nothing, which looked like a missing feature rather than a broken sum.
+ */
+export function stagingBarFraction(metres: number): number {
+  const centre = stagingZoneStart() / 2;
+  const t = (metres - centre + BAR_REACH_M) / (BAR_REACH_M * 2);
+  return Math.max(0, Math.min(1, t));
+}
 
 interface Box {
   readonly x: number;
@@ -170,12 +190,12 @@ export function drawStagingBar(ctx: CanvasRenderingContext2D, state: PassState):
   const inner = { x: box.x + 3, y: box.y + 3, w: box.w - 6, h: box.h - 6 };
 
   if (staging) {
-    // Bottom of the bar is APPROACH_FROM_M behind the line; the top is the line
-    // itself. So t runs 0 at the far end to 1 at the stage line.
-    const yFor = (metres: number) => {
-      const t = (metres + APPROACH_FROM_M) / APPROACH_FROM_M;
-      return inner.y + inner.h - Math.max(0, Math.min(1, t)) * inner.h;
-    };
+    // The window sits in the middle of the bar rather than at the top, so there
+    // is scale on both sides of it: ground still to cover below, and ground
+    // overshot above. A driver who rolls through can read off how far back to
+    // reverse instead of guessing.
+    const yFor = (metres: number) =>
+      inner.y + inner.h - stagingBarFraction(metres) * inner.h;
 
     ctx.fillStyle = '#1b2029';
     ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
@@ -187,10 +207,14 @@ export function drawStagingBar(ctx: CanvasRenderingContext2D, state: PassState):
     ctx.fillStyle = settled ? 'rgba(63, 211, 90, 0.85)' : 'rgba(232, 163, 23, 0.8)';
     ctx.fillRect(inner.x, windowTop, inner.w, windowBottom - windowTop);
 
-    // The stage line closes the top of the window.
+    // Both beams: the stage line closing the top, the pre-stage line the bottom.
     ctx.fillStyle = COLORS.laneLine;
     ctx.fillRect(inner.x, windowTop - 1, inner.w, 2);
+    ctx.fillStyle = 'rgba(226, 232, 240, 0.35)';
+    ctx.fillRect(inner.x, windowBottom - 1, inner.w, 2);
 
+    // The car. Red once it is past the stage line, which is the state reverse
+    // exists to get out of.
     const carY = yFor(state.positionM);
     const past = state.positionM > 0;
     ctx.fillStyle = past ? COLORS.red : COLORS.text;

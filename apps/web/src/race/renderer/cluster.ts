@@ -1,4 +1,10 @@
-import { engineRpm, gearLabel, msToMph, type PassState } from '@nitto/game-core';
+import {
+  engineRpm,
+  gearLabel,
+  msToMph,
+  shouldShiftUp,
+  type PassState,
+} from '@nitto/game-core';
 import { CLUSTER, COLORS } from './layout.js';
 
 /**
@@ -18,13 +24,22 @@ export const GAS_SLIDER = { x: 694, y: 402, w: 34, h: 140 } as const;
 /** The clutch bar. A readout here, not a control -- see below. */
 export const CLUTCH_SLIDER = { x: 748, y: 402, w: 34, h: 140 } as const;
 
-const DIALS = {
+export const DIALS = {
   boost: { cx: 232, cy: 468, r: 62 },
   rpm: { cx: 424, cy: 468, r: 80 },
   mph: { cx: 616, cy: 468, r: 62 },
 } as const;
 
 const GEAR_COLUMN = { x: 872, y: 372, w: 44, rowHeight: 26 } as const;
+
+/**
+ * The shift light, in the gap between the tachometer and the speedometer.
+ *
+ * Deliberately bigger than the SLIP and LIMIT tell-tales: those report what the
+ * car is doing, this one is asking for an input, and it has to be readable
+ * without looking away from the strip.
+ */
+export const SHIFT_LIGHT = { cx: 528, cy: 400, r: 15 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -53,6 +68,7 @@ export function drawCluster(ctx: CanvasRenderingContext2D, state: PassState, thr
 
   drawGearColumn(ctx, state);
   drawLamps(ctx, state);
+  drawShiftLight(ctx, state);
 }
 
 const CANVAS_RIGHT = CLUSTER.x + CLUSTER.w;
@@ -283,10 +299,30 @@ function drawGearColumn(ctx: CanvasRenderingContext2D, state: PassState): void {
   });
 }
 
-/** Two lamps: wheelspin on the left, limiter on the right. */
+/**
+ * Two tell-tales stacked beside the sliders. Amber for the limiter rather than
+ * green, so it does not read as a second shift light -- it means the opposite.
+ */
 function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
   lamp(ctx, 816, 448, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
-  lamp(ctx, 816, 508, COLORS.green, state.limiterActive, 'LIMIT');
+  lamp(ctx, 816, 508, COLORS.amber, state.limiterActive, 'LIMIT');
+}
+
+/**
+ * Green when the next gear would pull harder than the one selected.
+ *
+ * Where that point falls is computed from the torque curve and the two ratios
+ * either side of the change, not hardcoded -- see sim/shift.ts. On the stock
+ * Civic the curve is flat enough that it works out at the limiter, but a peakier
+ * engine or a closer gearset will move it, and the light moves with it.
+ *
+ * It comes on shortly before the crossover so a driver who reacts to it is not
+ * already past. LIMIT beside it still means what it always did: too late.
+ */
+function drawShiftLight(ctx: CanvasRenderingContext2D, state: PassState): void {
+  const { cx, cy, r } = SHIFT_LIGHT;
+  const lit = shouldShiftUp(state.car, state.tune, state.gear, engineRpm(state));
+  lamp(ctx, cx, cy, COLORS.green, lit, 'SHIFT', r);
 }
 
 function lamp(
@@ -296,14 +332,15 @@ function lamp(
   color: string,
   lit: boolean,
   label: string,
+  radius = 11,
 ): void {
   ctx.beginPath();
-  ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fillStyle = lit ? color : COLORS.bulbOff;
   ctx.fill();
   if (lit) {
     ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = radius * 1.3;
     ctx.fill();
     ctx.shadowBlur = 0;
   }
@@ -315,7 +352,7 @@ function lamp(
   ctx.fillStyle = COLORS.textDim;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(label, cx, cy + 20);
+  ctx.fillText(label, cx, cy + radius + 9);
 }
 
 function shadeHex(hex: string, factor: number): string {

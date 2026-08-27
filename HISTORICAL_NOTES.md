@@ -103,6 +103,11 @@ Not whole-track progress — it shows how far the car still has to roll to reach
 the line. That is the one thing a chase camera makes genuinely hard to judge,
 which is presumably why it got its own instrument.
 
+How it is drawn is ours: the window sits in the middle of the bar rather than at
+the top, so there is scale above it as well as below. A driver who rolls through
+the line can then read off how far to reverse. Where the original put the window
+is unknown.
+
 ### A persistent bottom status bar
 
 Source: all three screenshots.
@@ -175,6 +180,30 @@ the original used is unknown.
 The random pause before the ambers (1.8–3.2s) is invented. With three seconds of
 countdown after it, the wait from settling on the line to the green is about
 five to six seconds.
+
+
+### Shift light — invented
+
+Not visible in `race-view-two-civics.webp`, which shows only the three dials,
+the two sliders and the gear column. **Whether the original had one at all is
+unknown**, and if it did, where it sat and what it was keyed to are unknown too.
+
+Ours is a green lamp between the tachometer and the speedometer that lights when
+the next gear would put more force at the wheels than the one selected. That
+point is computed from the torque curve and the two ratios either side of the
+change (`sim/shift.ts`), not hardcoded: hardcoding a rev figure would be wrong
+for the second car added, and wrong again the moment Stage 4 lets the player
+change ratios.
+
+On the stock Civic it works out at the limiter, because a curve that only falls
+13% from peak to redline never gives the next gear the advantage before the revs
+run out. That agrees with `BALANCE_NOTES.md`, which measured shifting at 6,800
+as quicker than at 6,500. **Correcting the starter car to the EK B16 should be
+expected to move it well down the range** — a peakier engine genuinely wants an
+earlier shift — and `shift.test.ts` will fail when it does, which is the point.
+
+The lamp comes on 400rpm before the crossover so a driver who reacts to it is
+not already past. That lead is invented.
 
 ### Staging — `assumed`, deliberately not realistic
 

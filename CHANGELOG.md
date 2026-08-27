@@ -1,5 +1,43 @@
 # Changelog
 
+## A shift light, and a staging bar you can read backwards
+
+Two instrument changes.
+
+**The staging window moved to the middle of the left-hand bar.** It used to sit
+at the top, with the bar showing only the nine metres of run-up behind it — so a
+driver who rolled through the line had the marker pinned at the top edge with no
+way to tell whether they were a foot past or ten. The window now sits centred
+with five metres of scale either side, and both beams are drawn, so an overshoot
+is a readable distance rather than a pegged needle. The car's spawn point lands
+just inside the bottom of the bar, so the marker is on the scale from the first
+frame.
+
+**A green shift light sits between the tachometer and the speedometer.** Where
+it lights is computed, not chosen:
+
+    shift when  torque(rpm x drop) x nextRatio  >=  torque(rpm) x thisRatio
+
+Final drive and tyre radius are the same either side of a change, so they cancel
+and the comparison is just torque against gear ratio. Hardcoding a rev figure
+would have been wrong for the second car added and wrong again as soon as Stage
+4 lets the player edit ratios; this follows both.
+
+On the stock Civic the answer is the limiter in every gear, which is not a
+special case but a fact about a flat torque curve — it only falls 13% from peak
+to redline, so the next gear never gets ahead before the revs run out.
+`BALANCE_NOTES.md` had already measured the same thing from the other end:
+shifting at 6,800 beats shifting at 6,500. Correcting the starter car to the EK
+B16 will move these shift points down, and `shift.test.ts` asserts the current
+behaviour so that change announces itself.
+
+The LIMIT tell-tale went from green to amber. Two green lamps meaning opposite
+things — *shift now* and *you left it too late* — was the wrong signal.
+
+Neither change is sourced. The original's bar may have looked nothing like this
+and may have had no shift light at all; both are recorded as inventions in
+`HISTORICAL_NOTES.md`.
+
 ## The chase camera
 
 The race view now looks down the strip from behind the car, as the original did.
