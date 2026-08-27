@@ -90,6 +90,55 @@ Stage 2 acceptance criteria still to meet:
 
 ---
 
+## All sixteen stages
+
+The whole plan, so anyone can see what is coming and pick up the next piece
+without reading all 1,368 lines of the spec. Each links to its own section of
+`PROJECT_SPEC.md`, which gives the build list and completion criteria.
+
+Stages are meant to be taken in order — each assumes the one before it — but
+that is the only constraint. If Stage 2 is done and nobody has started Stage 3,
+Stage 3 is yours.
+
+| | Stage | What it adds |
+|---|---|---|
+| ✅ | 0 — Project Foundation | Skeleton, data models, navigation shell |
+| ✅ | 1 — Basic Drag Race Simulator | A drivable quarter-mile pass and a timing slip |
+| ▶️ | **2 — Nitto Driving Feel** | **Tuning the launch and shift feel, best-ET tracking, calibration tests** |
+| | 3 — Garage and Parts Shop | 25–40 Civic parts, install/remove, the first progression loop |
+| | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
+| | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
+| | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
+| | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
+| | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
+| | 9 — Accounts and Persistent Profiles | Login, persistent garage, server-authoritative economy |
+| | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
+| | 11 — Heads-Up, Bracket, Wagers | Dial-ins, breakouts, escrowed cash |
+| | 12 — Teams | Create, join, team funds, team races |
+| | 13 — Special Cars and Endgame | Mopar drag car, funny car, late-game progression |
+| | 14 — Historical UI Recreation | Making it look like the original |
+| | 15 — Historical Calibration | Making the cars *perform* like the original |
+| | 16 — Admin, Security, Deployment | Balance tools, moderation, monitoring |
+
+Milestones: **Prototype** 0–2 · **Offline Alpha** 3–6 · **Garage Alpha** 7–8 ·
+**Online Beta** 9–12 · **Historical Recreation** 13–16.
+
+### Two things that will constrain later stages
+
+Worth knowing now, because they were built for deliberately and are easy to
+undo by accident.
+
+**Stage 10 needs the simulation to run outside a browser.** The server has to
+re-run a submitted race to check the claimed time. That is why `game-core` has
+no UI dependency and why `replayPass` exists — it already works, and
+`determinism.test.ts` keeps it working.
+
+**Stage 15 needs today's loose tests to stay loose.** Nothing is calibrated to
+the original game yet, so performance assertions are comparative. Writing a test
+that asserts an exact ET now means rewriting it later.
+
+---
+
 ## Known limitations
 
 - **The Civic's figures are real-world approximations, not values recovered
