@@ -24,6 +24,8 @@ export interface CarRender {
   readonly wheelAngle: number;
   /** Body pitch in radians; squats under power, rises when lifting. */
   readonly pitch: number;
+  /** Vertical travel of the body on its springs, pixels. */
+  readonly bounce: number;
   readonly drivenAxle: 'front' | 'rear' | 'both';
   /** Draws tyre smoke when the driven wheels are past their grip peak. */
   readonly wheelspin: boolean;
@@ -42,6 +44,9 @@ export function drawCar(ctx: CanvasRenderingContext2D, car: CarRender): void {
   }
 
   ctx.save();
+  // The body moves on its springs; the wheels do not. Bouncing both together
+  // would look like the whole car hovering rather than riding a surface.
+  ctx.translate(0, car.bounce);
   // Pitch about the middle of the wheelbase so the nose lifts and tail squats.
   ctx.translate((frontAxleX + rearAxleX) / 2, axleY);
   ctx.rotate(car.pitch);
@@ -53,6 +58,36 @@ export function drawCar(ctx: CanvasRenderingContext2D, car: CarRender): void {
 
   drawWheel(ctx, frontAxleX, axleY, wheelRadius, car.wheelAngle);
   drawWheel(ctx, rearAxleX, axleY, wheelRadius, car.wheelAngle);
+}
+
+/**
+ * How the body is riding right now.
+ *
+ * Driven by distance travelled rather than by elapsed time, so the car reacts to
+ * the surface going under it: it settles when stopped, works harder the faster
+ * it goes, and never drifts out of step with the ground scrolling past.
+ *
+ * Two frequencies well apart, so it reads as a body working over an uneven
+ * surface instead of a clean sine wave. Both are low enough in spatial
+ * frequency to stay smooth at 60fps at trap speed rather than strobing.
+ */
+export function suspensionMotion(
+  positionM: number,
+  speedMs: number,
+  wheelspin: boolean,
+): { bounce: number; pitchWobble: number } {
+  const speed = Math.abs(speedMs);
+  const load = Math.min(1, speed / 26);
+  // Spinning tyres shake the car beyond what the surface alone would.
+  const agitation = wheelspin ? 1.5 : 1;
+
+  const slow = Math.sin(positionM * 0.8);
+  const fast = Math.sin(positionM * 1.9 + 1.3);
+
+  return {
+    bounce: (slow * 0.6 + fast * 0.4) * (0.25 + load * 3.1) * agitation,
+    pitchWobble: (slow * 0.4 + fast * 0.6) * (0.0004 + load * 0.005) * agitation,
+  };
 }
 
 function drawBody(

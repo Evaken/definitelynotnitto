@@ -20,7 +20,8 @@ import {
   TRACK_Y,
   worldToScreen,
 } from './layout.js';
-import { drawCar } from './car.js';
+import { drawCar, suspensionMotion } from './car.js';
+import { drawScenery } from './scenery.js';
 
 /**
  * Draws one frame of the race.
@@ -34,7 +35,11 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
 
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+  const shaken = state.wheelspin || state.wheelsLocked;
+  const ride = suspensionMotion(state.positionM, state.speedMs, shaken);
+
   drawSky(ctx);
+  drawScenery(ctx, camera);
   drawTrack(ctx, camera);
   drawStagingWindow(ctx, camera, state);
   drawDistanceMarkers(ctx, camera);
@@ -43,10 +48,12 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   drawCar(ctx, {
     noseX: CAR_SCREEN_X,
     wheelAngle: state.wheelOmega * 0.06 + state.positionM * 1.4,
-    // Squat is proportional to acceleration, capped so it stays a suggestion.
-    pitch: Math.max(-0.03, Math.min(0.03, state.accelMs2 * 0.0035)),
+    // Squat is proportional to acceleration, capped so it stays a suggestion,
+    // with the surface working the body on top of it.
+    pitch: Math.max(-0.03, Math.min(0.03, state.accelMs2 * 0.0035)) + ride.pitchWobble,
+    bounce: ride.bounce,
     drivenAxle: state.car.drivetrain === 'RWD' ? 'rear' : 'front',
-    wheelspin: state.wheelspin || state.wheelsLocked,
+    wheelspin: shaken,
   });
 
   drawHud(ctx, state);
@@ -65,9 +72,12 @@ function drawSky(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = sky;
   ctx.fillRect(0, HUD_HEIGHT, CANVAS_WIDTH, HORIZON_Y - HUD_HEIGHT);
 
-  // A flat treeline so the horizon reads as distance rather than as a void.
-  ctx.fillStyle = COLORS.distant;
-  ctx.fillRect(0, HORIZON_Y - 26, CANVAS_WIDTH, 26);
+  // The verge between the horizon and the strip. Lightens towards the track so
+  // the ground reads as receding rather than as a flat slab.
+  const ground = ctx.createLinearGradient(0, HORIZON_Y, 0, TRACK_Y);
+  ground.addColorStop(0, COLORS.distant);
+  ground.addColorStop(1, '#2b3340');
+  ctx.fillStyle = ground;
   ctx.fillRect(0, HORIZON_Y, CANVAS_WIDTH, TRACK_Y - HORIZON_Y);
 }
 

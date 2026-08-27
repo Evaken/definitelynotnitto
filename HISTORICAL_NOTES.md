@@ -62,11 +62,18 @@ Specific things to find out:
 
 ### Christmas tree — `assumed`
 
-Pro tree assumed: three ambers together, green 0.400s later. The Sportsman tree
-(sequential ambers, 0.500s apart) is fully implemented and selected by changing
-`TREE.type`. Which the original used is unknown.
+A Sportsman tree, slowed down: the three ambers light one at a time a second
+apart and stay lit, then the green a second after the last. NHRA runs the full
+tree at half-second steps; a full second is used here so the countdown is
+something the driver can read and time against.
 
-The random pause before the ambers (2.5–4.5s) is invented.
+The Pro tree (all three ambers together, green 0.400s later) is fully
+implemented and one config value away — set `TREE.type` back to `'pro'`. Which
+the original used is unknown.
+
+The random pause before the ambers (1.8–3.2s) is invented. With three seconds of
+countdown after it, the wait from settling on the line to the green is about
+five to six seconds.
 
 ### Staging — `assumed`, deliberately not realistic
 

@@ -38,7 +38,10 @@ Completion criteria met:
 - Staging as a driving problem: stop the nose inside a 1.2 m window on momentum
   or on the brakes, or roll through and reverse back in without penalty.
 - Timing slip copyable to the clipboard as an image.
-- Christmas tree (Pro and Sportsman both implemented, Pro selected).
+- Christmas tree counting down one amber a second, then the green (Pro and
+  Sportsman both implemented, Sportsman selected).
+- Roadside scenery in three parallax layers, and a body that works on its
+  springs as the car travels.
 - Rev limiter, shift dead time.
 - Slip-ratio tyre model with dynamic weight transfer — wheelspin and bogging
   both emerge from one curve.
@@ -95,8 +98,9 @@ Stage 2 acceptance criteria still to meet:
   original's is unknown. See HISTORICAL_NOTES.md.
 - **The staging window is deliberately unrealistic** at 1.2 m, against the 7
   inches NHRA runs. A realistic window is not a playable target.
-- **The tree style is a guess.** Pro tree assumed; Sportsman is implemented and
-  one config value away.
+- **The tree style is a guess.** A Sportsman tree at one second a step is
+  assumed, and slowed from the half-second NHRA runs it at; the Pro tree is
+  implemented and one config value away.
 - **The engine cannot stall,** and is clamped at idle instead. Dropping the
   clutch at walking pace bogs rather than cutting out.
 - **The throttle slider is pointer-only.** It carries ARIA roles for screen

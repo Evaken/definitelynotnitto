@@ -1,5 +1,24 @@
 # Changelog
 
+## Stage 1c — Scenery and tree timing
+
+- **The tree counts down one amber at a time.** Switched from the Pro tree
+  (three ambers together, green 0.400s later) to the Sportsman tree at a full
+  second per step: amber, amber, amber, green, each staying lit as the next
+  comes on. Three seconds of countdown to read and time against instead of a
+  flicker. The wait before the tree arms was trimmed to 1.8–3.2s to suit,
+  leaving about five to six seconds from settling to the green.
+- **Roadside scenery in three parallax layers** — a distant treeline, nearer
+  trees on the verge, and trackside light posts at the full speed of the ground.
+  The strip on its own gave almost nothing to judge speed against; surface
+  texture flickering past reads as noise rather than movement. About a third of
+  the scene's pixels now change over 60ms at speed.
+- **The body works on its springs while the car is moving**, not just while
+  staging. Driven by distance travelled rather than by a clock, so it stays in
+  step with the ground scrolling past, settles when stopped, works harder with
+  speed, and shakes more when the tyres are spinning. The wheels stay planted —
+  bouncing those too would look like the car hovering.
+
 ## Stage 1b — Control fixes
 
 - **The throttle is sprung.** Let go of the slider and it closes over about a

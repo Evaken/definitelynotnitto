@@ -88,23 +88,31 @@ export type TreeType = 'pro' | 'sportsman';
 
 export const TREE = {
   type: uncertain<TreeType>(
-    'pro',
+    'sportsman',
     'assumed',
     'Challenge tree style is unconfirmed. Both are implemented; switching this value is the only change needed.',
   ),
   /** Delay from ambers to green on a Pro tree, milliseconds. */
   proDelayMs: uncertain(400, 'real-world', 'NHRA .400 Pro tree.'),
-  /** Interval between ambers, and amber-to-green, on a Sportsman tree. */
-  sportsmanIntervalMs: uncertain(500, 'real-world', 'NHRA .500 full tree.'),
+  /**
+   * Interval between ambers, and amber-to-green, on a Sportsman tree.
+   *
+   * A full second rather than the NHRA half, so the count down the tree is
+   * something the driver can read and time against rather than a flicker. Each
+   * amber lights in turn and stays lit, then the green a second after the last.
+   */
+  sportsmanIntervalMs: uncertain(1000, 'assumed', 'NHRA runs 500ms; slowed for legibility.'),
   /**
    * Random pause between the car settling on the line and the ambers lighting,
    * so the start cannot be memorised.  Seeded, therefore reproducible.
    *
    * Long enough that the driver is genuinely waiting on the tree rather than
-   * anticipating a beat after coming to a stop.
+   * anticipating a beat after coming to a stop. The tree itself then takes
+   * another three seconds to count down, so the total wait from settling to the
+   * green is around five to six seconds.
    */
-  armDelayMinMs: uncertain(2500, 'assumed', 'Not sourced.'),
-  armDelayMaxMs: uncertain(4500, 'assumed', 'Not sourced.'),
+  armDelayMinMs: uncertain(1800, 'assumed', 'Not sourced.'),
+  armDelayMaxMs: uncertain(3200, 'assumed', 'Not sourced.'),
 } as const;
 
 // ---------------------------------------------------------------------------
