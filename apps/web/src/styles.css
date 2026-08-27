@@ -1,0 +1,365 @@
+/*
+ * Early-2000s browser game, not a modern dashboard (PROJECT_SPEC 5).
+ *
+ * Fixed-width bounded canvas, hard 1px borders, beveled controls, dense
+ * information, no rounded cards and no animation for its own sake.  Serious
+ * visual fidelity to the original is Stage 14; this is the period-appropriate
+ * skeleton that keeps the project from drifting into a SaaS look in the
+ * meantime.
+ */
+
+:root {
+  --page-bg: #101216;
+  --shell-bg: #1c1f26;
+  --panel-bg: #23272f;
+  --panel-alt: #2a2f38;
+  --border: #454c59;
+  --border-light: #5d6675;
+  --text: #d8dce3;
+  --text-dim: #8b93a1;
+  --accent: #e8a317;
+  --accent-dark: #8a6110;
+  --good: #3fa34d;
+  --bad: #c0392b;
+  --amber: #ffb400;
+  --font-ui: Verdana, Geneva, Tahoma, sans-serif;
+  --font-data: 'Lucida Console', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  padding: 16px 8px;
+}
+
+/* The bounded game canvas the spec calls for, rather than a fluid page. */
+.shell {
+  width: 1000px;
+  max-width: 100%;
+  background: var(--shell-bg);
+  border: 1px solid var(--border);
+}
+
+.shell__masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #2e3440, #21252c);
+  border-bottom: 1px solid var(--border);
+}
+
+.shell__title {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.shell__stage {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- Navigation --------------------------------------------------------- */
+
+.nav {
+  display: flex;
+  background: #171a20;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav__tab {
+  flex: 1;
+  padding: 7px 4px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.nav__tab:last-child {
+  border-right: 0;
+}
+
+.nav__tab:hover {
+  color: var(--text);
+  background: #202530;
+}
+
+.nav__tab--active {
+  color: #12141a;
+  background: var(--accent);
+}
+
+.nav__tab--active:hover {
+  color: #12141a;
+  background: var(--accent);
+}
+
+/* --- Panels ------------------------------------------------------------- */
+
+.screen {
+  padding: 12px;
+  min-height: 460px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.panel__heading {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--panel-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel__body {
+  padding: 10px;
+}
+
+.placeholder {
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.placeholder code {
+  font-family: var(--font-data);
+  color: var(--accent);
+}
+
+/* --- Controls ----------------------------------------------------------- */
+
+.button {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #12141a;
+  background: linear-gradient(180deg, #f0b53a, #c98a0d);
+  border: 1px solid var(--accent-dark);
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: linear-gradient(180deg, #f7c352, #d9970f);
+}
+
+.button:active {
+  background: linear-gradient(180deg, #c98a0d, #f0b53a);
+}
+
+.button--secondary {
+  color: var(--text);
+  background: linear-gradient(180deg, #39404d, #2a2f38);
+  border-color: var(--border-light);
+}
+
+.button--secondary:hover {
+  background: linear-gradient(180deg, #434b5a, #333945);
+}
+
+/* --- Data tables -------------------------------------------------------- */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-data);
+  font-size: 11px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 3px 8px;
+  text-align: left;
+  border-bottom: 1px solid #333944;
+}
+
+.data-table th {
+  color: var(--text-dim);
+  font-weight: normal;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.data-table td {
+  color: var(--text);
+}
+
+.data-table td.numeric {
+  text-align: right;
+}
+
+/* --- Race screen -------------------------------------------------------- */
+
+.race {
+  display: grid;
+  grid-template-columns: 1fr 230px;
+  gap: 10px;
+  align-items: start;
+}
+
+.race__canvas {
+  display: block;
+  width: 100%;
+  background: #0b0d11;
+  border: 1px solid var(--border);
+  image-rendering: pixelated;
+}
+
+.race__prompt {
+  padding: 6px 10px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--accent);
+  background: #171a20;
+  border: 1px solid var(--border);
+  border-top: 0;
+  min-height: 26px;
+}
+
+.race__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.keymap {
+  font-family: var(--font-data);
+  font-size: 11px;
+  line-height: 1.9;
+}
+
+.keymap kbd {
+  display: inline-block;
+  min-width: 42px;
+  padding: 1px 5px;
+  margin-right: 6px;
+  text-align: center;
+  color: var(--text);
+  background: #333945;
+  border: 1px solid var(--border-light);
+  border-bottom-width: 2px;
+  font-family: var(--font-data);
+  font-size: 10px;
+}
+
+/* --- Timing slip -------------------------------------------------------- */
+
+.slip {
+  font-family: var(--font-data);
+  background: #f4f1e8;
+  color: #1a1a1a;
+  border: 1px solid #9a9482;
+  padding: 12px 14px;
+  max-width: 340px;
+}
+
+.slip__heading {
+  margin: 0 0 2px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.slip__subheading {
+  margin: 0 0 10px;
+  font-size: 10px;
+  text-align: center;
+  color: #6b6656;
+  border-bottom: 1px dashed #9a9482;
+  padding-bottom: 8px;
+}
+
+.slip__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  padding: 2px 0;
+}
+
+.slip__row--total {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #9a9482;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.slip__foul {
+  margin-top: 10px;
+  padding: 4px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #fff;
+  background: var(--bad);
+}
+
+/* --- Debug telemetry ---------------------------------------------------- */
+
+.debug {
+  font-family: var(--font-data);
+  font-size: 10px;
+}
+
+.debug__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 0;
+  border-bottom: 1px solid #2c313b;
+}
+
+.debug__label {
+  color: var(--text-dim);
+}
+
+.debug__value {
+  color: var(--text);
+}
+
+.debug__value--alert {
+  color: var(--bad);
+  font-weight: bold;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+}
