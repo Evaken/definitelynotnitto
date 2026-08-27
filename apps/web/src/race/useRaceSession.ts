@@ -7,6 +7,7 @@ import {
   engineRpm,
   gearLabel,
   isPassComplete,
+  isRunComplete,
   metresToFeet,
   msToMph,
   quantiseThrottle,
@@ -70,11 +71,16 @@ export interface RaceSnapshot {
 const FRAMES_PER_SNAPSHOT = 4;
 
 function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnapshot {
-  const complete = isPassComplete(state);
+  const runComplete = isRunComplete(state);
   return {
     phase: state.phase,
+    // The clock stops at the finish line, not when the car finally rolls to a
+    // halt: what follows the traps is a shut-down, not part of the run.
     elapsed:
-      state.clockStartTick === null ? 0 : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ),
+      state.splits.quarterMile ??
+      (state.clockStartTick === null
+        ? 0
+        : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ)),
     rpm: engineRpm(state),
     gear: gearLabel(state.gear),
     speedMph: msToMph(state.speedMs),
@@ -92,7 +98,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
     foul: state.foul,
     stagedDepthM: state.stagedPositionM,
     rolledThrough: state.positionM > 0 && state.clockStartTick === null,
-    slip: complete ? buildTimingSlip(state) : null,
+    slip: runComplete ? buildTimingSlip(state) : null,
     replayVerified,
   };
 }
@@ -228,7 +234,7 @@ export function useRaceSession(car: Car, tune: Tune) {
 
       drawRace(ctx, state);
 
-      const justFinished = isPassComplete(state) && !finishHandled;
+      const justFinished = isRunComplete(state) && !finishHandled;
       if (justFinished) {
         finishHandled = true;
         verifiedRef.current = verifyReplay(state);

@@ -105,7 +105,7 @@ the tyre force averages out to nothing, and the car behaves as though it had no
 brakes at all. The same formulation gives the static hold for free.
 
 **One model, no staging mode.** The car obeys the same physics from the moment
-it appears to the moment it crosses the finish line. It starts in neutral, which
+it appears to the moment it rolls to a halt in the shut-down area. It starts in neutral, which
 is why nothing happens until the driver selects a gear and opens the throttle;
 there is no separate creep behaviour to keep consistent with the real thing.
 Below the clutch lock-up speed the clutch follows the throttle, so closing it

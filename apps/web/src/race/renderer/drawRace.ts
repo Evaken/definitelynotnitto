@@ -219,8 +219,13 @@ function drawHud(ctx: CanvasRenderingContext2D, state: PassState): void {
   ctx.lineTo(CANVAS_WIDTH, HUD_HEIGHT - 0.5);
   ctx.stroke();
 
+  // The clock stops at the finish line. What follows is the shut-down area, not
+  // part of the run, so the ET on the dash is the one that was earned.
   const elapsed =
-    state.clockStartTick === null ? 0 : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ);
+    state.splits.quarterMile ??
+    (state.clockStartTick === null
+      ? 0
+      : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ));
 
   readout(ctx, 16, 'ET', elapsed.toFixed(3));
   readout(ctx, 118, 'MPH', Math.abs(msToMph(state.speedMs)).toFixed(1));

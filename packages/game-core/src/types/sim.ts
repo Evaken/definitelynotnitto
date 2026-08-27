@@ -62,7 +62,13 @@ export type RacePhase =
   | 'tree'
   /** Stage line crossed, ET clock running. */
   | 'running'
-  /** Past the quarter-mile mark. */
+  /**
+   * Past the quarter-mile mark. The timing slip is final; the throttle is shut
+   * and the car is coasting down the shut-down area under its own losses, as it
+   * would on a real strip.
+   */
+  | 'shutdown'
+  /** Come to rest after the run, or given up on without completing one. */
   | 'finished';
 
 /**

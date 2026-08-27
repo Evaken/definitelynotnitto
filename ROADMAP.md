@@ -42,6 +42,8 @@ Completion criteria met:
   Sportsman both implemented, Sportsman selected).
 - Roadside scenery in three parallax layers, and a body that works on its
   springs as the car travels.
+- An open shut-down area past the finish: throttle cut at the line, car
+  coasting on until it stops or is braked.
 - Rev limiter, shift dead time.
 - Slip-ratio tyre model with dynamic weight transfer — wheelspin and bogging
   both emerge from one curve.

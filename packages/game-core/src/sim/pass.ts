@@ -43,6 +43,10 @@ export const MAX_PASS_TICKS = 300 * SIM_HZ;
 const BRAKE_HOLD_SPEED_MS = 0.15;
 const BRAKE_HOLD_OMEGA = 0.5;
 
+/** Below these, a car rolling out after a run counts as having stopped. */
+const REST_SPEED_MS = 0.02;
+const REST_OMEGA = 0.1;
+
 /** Distance marks in the order the car meets them. */
 const ORDERED_MARKS: readonly (readonly [SplitName, number])[] = [
   ['sixtyFoot', TRACK_MARKS.sixtyFoot],
@@ -103,7 +107,17 @@ export function createPassState(car: Car, tune: Tune, seed: number): PassState {
   };
 }
 
-/** True once the pass is over and further steps would do nothing. */
+/**
+ * True once the quarter mile has been run and the timing slip is final.
+ *
+ * The car is still moving at this point -- it crosses the line at speed and has
+ * a shut-down area to coast through, exactly as it would on a strip.
+ */
+export function isRunComplete(state: PassState): boolean {
+  return state.splits.quarterMile !== undefined;
+}
+
+/** True once nothing further will happen and stepping can stop. */
 export function isPassComplete(state: PassState): boolean {
   return state.phase === 'finished';
 }
@@ -126,8 +140,23 @@ export function stepPass(state: PassState, input: RaceInput): void {
   state.prevInput = input;
   state.tick++;
 
+  // The rollout is over when the car has stopped rolling. Judged against a
+  // threshold rather than exact zero: with no brakes on, the only thing slowing
+  // a free-rolling wheel is a tyre force that shrinks with the slip causing it,
+  // so it approaches a standstill asymptotically and never quite arrives.
+  if (
+    state.phase === 'shutdown' &&
+    Math.abs(state.speedMs) < REST_SPEED_MS &&
+    Math.abs(state.wheelOmega) < REST_OMEGA
+  ) {
+    state.speedMs = 0;
+    state.wheelOmega = 0;
+    state.accelMs2 = 0;
+    state.phase = 'finished';
+  }
+
   if (state.tick >= MAX_PASS_TICKS && !isPassComplete(state)) {
-    state.incomplete = true;
+    state.incomplete = !isRunComplete(state);
     state.phase = 'finished';
   }
 }
@@ -176,7 +205,14 @@ function driveOneTick(state: PassState, input: RaceInput): void {
 
   const shifting = state.shiftTicksRemaining > 0;
   const inGear = state.gear !== NEUTRAL_GEAR && !shifting;
-  const throttle = shifting ? 0 : clamp(input.throttle, 0, 1);
+
+  // Past the finish line the driver is off it whatever the slider says: the run
+  // is over, and what follows is the shut-down area. The car keeps its speed and
+  // sheds it the way it would in real life -- engine braking while the clutch is
+  // still clamped, then coasting on aero and rolling losses once it drops below
+  // the lock-up speed.
+  const shutDown = state.phase === 'shutdown';
+  const throttle = shifting || shutDown ? 0 : clamp(input.throttle, 0, 1);
 
   // --- Engine ------------------------------------------------------------
   const engineResult = netEngineTorque(
@@ -347,7 +383,9 @@ function driveOneTick(state: PassState, input: RaceInput): void {
  * means selecting reverse and backing up.
  */
 function updateStaging(state: PassState): void {
-  if (state.phase === 'running' || state.phase === 'finished') return;
+  if (state.phase === 'running' || state.phase === 'shutdown' || state.phase === 'finished') {
+    return;
+  }
 
   const zoneStart = stagingZoneStart();
   const inZone = state.positionM >= zoneStart && state.positionM <= 0;
@@ -432,8 +470,8 @@ function updateTiming(state: PassState): void {
     state.splits[name] = (exactTick - state.clockStartTick) / SIM_HZ;
   }
 
-  if (state.splits.quarterMile !== undefined) {
-    state.phase = 'finished';
+  if (state.splits.quarterMile !== undefined && state.phase === 'running') {
+    state.phase = 'shutdown';
   }
 }
 

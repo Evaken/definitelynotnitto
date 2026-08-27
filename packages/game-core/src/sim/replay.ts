@@ -2,7 +2,13 @@ import type { Car } from '../types/car.js';
 import type { Tune } from '../types/tune.js';
 import type { InputChange, InputTimeline, PassState, RaceInput, TimingSlip } from '../types/sim.js';
 import { NEUTRAL_INPUT } from '../types/sim.js';
-import { createPassState, isPassComplete, stepPass, MAX_PASS_TICKS } from './pass.js';
+import {
+  createPassState,
+  isPassComplete,
+  isRunComplete,
+  stepPass,
+  MAX_PASS_TICKS,
+} from './pass.js';
 import { buildTimingSlip } from './timing.js';
 
 /**
@@ -80,7 +86,10 @@ export function replayPass(
   let current = NEUTRAL_INPUT;
   const limit = Math.max(timeline.durationTicks, MAX_PASS_TICKS);
 
-  while (!isPassComplete(state) && state.tick < limit) {
+  // Stops the moment the quarter mile is done: the slip is what is being
+  // verified, and re-simulating the coast down the shut-down area would prove
+  // nothing while taking as long again.
+  while (!isRunComplete(state) && !isPassComplete(state) && state.tick < limit) {
     while (
       changeIndex < timeline.changes.length &&
       timeline.changes[changeIndex]!.tick <= state.tick

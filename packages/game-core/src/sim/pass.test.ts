@@ -2,8 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { CIVIC_SI } from '../data/cars/civic-si.js';
 import { stockTune } from '../types/tune.js';
 import { drive, goodDrivePlan } from '../testing/drive.js';
-import { createPassState, engineRpm, isPassComplete, stagingZoneStart, stepPass } from './pass.js';
+import {
+  createPassState,
+  engineRpm,
+  isPassComplete,
+  isRunComplete,
+  stagingZoneStart,
+  stepPass,
+  MAX_PASS_TICKS,
+} from './pass.js';
 import { gearLabel } from './drivetrain.js';
+import { buildTimingSlip } from './timing.js';
 import { NEUTRAL_GEAR, REVERSE_GEAR, SIM_HZ } from '../types/sim.js';
 import type { PassState, RaceInput } from '../types/sim.js';
 import { STAGING, TRACK_MARKS } from '../config/historical.js';
@@ -246,9 +255,14 @@ describe('a complete pass', () => {
   const result = drive(CIVIC_SI, tune, goodDrivePlan(7));
 
   it('reaches the finish line', () => {
-    expect(isPassComplete(result.state)).toBe(true);
+    expect(isRunComplete(result.state)).toBe(true);
     expect(result.slip.incomplete).toBe(false);
     expect(result.state.positionM).toBeGreaterThanOrEqual(TRACK_MARKS.quarterMile);
+  });
+
+  it('crosses the line still travelling, rather than stopping dead on it', () => {
+    expect(result.state.phase).toBe('shutdown');
+    expect(result.state.speedMs).toBeGreaterThan(20);
   });
 
   it('produces splits in the order the car meets them', () => {
@@ -280,6 +294,57 @@ describe('a complete pass', () => {
     expect(result.slip.quarterMileMph).toBeLessThan(105);
     expect(result.slip.sixtyFoot).toBeGreaterThan(1.8);
     expect(result.slip.sixtyFoot).toBeLessThan(3.5);
+  });
+});
+
+describe('the shut-down area', () => {
+  /** Runs a good pass, then coasts on for `ticks` with the slider wide open. */
+  function coastPastTheLine(ticks: number): PassState {
+    const { state } = drive(CIVIC_SI, tune, goodDrivePlan(7));
+    for (let i = 0; i < ticks && !isPassComplete(state); i++) stepPass(state, FLAT);
+    return state;
+  }
+
+  it('keeps rolling past the finish instead of stopping dead on the line', () => {
+    const state = coastPastTheLine(2 * SIM_HZ);
+    expect(state.positionM).toBeGreaterThan(TRACK_MARKS.quarterMile + 40);
+  });
+
+  it('ignores the throttle once the run is over', () => {
+    // The slider is still wide open in this test. Past the line the driver is
+    // off it regardless: the car should only ever be slowing down.
+    const state = coastPastTheLine(1 * SIM_HZ);
+    const speedAfterOneSecond = state.speedMs;
+    for (let i = 0; i < 3 * SIM_HZ && !isPassComplete(state); i++) stepPass(state, FLAT);
+
+    expect(state.speedMs).toBeLessThan(speedAfterOneSecond);
+    expect(state.engineTorqueNm).toBeLessThanOrEqual(0);
+  });
+
+  it('does not change the timing slip that was already earned', () => {
+    const { state, slip } = drive(CIVIC_SI, tune, goodDrivePlan(7));
+    for (let i = 0; i < 5 * SIM_HZ && !isPassComplete(state); i++) stepPass(state, FLAT);
+
+    expect(buildTimingSlip(state)).toEqual(slip);
+  });
+
+  it('comes to rest on its own, without brakes or a distance limit', () => {
+    const state = coastPastTheLine(MAX_PASS_TICKS);
+
+    expect(state.phase).toBe('finished');
+    expect(state.speedMs).toBe(0);
+    expect(state.tick).toBeLessThan(MAX_PASS_TICKS);
+  });
+
+  it('lets the driver stop it sooner on the brakes', () => {
+    const { state } = drive(CIVIC_SI, tune, goodDrivePlan(7));
+    let ticks = 0;
+    while (!isPassComplete(state) && ticks++ < MAX_PASS_TICKS) {
+      stepPass(state, input(0, true));
+    }
+    expect(state.speedMs).toBe(0);
+    // Far quicker than the free coast, which takes the best part of a minute.
+    expect(ticks).toBeLessThan(20 * SIM_HZ);
   });
 });
 

@@ -18,6 +18,7 @@ const PROMPTS: Record<RacePhase, string> = {
   staged: 'Staged. Hold it there — the tree will arm shortly.',
   tree: 'Tree is armed. Watch for the green.',
   running: 'Go! Shift at the top of each gear.',
+  shutdown: 'Through the traps — coasting down. Press R when you are ready to go again.',
   finished: 'Run complete. Press R to run again.',
 };
 

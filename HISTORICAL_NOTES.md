@@ -98,6 +98,15 @@ quicker, but also less run-up to build speed in, so the run is slower.
 had a single "staged" state and started the clock at the launch. Both the window
 width and the whole behaviour are config-driven.
 
+### Shut-down area — `assumed`
+
+The car keeps its speed through the traps and coasts down an unbounded shut-down
+area with the throttle cut, until it stops or is braked. A free coast from
+around 88mph runs about 84 seconds and 3,900 feet.
+
+Whether the original showed anything past the finish line is unknown. It may
+well have cut straight to a results screen.
+
 ### Shift dead time — `assumed`
 
 150ms with no torque to the wheels, and the driver assumed to lift through the

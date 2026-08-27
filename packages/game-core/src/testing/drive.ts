@@ -6,6 +6,7 @@ import {
   createPassState,
   engineRpm,
   isPassComplete,
+  isRunComplete,
   stagingZoneStart,
   stepPass,
   MAX_PASS_TICKS,
@@ -109,7 +110,7 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
   /** Hysteresis on the roll-in blips. */
   let creeping = true;
 
-  while (!isPassComplete(state) && state.tick < MAX_PASS_TICKS) {
+  while (!isRunComplete(state) && !isPassComplete(state) && state.tick < MAX_PASS_TICKS) {
     const rpm = engineRpm(state);
     const settled = state.phase === 'staged' || state.phase === 'tree';
     let throttle = 0;

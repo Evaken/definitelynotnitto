@@ -58,6 +58,7 @@ export {
   currentRatio,
   engineRpm,
   isPassComplete,
+  isRunComplete,
   stagingZoneStart,
   stepPass,
   MAX_PASS_TICKS,

@@ -1,5 +1,26 @@
 # Changelog
 
+## Stage 1d — Shut-down area
+
+The car no longer stops dead on the finish line. It crosses the traps at speed
+and coasts on down an open shut-down area until it rolls to a halt, is stopped
+on the brakes, or the run is reset.
+
+- **The throttle is cut at the line**, whatever the slider says. The run is over;
+  what follows is a shut-down, not more racing.
+- **No distance limit past the finish.** The strip, scenery and markers are all
+  generated from the car's position, so there was never a track to run out of.
+- **The timing slip is final at the line**, not when the car stops — it appears
+  the moment the traps are crossed, and the clock on the dash freezes at the ET
+  that was earned rather than counting on through the rollout.
+- A free coast from 88mph takes about 84 seconds and 3,900 feet: engine braking
+  while the clutch is still clamped, then aero and rolling losses once it drops
+  below the lock-up speed. Standing on the brakes stops it in under twenty.
+
+The phase model now distinguishes the run being over from the pass being over:
+`isRunComplete` means the slip is final, `isPassComplete` means nothing further
+will happen and stepping can stop.
+
 ## Stage 1c — Scenery and tree timing
 
 - **The tree counts down one amber at a time.** Switched from the Pro tree
