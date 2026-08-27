@@ -29,25 +29,33 @@ Values in `packages/game-core/src/config/historical.ts` carry one of these tags:
 
 ### Controls — `assumed`
 
-The original's key layout is unknown. The current scheme gives one key both the
-launch and the upshift job:
+The original's control scheme is unknown. The current one is a deliberate
+design decision rather than a reconstruction:
 
-| Key | Action |
+| Control | Action |
 |---|---|
-| ↑ / W | Throttle |
-| Space / → / D | Launch, then upshift |
-| ← / A | Downshift |
+| Drag the slider | Throttle, 0–100% |
+| W | Gear up: R → N → 1 → 2 → 3 … |
+| A | Gear down |
+| S / Space | Brake |
 | R | Reset run |
 
-This was chosen because it was common in period browser drag games and because
-it makes the launch press double as the reaction: the moment you hit it is your
-reaction time. **It is a guess.** Bindings live in `DEFAULT_BINDINGS`.
+The throttle is **not** on the keyboard. How far and how fast the slider is
+pushed is the launch, and a key can only express on or off. The car starts in
+neutral and needs both a gear and throttle before it moves.
+
+There is no clutch pedal, so the clutch follows the throttle. The consequence
+worth knowing about: the way to launch properly is to hold revs in neutral on
+the brakes and select first as the tree drops, which is what a real drag racer
+does. That was not scripted — it falls out of the physics, and it is about
+0.7 seconds a quarter quicker than simply opening the throttle in gear.
 
 Specific things to find out:
 
-- Was there a separate clutch key?
+- Was the throttle analogue in any sense, or a held key?
+- Was there a clutch control at all?
+- Did the car have a gear selector including reverse and neutral?
 - Was staging done by creeping, or by a button?
-- Was the throttle analogue in any sense, or purely a held key?
 
 ### Christmas tree — `assumed`
 
@@ -55,25 +63,38 @@ Pro tree assumed: three ambers together, green 0.400s later. The Sportsman tree
 (sequential ambers, 0.500s apart) is fully implemented and selected by changing
 `TREE.type`. Which the original used is unknown.
 
-The random pause before the ambers (600–1400ms) is invented.
+The random pause before the ambers (2.5–4.5s) is invented.
 
-### Staging and rollout — `real-world`, likely not in the original
+### Staging — `assumed`, deliberately not realistic
 
-The simulation models the beams at NHRA spacing (7in apart), and starts the ET
-clock when the tyre rolls clear of the stage beam rather than when the clutch
-drops. This makes staging depth a real trade-off: stage deep for a quicker light
-and a slower run, stage shallow for the reverse.
+The pre-stage and stage lines are **1.2 metres apart**, far wider than the 7
+inches NHRA runs its beams at. At any playable zoom level a 7-inch window is
+too fine a target to hit by feathering a throttle, so it is widened on purpose.
+
+The driver has to bring the car to a stop with its nose inside that window,
+either by timing a coast or by braking. Rolling through the stage line does not
+stage the car — it starts the clock, which before the green is a red light — so
+overshooting means selecting reverse and backing up.
+
+Where in the window the car stops is a real trade-off: stopping close to the
+stage line leaves less ground to cover before the clock starts, so the light is
+quicker, but also less run-up to build speed in, so the run is slower.
 
 **Whether the original modelled any of this is completely unknown.** It may have
-had a single "staged" state and started the clock at the launch. If research
-shows that, the rollout can be removed by setting `beamBlockLengthM` to zero —
-no simulation code needs changing.
+had a single "staged" state and started the clock at the launch. Both the window
+width and the whole behaviour are config-driven.
 
 ### Shift dead time — `assumed`
 
 150ms with no torque to the wheels, and the driver assumed to lift through the
 change. Both invented. The original's shift penalty is unknown and is a large
 part of how the game felt.
+
+### Reverse ratio — `real-world`
+
+The Civic's reverse ratio is a real-world figure. Reverse exists so a driver who
+rolls through the stage line can back up; whether the original allowed that is
+unknown.
 
 ### Civic Si specification — `real-world`, NOT calibrated
 

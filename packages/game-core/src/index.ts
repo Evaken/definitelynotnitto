@@ -32,7 +32,7 @@ export type {
   TreeLights,
   TreeSchedule,
 } from './types/sim.js';
-export { NEUTRAL_INPUT, SIM_DT, SIM_HZ } from './types/sim.js';
+export { NEUTRAL_GEAR, NEUTRAL_INPUT, REVERSE_GEAR, SIM_DT, SIM_HZ } from './types/sim.js';
 
 // Configuration
 export type { Confidence, TreeType, Uncertain } from './config/historical.js';
@@ -55,9 +55,9 @@ export { PARTS, getPart } from './data/parts/index.js';
 export {
   createPassState,
   currentRatio,
-  displayGear,
   engineRpm,
   isPassComplete,
+  stagingZoneStart,
   stepPass,
   MAX_PASS_TICKS,
 } from './sim/pass.js';
@@ -65,7 +65,14 @@ export { buildTimingSlip } from './sim/timing.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';
 export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';
-export { gearCount, gearRatio, finalDrive, totalRatio } from './sim/drivetrain.js';
+export {
+  forwardGearCount,
+  gearLabel,
+  gearRange,
+  gearRatio,
+  finalDrive,
+  totalRatio,
+} from './sim/drivetrain.js';
 export {
   aeroDrag,
   drivenAxleLoad,

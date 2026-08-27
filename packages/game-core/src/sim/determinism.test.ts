@@ -35,13 +35,15 @@ describe('a pass is reproducible', () => {
 
   it('replays every one of a range of different drives', () => {
     // One good pass replaying correctly could be luck. These cover a bog, a
-    // wheelspin launch, a red light and an early upshift.
+    // wheelspin launch, a red light, an early upshift, a deep stage and a
+    // part-throttle launch from a standstill in gear.
     const plans = [
-      { ...goodDrivePlan(1), launchRpm: 1200 },
-      { ...goodDrivePlan(2), launchRpm: 6700 },
+      { ...goodDrivePlan(1), neutralRevRpm: 1500 },
+      { ...goodDrivePlan(2), neutralRevRpm: 6700 },
       { ...goodDrivePlan(3), reactionSeconds: -0.8 },
-      { ...goodDrivePlan(4), shiftRpm: 4200 },
-      { ...goodDrivePlan(5), throttleOffAtM: -0.3 },
+      { ...goodDrivePlan(4), shiftRpm: 4500 },
+      { ...goodDrivePlan(5), stageAtM: -0.05 },
+      { ...goodDrivePlan(6), launchThrottle: 0.45 },
     ];
 
     for (const plan of plans) {
@@ -53,7 +55,7 @@ describe('a pass is reproducible', () => {
 
   it('records only the moments the controls changed', () => {
     // Stage 10 will store these, so a pass has to be far cheaper to keep than
-    // one entry per tick. The scripted driver holds its launch rpm by pumping
+    // one entry per tick. The scripted driver holds its launch revs by pumping
     // the throttle, which is the worst case for a change-based recording and
     // still lands an order of magnitude below the tick count.
     const { timeline } = drive(CIVIC_SI, tune, goodDrivePlan(7));

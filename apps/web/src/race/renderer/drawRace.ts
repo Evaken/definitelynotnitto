@@ -1,10 +1,10 @@
 import {
-  STAGING,
   TRACK_MARKS,
-  displayGear,
   engineRpm,
+  gearLabel,
   metresToFeet,
   msToMph,
+  stagingZoneStart,
   SIM_HZ,
   type PassState,
 } from '@nitto/game-core';
@@ -36,17 +36,17 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
 
   drawSky(ctx);
   drawTrack(ctx, camera);
+  drawStagingWindow(ctx, camera, state);
   drawDistanceMarkers(ctx, camera);
-  drawBeams(ctx, camera, state);
   drawFinishLine(ctx, camera);
 
   drawCar(ctx, {
     noseX: CAR_SCREEN_X,
-    wheelAngle: state.wheelOmega * 0.06 + state.positionM * 2,
+    wheelAngle: state.wheelOmega * 0.06 + state.positionM * 1.4,
     // Squat is proportional to acceleration, capped so it stays a suggestion.
     pitch: Math.max(-0.03, Math.min(0.03, state.accelMs2 * 0.0035)),
     drivenAxle: state.car.drivetrain === 'RWD' ? 'rear' : 'front',
-    wheelspin: state.wheelspin,
+    wheelspin: state.wheelspin || state.wheelsLocked,
   });
 
   drawHud(ctx, state);
@@ -85,9 +85,9 @@ function drawTrack(ctx: CanvasRenderingContext2D, camera: number): void {
   ctx.lineTo(CANVAS_WIDTH, TRACK_Y - 4.5);
   ctx.stroke();
 
-  // Surface texture every half metre, which is what sells the sense of speed.
+  // Surface texture every metre, which is what sells the sense of speed.
   ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-  const spacing = 0.5;
+  const spacing = 1;
   const first = Math.floor((camera - CAR_SCREEN_X / PX_PER_M) / spacing) * spacing;
   for (let m = first; worldToScreen(m, camera) < CANVAS_WIDTH; m += spacing) {
     const x = worldToScreen(m, camera);
@@ -99,6 +99,63 @@ function drawTrack(ctx: CanvasRenderingContext2D, camera: number): void {
   }
 }
 
+/**
+ * The staging window: the pre-stage line, the stage line, and the band between
+ * them the car has to stop in.
+ *
+ * Shaded so the target is judged by eye rather than by reading a number, and
+ * lit differently once the car has settled inside it.
+ */
+function drawStagingWindow(
+  ctx: CanvasRenderingContext2D,
+  camera: number,
+  state: PassState,
+): void {
+  const startX = worldToScreen(stagingZoneStart(), camera);
+  const lineX = worldToScreen(0, camera);
+  if (lineX < -80 || startX > CANVAS_WIDTH + 80) return;
+
+  const settled = state.phase === 'staged' || state.phase === 'tree';
+  const rolledThrough = state.positionM > 0 && state.clockStartTick === null;
+
+  ctx.fillStyle = settled ? 'rgba(63, 211, 90, 0.16)' : 'rgba(232, 163, 23, 0.10)';
+  ctx.fillRect(startX, TRACK_Y - 4, lineX - startX, TRACK_BOTTOM - TRACK_Y + 4);
+
+  drawStagingLine(ctx, startX, 'PRE-STAGE', state.lights.prestage, false);
+  drawStagingLine(ctx, lineX, 'STAGE', settled, true);
+
+  if (rolledThrough) {
+    ctx.font = 'bold 13px Verdana, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = COLORS.red;
+    ctx.fillText('ROLLED THROUGH — SELECT R AND BACK UP', CANVAS_WIDTH / 2, HORIZON_Y + 40);
+  }
+}
+
+function drawStagingLine(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  label: string,
+  lit: boolean,
+  solid: boolean,
+): void {
+  if (x < -60 || x > CANVAS_WIDTH + 60) return;
+
+  ctx.strokeStyle = lit ? COLORS.accent : COLORS.marker;
+  ctx.lineWidth = lit ? 3 : 2;
+  if (!solid) ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  ctx.moveTo(x, TRACK_BOTTOM);
+  ctx.lineTo(x, TRACK_Y - 74);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.font = '10px "Lucida Console", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = lit ? COLORS.accent : COLORS.marker;
+  ctx.fillText(label, x, TRACK_Y - 80);
+}
+
 function drawDistanceMarkers(ctx: CanvasRenderingContext2D, camera: number): void {
   const majors: readonly (readonly [number, string])[] = [
     [TRACK_MARKS.sixtyFoot, '60 FT'],
@@ -108,7 +165,7 @@ function drawDistanceMarkers(ctx: CanvasRenderingContext2D, camera: number): voi
     [TRACK_MARKS.quarterMile, '1/4'],
   ];
 
-  ctx.font = 'bold 10px "Lucida Console", monospace';
+  ctx.font = 'bold 11px "Lucida Console", monospace';
   ctx.textAlign = 'center';
 
   for (const [distance, label] of majors) {
@@ -119,11 +176,11 @@ function drawDistanceMarkers(ctx: CanvasRenderingContext2D, camera: number): voi
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x, TRACK_Y - 4);
-    ctx.lineTo(x, TRACK_Y - 42);
+    ctx.lineTo(x, TRACK_Y - 46);
     ctx.stroke();
 
     ctx.fillStyle = COLORS.markerMajor;
-    ctx.fillText(label, x, TRACK_Y - 48);
+    ctx.fillText(label, x, TRACK_Y - 52);
   }
 }
 
@@ -135,41 +192,7 @@ function drawFinishLine(ctx: CanvasRenderingContext2D, camera: number): void {
   const size = (TRACK_BOTTOM - TRACK_Y + 4) / squares;
   for (let i = 0; i < squares; i++) {
     ctx.fillStyle = i % 2 === 0 ? '#e8eaee' : '#1a1d23';
-    ctx.fillRect(x - 6, TRACK_Y - 4 + i * size, 12, size);
-  }
-}
-
-/**
- * The pre-stage and stage beams, and the point at which the clock starts.
- *
- * Drawn at true spacing so what the player sees matches what the simulator
- * measures: how much tyre is still in the beam is exactly the rollout they get.
- */
-function drawBeams(ctx: CanvasRenderingContext2D, camera: number, state: PassState): void {
-  const beams: readonly (readonly [number, string, boolean])[] = [
-    [-STAGING.beamSpacingM.value, 'PRE', state.lights.prestage],
-    [0, 'STAGE', state.lights.stage],
-    [STAGING.beamBlockLengthM.value, 'CLOCK', state.clockStartTick !== null],
-  ];
-
-  ctx.font = '9px "Lucida Console", monospace';
-  ctx.textAlign = 'center';
-
-  for (const [distance, label, lit] of beams) {
-    const x = worldToScreen(distance, camera);
-    if (x < -30 || x > CANVAS_WIDTH + 30) continue;
-
-    ctx.strokeStyle = lit ? COLORS.accent : COLORS.marker;
-    ctx.lineWidth = lit ? 2 : 1;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(x, TRACK_Y + 2);
-    ctx.lineTo(x, TRACK_Y - 60);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = lit ? COLORS.accent : COLORS.marker;
-    ctx.fillText(label, x, TRACK_Y - 66);
+    ctx.fillRect(x - 8, TRACK_Y - 4 + i * size, 16, size);
   }
 }
 
@@ -190,9 +213,9 @@ function drawHud(ctx: CanvasRenderingContext2D, state: PassState): void {
     state.clockStartTick === null ? 0 : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ);
 
   readout(ctx, 16, 'ET', elapsed.toFixed(3));
-  readout(ctx, 118, 'MPH', msToMph(state.speedMs).toFixed(1));
-  readout(ctx, 208, 'GEAR', String(displayGear(state)));
-  readout(ctx, 278, 'FEET', Math.max(0, metresToFeet(state.positionM)).toFixed(0));
+  readout(ctx, 118, 'MPH', Math.abs(msToMph(state.speedMs)).toFixed(1));
+  readout(ctx, 208, 'GEAR', gearLabel(state.gear));
+  readout(ctx, 268, 'FEET', metresToFeet(state.positionM).toFixed(0));
 
   drawTacho(ctx, 386, 12, 400, 30, state);
 }

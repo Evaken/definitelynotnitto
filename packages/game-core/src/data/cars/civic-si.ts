@@ -41,6 +41,7 @@ export const CIVIC_SI: Car = {
 
   gearbox: {
     gearRatios: [3.27, 2.13, 1.52, 1.15, 0.92],
+    reverseRatio: 3.58,
     finalDrive: 4.39,
     driveEfficiency: 0.9,
   },

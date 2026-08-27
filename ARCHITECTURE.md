@@ -75,7 +75,7 @@ rpm → torque curve → clutch → gearbox → final drive → wheel torque
     → minus aero drag and rolling resistance → acceleration → speed → distance
 ```
 
-Three decisions worth knowing about:
+Four decisions worth knowing about:
 
 **A slip-ratio tyre model, not a grip clamp.** Wheel angular velocity is tracked
 separately from vehicle speed, and slip ratio drives the friction coefficient
@@ -95,6 +95,22 @@ instead of needing a guessed tolerance.
 so a front-wheel-drive car goes light on the wheels doing the work. The Civic's
 launch behaviour is a consequence of its drivetrain layout, not a penalty
 applied to FWD cars.
+
+**Brakes solved the same way as the clutch.** The brake torque applied is the
+one that would bring the wheel exactly to a stop this step, clamped to what the
+brake can manage. Applying full capacity against the wheel's direction — the
+obvious implementation — does not survive a 1 ms step: the brake is strong
+enough to reverse the wheel within a single tick, so it flips sign every tick,
+the tyre force averages out to nothing, and the car behaves as though it had no
+brakes at all. The same formulation gives the static hold for free.
+
+**One model, no staging mode.** The car obeys the same physics from the moment
+it appears to the moment it crosses the finish line. It starts in neutral, which
+is why nothing happens until the driver selects a gear and opens the throttle;
+there is no separate creep behaviour to keep consistent with the real thing.
+Below the clutch lock-up speed the clutch follows the throttle, so closing it
+opens the clutch and the car coasts — that is what makes it possible to roll to
+a stop in the staging window on momentum.
 
 ### Where the numbers come from
 

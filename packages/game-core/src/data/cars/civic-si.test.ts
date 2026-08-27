@@ -36,6 +36,12 @@ describe('Civic Si data', () => {
     }
   });
 
+  it('has a reverse ratio, stored positive', () => {
+    // The simulator negates it. Storing it positive keeps the car data readable
+    // against a manufacturer's spec sheet.
+    expect(CIVIC_SI.gearbox.reverseRatio).toBeGreaterThan(0);
+  });
+
   it('makes roughly the horsepower a Civic Si should', () => {
     // A calibration anchor, not a physics claim: if a change to the torque
     // interpolation quietly moves peak power, this notices.

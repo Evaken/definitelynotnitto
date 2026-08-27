@@ -1,23 +1,27 @@
-import { DEFAULT_BINDINGS, type RaceInput } from '@nitto/game-core';
+import { DEFAULT_BINDINGS } from '@nitto/game-core';
 
 /**
- * Reads the keyboard into the shape the simulator wants.
+ * Reads the keyboard.
  *
- * Held state rather than events: the simulator asks what is being held on every
- * tick and works out presses itself, which keeps a recorded pass replayable.
+ * Gears and brakes only -- throttle comes from the slider, by hand.  Held state
+ * rather than events: the simulator asks what is being held on every tick and
+ * works out presses itself, which keeps a recorded pass replayable.
  *
  * Bindings come from game-core config because the original's control scheme is
  * not confirmed and will likely need correcting -- see HISTORICAL_NOTES.md.
  */
 
-export interface KeyboardState extends RaceInput {
+export interface KeyboardState {
+  readonly shiftUp: boolean;
+  readonly shiftDown: boolean;
+  readonly brake: boolean;
   readonly reset: boolean;
 }
 
 const bindingSets = {
-  throttle: new Set<string>(DEFAULT_BINDINGS.throttle),
-  launchShift: new Set<string>(DEFAULT_BINDINGS.launchShift),
+  shiftUp: new Set<string>(DEFAULT_BINDINGS.shiftUp),
   shiftDown: new Set<string>(DEFAULT_BINDINGS.shiftDown),
+  brake: new Set<string>(DEFAULT_BINDINGS.brake),
   reset: new Set<string>(DEFAULT_BINDINGS.reset),
 };
 
@@ -54,9 +58,9 @@ export class KeyboardReader {
 
   read(): KeyboardState {
     return {
-      throttle: this.anyHeld(bindingSets.throttle),
-      launchShift: this.anyHeld(bindingSets.launchShift),
+      shiftUp: this.anyHeld(bindingSets.shiftUp),
       shiftDown: this.anyHeld(bindingSets.shiftDown),
+      brake: this.anyHeld(bindingSets.brake),
       reset: this.anyHeld(bindingSets.reset),
     };
   }

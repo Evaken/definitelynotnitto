@@ -29,10 +29,15 @@ Completion criteria met:
 
 ### Stage 1 — Basic Drag Race Simulator
 
-- Side-view drag strip on a fixed 960×440 canvas.
-- Pre-stage and stage beams at true spacing, with modelled rollout.
+- Side-view drag strip on a fixed 960×440 canvas at 58 px/m.
+- Drag-slider throttle, 0–100%, the only way to open the throttle.
+- Gear selector R / N / 1…n; the car starts in neutral and needs a gear *and*
+  throttle to move. Reverse works.
+- Manual braking.
+- Staging as a driving problem: stop the nose inside a 1.2 m window on momentum
+  or on the brakes, or roll through and reverse back.
 - Christmas tree (Pro and Sportsman both implemented, Pro selected).
-- Throttle, manual gear selection, launch, shift, rev limiter.
+- Rev limiter, shift dead time.
 - Slip-ratio tyre model with dynamic weight transfer — wheelspin and bogging
   both emerge from one curve.
 - Two-body driveline: engine and wheels integrate separately while the clutch
@@ -58,9 +63,13 @@ Completion criteria met:
 Much of Stage 2's groundwork exists because building it later would have meant
 rewriting the launch model. What already works:
 
-- Launch rpm matters, with an optimum between bogging and wheelspin.
+- Launch technique matters, with a clear optimum between bogging and wheelspin.
+  Holding revs in neutral and selecting first on the green is the quick way, and
+  it emerges from the physics rather than being scripted.
 - Shift timing matters; short-shifting costs both ET and trap speed.
-- Staging depth trades elapsed time against reaction time.
+- Staging depth trades elapsed time against reaction time, by about 0.4 s each
+  way across the window.
+- Throttle is analogue, so how sharply it is opened changes the launch.
 - Shift dead time is modelled.
 
 Stage 2 acceptance criteria still to meet:
@@ -68,7 +77,6 @@ Stage 2 acceptance criteria still to meet:
 - [ ] Retry/reset flow beyond the current single-key reset.
 - [ ] Best ET tracking across runs.
 - [ ] Historical-style timing slip presentation refined against references.
-- [ ] Throttle response tuned — currently a hard on/off, not a modulation.
 - [ ] Physics calibration tests tightened from today's wide plausibility bands.
 - [ ] Confirm the stock Civic's pass is plausible *for the original game*,
       rather than merely plausible for a real Civic Si.
@@ -81,13 +89,17 @@ Stage 2 acceptance criteria still to meet:
   from Nitto 1320 Challenge.** It currently runs about 15.7s at 87mph. That is
   reasonable for a real 2003 Civic Si; whether it matches the original game is
   unknown. Calibration is Stage 15.
-- **The control scheme is a guess.** See HISTORICAL_NOTES.md.
+- **The control scheme is a design decision, not a reconstruction.** The
+  original's is unknown. See HISTORICAL_NOTES.md.
+- **The staging window is deliberately unrealistic** at 1.2 m, against the 7
+  inches NHRA runs. A realistic window is not a playable target.
 - **The tree style is a guess.** Pro tree assumed; Sportsman is implemented and
   one config value away.
-- **Staging depth is capped** at roughly 7.6cm past the beam, because the car is
-  held once staged. Deeper staging than that is not reachable.
-- **Throttle is binary.** Fine for keyboard play; Stage 2 should decide whether
-  the original had any modulation.
+- **The engine cannot stall,** and is clamped at idle instead. Dropping the
+  clutch at walking pace bogs rather than cutting out.
+- **The throttle slider is pointer-only.** It carries ARIA roles for screen
+  readers but no key bindings, because the obvious keys are taken by the gear
+  selector and brake.
 - **No opponent.** Single car against the clock until Stage 6.
 
 ## Deferred

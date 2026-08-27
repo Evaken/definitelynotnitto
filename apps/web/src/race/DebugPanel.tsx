@@ -21,7 +21,7 @@ export function DebugPanel({ snapshot }: DebugPanelProps) {
         <Row label="Phase" value={snapshot.phase} />
         <Row label="Elapsed" value={`${snapshot.elapsed.toFixed(3)} s`} />
         <Row label="RPM" value={snapshot.rpm.toFixed(0)} alert={snapshot.limiterActive} />
-        <Row label="Gear" value={snapshot.shifting ? 'shifting' : String(snapshot.gear)} />
+        <Row label="Gear" value={snapshot.shifting ? 'shifting' : snapshot.gear} />
         <Row label="Speed" value={`${snapshot.speedMph.toFixed(1)} mph`} />
         <Row label="Distance" value={`${snapshot.distanceFt.toFixed(1)} ft`} />
         <Row label="Wheel torque" value={`${snapshot.wheelTorqueNm.toFixed(0)} Nm`} />
@@ -33,6 +33,11 @@ export function DebugPanel({ snapshot }: DebugPanelProps) {
           alert={snapshot.wheelspin}
         />
         <Row label="Wheelspin" value={snapshot.wheelspin ? 'YES' : 'no'} alert={snapshot.wheelspin} />
+        <Row
+          label="Wheels locked"
+          value={snapshot.wheelsLocked ? 'YES' : 'no'}
+          alert={snapshot.wheelsLocked}
+        />
         <Row
           label="Clutch"
           value={

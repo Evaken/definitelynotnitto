@@ -228,15 +228,93 @@ body {
   align-items: start;
 }
 
+/* Canvas and throttle sit side by side and read as one instrument. */
+.race__viewport {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: #0b0d11;
+}
+
 .race__canvas {
   display: block;
   width: 100%;
+  min-width: 0;
   background: #0b0d11;
-  border: 1px solid var(--border);
   image-rendering: pixelated;
 }
 
+/* --- Throttle slider ---------------------------------------------------- */
+
+.throttle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 62px;
+  flex: 0 0 62px;
+  padding: 6px 0;
+  background: #171a20;
+  border-left: 1px solid var(--border);
+  user-select: none;
+}
+
+.throttle__label,
+.throttle__readout {
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.throttle__readout {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.throttle__track {
+  position: relative;
+  flex: 1;
+  width: 26px;
+  min-height: 120px;
+  background: linear-gradient(90deg, #0a0c10, #1c2028 40%, #0a0c10);
+  border: 1px solid var(--border-light);
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.throttle__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #f0b53a, #8a6110);
+}
+
+.throttle__handle {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  height: 12px;
+  background: linear-gradient(180deg, #e8eaee, #8b93a1);
+  border: 1px solid #12151b;
+  pointer-events: none;
+}
+
+.throttle__tick {
+  position: absolute;
+  left: 0;
+  width: 5px;
+  height: 1px;
+  background: var(--border-light);
+  pointer-events: none;
+}
+
 .race__prompt {
+  margin: 0;
   padding: 6px 10px;
   font-family: var(--font-data);
   font-size: 11px;

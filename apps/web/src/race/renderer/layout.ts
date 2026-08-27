@@ -12,14 +12,23 @@ export const CANVAS_HEIGHT = 440;
 /**
  * One world metre in pixels.
  *
- * Everything -- car, wheels, distance markers, beam spacing -- is drawn at this
+ * Everything -- car, wheels, distance markers, staging lines -- is drawn at this
  * single scale, so the wheels turn at a rate that matches the ground going by
  * and wheelspin is visible rather than implied.
+ *
+ * Close enough that the staging window is a target the driver can judge by eye
+ * and the car reads as a car rather than a token.
  */
-export const PX_PER_M = 26;
+export const PX_PER_M = 58;
 
-/** Where the car sits on screen; the world scrolls past it. */
-export const CAR_SCREEN_X = 300;
+/**
+ * Where the car sits on screen; the world scrolls past it.
+ *
+ * Set back from the middle so there is room to see the lines ahead while
+ * staging, but with enough behind the car to see where it is reversing to after
+ * rolling through.
+ */
+export const CAR_SCREEN_X = 430;
 
 export const HUD_HEIGHT = 56;
 export const HORIZON_Y = 236;

@@ -55,41 +55,25 @@ export const TRAP_LENGTH_M = 66 * FEET_TO_M;
 
 export const STAGING = {
   /**
-   * Gap between the pre-stage and stage beams.  NHRA uses 7 inches.
-   */
-  beamSpacingM: uncertain(
-    7 * 0.0254,
-    'real-world',
-    'NHRA standard. Whether Challenge modelled two separate beams at all is unconfirmed.',
-  ),
-  /**
-   * How far the car must roll before the stage beam is clear and the ET clock
-   * starts.  Physically this is the length of tyre blocking the beam, so
-   * staging deep leaves less of it -- which is what makes staging depth a real
-   * trade-off between reaction time and elapsed time.
-   */
-  beamBlockLengthM: uncertain(
-    0.28,
-    'real-world',
-    'Roughly 11in of contact patch, typical for a street tyre. Whether Challenge modelled rollout at all is unconfirmed.',
-  ),
-  /** Where the car sits when the screen loads, metres before the stage beam. */
-  startLineOffsetM: uncertain(-1.2, 'assumed', 'Presentation choice, no historical basis.'),
-  /** Force available to creep the car forward on a slipping clutch, newtons. */
-  creepForceN: uncertain(2600, 'assumed', 'Tuned so staging feels controllable, not sourced.'),
-  /** The car will not creep faster than this, m/s. */
-  creepMaxSpeedMs: uncertain(1.1, 'assumed', 'Tuned for controllable staging.'),
-  /**
-   * How far above idle the engine sits while creeping in on a slipping clutch.
+   * Distance between the pre-stage line and the stage line, metres.
    *
-   * The engine is loaded while the car is rolling up to the beams, so it cannot
-   * free-rev.  Without this the throttle needed to creep would also pin the
-   * engine against the limiter, and the driver would arrive on the line unable
-   * to bleed the revs back down in time to choose a launch rpm.
+   * The driver has to bring the car to a stop with its nose inside this window:
+   * short of the pre-stage line is not staged, past the stage line has rolled
+   * through and has to be reversed back.  NHRA runs its two beams 7 inches
+   * apart, which at any sane zoom level is far too fine a target to hit by
+   * feathering a throttle, so this is deliberately widened for playability.
    */
-  creepRpmRange: uncertain(900, 'assumed', 'Tuned for controllable staging.'),
-  /** The car must sit still this long after staging before the tree arms. */
-  settleMs: uncertain(400, 'assumed', 'Prevents the tree firing mid-creep.'),
+  stagingZoneLengthM: uncertain(
+    1.2,
+    'assumed',
+    'Widened well beyond the NHRA 7in beam spacing so stopping in the window is a skill rather than a coin toss.',
+  ),
+  /** Below this speed the car counts as stopped, m/s. */
+  stoppedSpeedMs: uncertain(0.06, 'assumed', 'Tolerance for "come to a stop".'),
+  /** The car must sit still this long inside the window before the tree arms. */
+  settleMs: uncertain(700, 'assumed', 'Confirms the driver has settled rather than rolled through.'),
+  /** Where the car sits when the screen loads, metres before the stage line. */
+  startLineOffsetM: uncertain(-5, 'assumed', 'Far enough back to need a deliberate roll-in.'),
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -113,11 +97,14 @@ export const TREE = {
   /** Interval between ambers, and amber-to-green, on a Sportsman tree. */
   sportsmanIntervalMs: uncertain(500, 'real-world', 'NHRA .500 full tree.'),
   /**
-   * Random pause between the car arming the tree and the ambers lighting, so
-   * the start cannot be memorised.  Seeded, therefore reproducible.
+   * Random pause between the car settling on the line and the ambers lighting,
+   * so the start cannot be memorised.  Seeded, therefore reproducible.
+   *
+   * Long enough that the driver is genuinely waiting on the tree rather than
+   * anticipating a beat after coming to a stop.
    */
-  armDelayMinMs: uncertain(600, 'assumed', 'Not sourced.'),
-  armDelayMaxMs: uncertain(1400, 'assumed', 'Not sourced.'),
+  armDelayMinMs: uncertain(2500, 'assumed', 'Not sourced.'),
+  armDelayMaxMs: uncertain(4500, 'assumed', 'Not sourced.'),
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -126,19 +113,39 @@ export const TREE = {
 
 export const DRIVELINE = {
   /**
-   * Dead time on an upshift, during which no torque reaches the wheels.
+   * Dead time on a gear change, during which no torque reaches the wheels.
    * This is the cost of shifting badly and a large part of how the game feels.
    */
   shiftTimeMs: uncertain(150, 'assumed', 'Stage 2 will tune this against how the original felt.'),
   /**
    * How long the clutch takes to go from fully open to fully clamped.
    *
-   * This has to be short.  A slow engagement lets the engine run away to the
-   * limiter with the throttle pinned before the clutch has any grip, which
-   * erases the driver's choice of launch rpm entirely -- every launch becomes a
-   * redline launch.  Keeping it brief is what makes launch rpm a decision.
+   * There is no clutch pedal: the clutch follows the throttle, so opening the
+   * throttle sharply in gear drops it in hard.  This has to stay short, because
+   * a slow engagement lets the engine run away to the limiter before the clutch
+   * has any grip and every launch ends up a redline launch.
    */
   clutchEngageMs: uncertain(130, 'assumed', 'Governs how much launch rpm survives into wheelspin.'),
+  /**
+   * How much clutch clamp a given throttle opening asks for.
+   *
+   * Above 1, so part throttle still gets the clutch fully home once the car is
+   * rolling; the driver eases in by opening the throttle gently rather than by
+   * modulating a pedal that does not exist.
+   */
+  clutchThrottleGain: uncertain(1.6, 'assumed', 'Tuned so a gentle roll-in is possible.'),
+  /**
+   * Above this speed the clutch stays clamped whatever the throttle is doing,
+   * so lifting mid-run gives engine braking rather than coasting in neutral.
+   */
+  clutchLockSpeedMs: uncertain(3, 'assumed', 'Tuned so staging coasts but the run does not.'),
+  /**
+   * Braking torque at the wheels, newton-metres.
+   *
+   * Applied through the tyre model rather than straight to the car, so locking
+   * the brakes loses grip the same way spinning the tyres does.
+   */
+  brakeTorqueNm: uncertain(2600, 'assumed', 'Tuned so the car can be stopped inside the staging window.'),
   /**
    * Peak torque the clutch can transmit while slipping, newton-metres.
    *
@@ -177,16 +184,19 @@ export const ENVIRONMENT = {
 /**
  * Default key bindings.
  *
- * The original's control scheme is not confirmed.  This scheme gives one key
- * both the launch and the upshift job, which was common in period browser drag
- * games: hold throttle on the line to build launch rpm, then hit LAUNCH as the
- * tree drops -- that press is your reaction time -- and hit the same key for
- * every gear change afterwards.
+ * The original's control scheme is not confirmed.  Throttle is deliberately not
+ * on the keyboard at all: it comes from the slider beside the strip, dragged by
+ * hand, so how quickly and how far the driver opens it is part of the launch.
+ *
+ * The keyboard only selects gears and brakes.  Shifting alone moves nothing --
+ * the car has to be in a forward gear *and* have throttle applied.
  */
 export const DEFAULT_BINDINGS = {
-  throttle: ['ArrowUp', 'w', 'W'],
-  launchShift: [' ', 'ArrowRight', 'd', 'D'],
-  shiftDown: ['ArrowLeft', 'a', 'A'],
+  /** Up through R - N - 1 - 2 - 3 ... */
+  shiftUp: ['w', 'W', 'ArrowUp'],
+  /** Back down the same list. */
+  shiftDown: ['a', 'A', 'ArrowDown'],
+  brake: ['s', 'S', ' '],
   reset: ['r', 'R'],
 } as const;
 

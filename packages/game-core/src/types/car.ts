@@ -50,6 +50,11 @@ export interface GearboxSpec {
    * the simulator never assumes five or six speeds.
    */
   readonly gearRatios: readonly number[];
+  /**
+   * Reverse ratio, as a positive number.  The simulator negates it; storing it
+   * positive keeps car data readable against a manufacturer's spec sheet.
+   */
+  readonly reverseRatio: number;
   readonly finalDrive: number;
   /**
    * Fraction of flywheel torque that reaches the driven wheels, 0..1.

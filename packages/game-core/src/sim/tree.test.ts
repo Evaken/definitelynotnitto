@@ -77,7 +77,7 @@ describe('red lights', () => {
   it('agree exactly with the sign of the reaction time', () => {
     // The two must never disagree: a foul is defined as a negative reaction,
     // so any drift between them is a bug in one or the other.
-    for (const reactionSeconds of [-1.2, -0.6, -0.4, -0.2, 0, 0.3]) {
+    for (const reactionSeconds of [-1.2, -0.6, -0.3, -0.2, 0, 0.3]) {
       const { slip } = drive(CIVIC_SI, tune, { ...goodDrivePlan(7), reactionSeconds });
       expect(slip.foul, `reaction ${reactionSeconds}`).toBe(slip.reactionTime < 0);
     }

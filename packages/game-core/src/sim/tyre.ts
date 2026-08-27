@@ -105,8 +105,14 @@ export function aeroDrag(car: Car, speedMs: number): number {
   return 0.5 * ENVIRONMENT.airDensity * dragCoefficient * frontalAreaM2 * speedMs * speedMs;
 }
 
-/** Rolling resistance opposing motion, newtons. */
+/**
+ * Rolling resistance opposing motion, newtons.
+ *
+ * Returned as a magnitude: the caller knows which way the car is travelling and
+ * applies it against that, which is what lets the same figure slow the car in
+ * reverse as well as forwards.
+ */
 export function rollingResistance(car: Car, speedMs: number): number {
-  if (speedMs <= 0) return 0;
+  if (Math.abs(speedMs) < 1e-4) return 0;
   return car.chassis.rollingResistance * car.chassis.massKg * ENVIRONMENT.gravity;
 }

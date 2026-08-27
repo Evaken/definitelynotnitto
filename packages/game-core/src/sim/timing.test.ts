@@ -8,7 +8,7 @@ import { createPassState } from './pass.js';
 const tune = stockTune(CIVIC_SI);
 
 describe('the timing slip', () => {
-  const { slip } = drive(CIVIC_SI, tune, { ...goodDrivePlan(7), launchRpm: 3000 });
+  const { slip } = drive(CIVIC_SI, tune, goodDrivePlan(7));
 
   it('reports every figure a real slip carries', () => {
     expect(slip.reactionTime).toBeGreaterThan(0);

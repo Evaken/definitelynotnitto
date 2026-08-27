@@ -13,38 +13,54 @@ export const SIM_HZ = 1000;
 export const SIM_DT = 1 / SIM_HZ;
 
 /**
- * What the player is holding down at a given instant.
+ * What the player is doing at a given instant.
  *
  * These are held states, not events.  The stepper derives presses by comparing
  * against the previous tick, which keeps a recorded timeline sufficient to
  * reproduce a pass exactly.
  */
 export interface RaceInput {
-  /** Revs the engine on the line; drives the car once launched. */
-  readonly throttle: boolean;
-  /** Drops the clutch when staged, then upshifts for the rest of the pass. */
-  readonly launchShift: boolean;
+  /**
+   * Throttle opening, 0 to 1, from the slider beside the strip.
+   *
+   * Quantised to hundredths at the input boundary.  A dragged slider would
+   * otherwise emit a different float every frame, which bloats a recorded
+   * timeline and invites floating-point drift between a live pass and its
+   * replay.
+   */
+  readonly throttle: number;
+  readonly brake: boolean;
+  /** Selects the next gear up the list: R, N, 1, 2, 3 ... */
+  readonly shiftUp: boolean;
+  /** Selects the next gear down the same list. */
   readonly shiftDown: boolean;
 }
 
 export const NEUTRAL_INPUT: RaceInput = {
-  throttle: false,
-  launchShift: false,
+  throttle: 0,
+  brake: false,
+  shiftUp: false,
   shiftDown: false,
 };
 
+/**
+ * Gear selection.
+ *
+ * Reverse is -1 and neutral is 0, so a forward gear's number is simply its
+ * number -- first gear is 1.  The car starts in neutral and does not move until
+ * the driver selects a gear and opens the throttle.
+ */
+export const REVERSE_GEAR = -1;
+export const NEUTRAL_GEAR = 0;
+
 export type RacePhase =
-  /** Rolling up to the beams; neither is broken. */
+  /** Free to roll. Not yet stopped inside the staging window. */
   | 'approach'
-  /** Pre-stage beam broken. */
-  | 'prestaged'
-  /** Stage beam broken, tree not yet armed. */
+  /** Stopped with the nose inside the staging window; tree not yet armed. */
   | 'staged'
   /** Tree is counting down. */
   | 'tree'
-  /** Clutch dropped, still inside the stage beam -- clock has not started. */
-  | 'launched'
-  /** Stage beam cleared, ET clock running. */
+  /** Stage line crossed, ET clock running. */
   | 'running'
   /** Past the quarter-mile mark. */
   | 'finished';
@@ -89,9 +105,9 @@ export interface PassState {
   phase: RacePhase;
 
   // --- Longitudinal state -------------------------------------------------
-  /** Front-tyre leading edge, metres relative to the stage beam. */
+  /** Nose of the car, metres relative to the stage line. Negative is behind. */
   positionM: number;
-  /** Vehicle speed, m/s. */
+  /** Vehicle speed, m/s. Negative when reversing. */
   speedMs: number;
   /** Longitudinal acceleration from the previous step, m/s^2. */
   accelMs2: number;
@@ -99,14 +115,14 @@ export interface PassState {
   // --- Rotating state -----------------------------------------------------
   /** Crankshaft speed, rad/s. */
   engineOmega: number;
-  /** Driven-wheel speed, rad/s. */
+  /** Driven-wheel speed, rad/s. Negative when reversing. */
   wheelOmega: number;
-  /** Zero-based index into the gear ratio list. */
-  gearIndex: number;
+  /** Selected gear: -1 reverse, 0 neutral, 1..n forward. */
+  gear: number;
   /** Ticks left in the current shift; zero means no shift in progress. */
   shiftTicksRemaining: number;
   /** Gear to select when the current shift completes. */
-  pendingGearIndex: number;
+  pendingGear: number;
   /** Clutch travel, 0 = fully open, 1 = locked. */
   clutchEngagement: number;
   /** True once the clutch has stopped slipping and the driveline is rigid. */
@@ -125,23 +141,29 @@ export interface PassState {
   gripLimitN: number;
   /** Force actually being delivered, N. */
   tractiveForceN: number;
-  /** True when slip has pushed the tyres past their grip peak. */
+  /** True when the driven tyres are spinning faster than the car is moving. */
   wheelspin: boolean;
+  /** True when the brakes have dragged the tyres past their grip peak. */
+  wheelsLocked: boolean;
 
   // --- Tree and timing ----------------------------------------------------
   lights: TreeLights;
   /** When the ambers and green fire, or null while the tree is unarmed. */
   treeSchedule: TreeSchedule | null;
-  /** Tick the player dropped the clutch, or null. */
-  launchTick: number | null;
   /**
-   * Exact tick the car cleared the stage beam and the clock started, or null.
+   * Exact tick the car crossed the stage line and the clock started, or null.
    * Fractional: the crossing is interpolated within the step it happened in, so
    * timing does not quantise to the 1ms step and two close passes stay
    * distinguishable.
    */
   clockStartTick: number | null;
-  /** Position the car was sitting at when the clutch dropped, metres. */
+  /**
+   * Where the nose was sitting when the tree armed, metres.
+   *
+   * Somewhere between minus the staging zone length and zero. Nearer zero is a
+   * deeper stage: less ground to cover before the clock starts, so a quicker
+   * light, but less run-up to build speed in, so a slower elapsed time.
+   */
   stagedPositionM: number | null;
   /** True if the stage beam was cleared before the green. */
   foul: boolean;

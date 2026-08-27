@@ -20,7 +20,10 @@ import { buildTimingSlip } from './timing.js';
 
 function sameInput(a: RaceInput, b: RaceInput): boolean {
   return (
-    a.throttle === b.throttle && a.launchShift === b.launchShift && a.shiftDown === b.shiftDown
+    a.throttle === b.throttle &&
+    a.brake === b.brake &&
+    a.shiftUp === b.shiftUp &&
+    a.shiftDown === b.shiftDown
   );
 }
 

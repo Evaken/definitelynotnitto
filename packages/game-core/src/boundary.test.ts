@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,9 +40,20 @@ function importSpecifiers(source: string): string[] {
   return specifiers;
 }
 
-/** Strips comments so prose about `window` is not mistaken for using it. */
-function stripComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+/**
+ * Reduces source to just its code, so prose is never mistaken for a reference.
+ *
+ * Comments and string literals both go: a documentation note ending "...inside
+ * the staging window." would otherwise read as a use of `window`, and a config
+ * value's description is as much prose as a comment is.
+ */
+function codeOnly(source: string): string {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\/[^\n]*/g, '')
+    .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/`(?:[^`\\]|\\.)*`/g, '``');
 }
 
 const FORBIDDEN_PACKAGES = ['react', 'react-dom', 'react/jsx-runtime'];
@@ -73,7 +84,7 @@ describe('game-core stays free of the UI', () => {
     const offenders: string[] = [];
 
     for (const file of files) {
-      const code = stripComments(readFileSync(file, 'utf8'));
+      const code = codeOnly(readFileSync(file, 'utf8'));
       for (const name of globals) {
         if (new RegExp(`(^|[^\\w.'"\`])${name}\\s*[.[]`).test(code)) {
           offenders.push(`${file} uses ${name}`);
@@ -90,7 +101,7 @@ describe('the simulation stays deterministic', () => {
     // cannot be reproduced -- which breaks regression testing now and race
     // verification once Stage 10 arrives.
     const offenders = sourceFiles(join(SRC, 'sim'))
-      .filter((file) => /Math\s*\.\s*random/.test(stripComments(readFileSync(file, 'utf8'))))
+      .filter((file) => /Math\s*\.\s*random/.test(codeOnly(readFileSync(file, 'utf8'))))
       .map((file) => `${file} calls Math.random`);
 
     expect(offenders).toEqual([]);
@@ -100,7 +111,7 @@ describe('the simulation stays deterministic', () => {
     const offenders = sourceFiles(join(SRC, 'sim'))
       .filter((file) =>
         /Date\s*\.\s*now|new\s+Date\s*\(|performance\s*\.\s*now/.test(
-          stripComments(readFileSync(file, 'utf8')),
+          codeOnly(readFileSync(file, 'utf8')),
         ),
       )
       .map((file) => `${file} reads the clock`);
