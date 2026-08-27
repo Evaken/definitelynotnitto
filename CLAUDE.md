@@ -39,7 +39,9 @@ packages/game-core/src/
   testing/          Scripted driver, tests only
 
 apps/web/src/
-  race/renderer/    Canvas drawing. Plain functions, no React
+  race/renderer/    Canvas drawing. Plain functions, no React.
+                    projection.ts turns a distance into a screen position;
+                    everything in the scene goes through it
   race/             Input, frame pacing, the React binding
   screens/          One per navigation tab
 ```
@@ -116,11 +118,9 @@ asymptotically. Judge "stopped" against a threshold.
 
 ## Known-wrong, deliberately not yet fixed
 
-Both are recorded in `ROADMAP.md` with the reasoning. Do not "fix" either in
-passing — each is its own piece of work.
+Recorded in `ROADMAP.md` with the reasoning. Do not "fix" it in passing — it is
+its own piece of work.
 
-- **The race view is side-on; it should be a chase camera.** Rebuilding it is
-  the next task, ahead of Stage 2.
 - **The starter car is the wrong Civic.** The original's is a sixth-generation
   EK hatchback; `data/cars/civic-si.ts` models an EP3. Different engine family
   entirely. Changing it moves every number in `BALANCE_NOTES.md` at once, so it

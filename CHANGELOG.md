@@ -1,5 +1,37 @@
 # Changelog
 
+## The chase camera
+
+The race view now looks down the strip from behind the car, as the original did.
+It was side-on because `PROJECT_SPEC.md` said so twice, and it was wrong.
+
+- **A perspective road**, built from bands rather than one trapezoid. A flat
+  trapezoid is the correct shape for a straight road but gives the eye nothing
+  to measure speed against, which is the only reason this view exists.
+- **An instrument cluster** along the bottom: boost, tachometer with the car's
+  own red zone, speedometer, gas and clutch bars, and a gear column reading
+  `6 5 4 3 2 1 N R`. The boost gauge stays on a naturally aspirated car with its
+  needle at rest, as the original's did, so the panel will not reflow when a
+  turbo arrives in Stage 3.
+- **The tree stands between the lanes in world space**, so it grows as the car
+  rolls up to the line and whips past overhead on the launch.
+- **Timing boards** flank the strip with a red LED elapsed time and the splits
+  filling in as each mark passes; a position bar runs down the far left.
+- The gas pedal is painted by the cluster with an invisible DOM element over it
+  for the drag. Pointer capture and assistive technology are things the DOM does
+  properly and a canvas does not.
+
+**Nothing in `packages/game-core` changed.** Not one line. A drag strip never
+turns and never climbs, so the whole projection is one division — everything on
+the ground scales as 1/z — and the simulation, which is one-dimensional, never
+had any idea where the camera was. `renderer/projection.test.ts` holds that
+arithmetic to its shape; the six tests covering the old side-on body bounce were
+retired with it.
+
+`CarArtwork` in `renderer/carSprite.ts` is the seam for real car artwork. Colours
+arrive as parameters rather than baked in, because the paint shop is hue,
+saturation and brightness sliders over three separately tinted zones.
+
 ## Primary sources found — the race view is wrong
 
 Three surviving screenshots of the original are now in `docs/reference/`. They

@@ -221,20 +221,24 @@ body {
 
 /* --- Race screen -------------------------------------------------------- */
 
-.race {
+/*
+ * The canvas is now the full width of the shell -- boards, road and cluster are
+ * all inside it -- so everything else sits underneath rather than beside.
+ */
+.race__below {
   display: grid;
-  grid-template-columns: 1fr 230px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 10px;
   align-items: start;
+  margin-top: 10px;
 }
 
-/* Canvas and throttle sit side by side and read as one instrument. */
+/* The canvas is the whole instrument; controls are positioned over it. */
 .race__viewport {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
+  position: relative;
   border: 1px solid var(--border);
   background: #0b0d11;
+  line-height: 0;
 }
 
 .race__canvas {
@@ -245,110 +249,23 @@ body {
   image-rendering: pixelated;
 }
 
-/* --- Throttle slider ---------------------------------------------------- */
+/* --- Throttle grip ------------------------------------------------------ */
 
-.throttle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 62px;
-  flex: 0 0 62px;
-  padding: 6px 0;
-  background: #171a20;
-  border-left: 1px solid var(--border);
-  user-select: none;
-}
-
-.throttle__label,
-.throttle__readout {
-  font-family: var(--font-data);
-  font-size: 9px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.throttle__readout {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--accent);
-}
-
-.throttle__track {
-  position: relative;
-  flex: 1;
-  width: 26px;
-  min-height: 120px;
-  background: linear-gradient(90deg, #0a0c10, #1c2028 40%, #0a0c10);
-  border: 1px solid var(--border-light);
+/*
+ * The cluster paints the gas pedal; this is only the hit area sitting over it.
+ * Invisible on purpose -- anything drawn here would double up on the pedal the
+ * canvas has already rendered.
+ */
+.throttle-grip {
+  position: absolute;
   cursor: ns-resize;
   touch-action: none;
+  background: transparent;
 }
 
-.throttle__fill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, #f0b53a, #8a6110);
-}
-
-.throttle__handle {
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  height: 12px;
-  background: linear-gradient(180deg, #e8eaee, #8b93a1);
-  border: 1px solid #12151b;
-  pointer-events: none;
-}
-
-.throttle__tick {
-  position: absolute;
-  left: 0;
-  width: 5px;
-  height: 1px;
-  background: var(--border-light);
-  pointer-events: none;
-}
-
-.race__prompt {
-  margin: 0;
-  padding: 6px 10px;
-  font-family: var(--font-data);
-  font-size: 11px;
-  color: var(--accent);
-  background: #171a20;
-  border: 1px solid var(--border);
-  border-top: 0;
-  min-height: 26px;
-}
-
-.race__actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.keymap {
-  font-family: var(--font-data);
-  font-size: 11px;
-  line-height: 1.9;
-}
-
-.keymap kbd {
-  display: inline-block;
-  min-width: 42px;
-  padding: 1px 5px;
-  margin-right: 6px;
-  text-align: center;
-  color: var(--text);
-  background: #333945;
-  border: 1px solid var(--border-light);
-  border-bottom-width: 2px;
-  font-family: var(--font-data);
-  font-size: 10px;
+.throttle-grip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* --- Timing slip -------------------------------------------------------- */

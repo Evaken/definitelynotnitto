@@ -1,381 +1,245 @@
-import {
-  TRACK_MARKS,
-  engineRpm,
-  gearLabel,
-  metresToFeet,
-  msToMph,
-  stagingZoneStart,
-  SIM_HZ,
-  type PassState,
-} from '@nitto/game-core';
+import { TRACK_MARKS, type PassState } from '@nitto/game-core';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  CAR_SCREEN_X,
+  CAR_Z,
   COLORS,
-  HORIZON_Y,
-  HUD_HEIGHT,
-  PX_PER_M,
-  TRACK_BOTTOM,
-  TRACK_Y,
-  worldToScreen,
+  LANE_OFFSET_M,
+  VIEW,
+  VIEW_CENTER_X,
 } from './layout.js';
-import { drawCar, suspensionMotion } from './car.js';
-import { drawScenery } from './scenery.js';
+import { isVisible, project, roadHalfWidth } from './projection.js';
+import { drawRoad, drawRoadside, drawSky } from './road.js';
+import { DEFAULT_PAINT, PLACEHOLDER_CAR, suspensionMotion } from './carSprite.js';
+import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
+import { drawCluster } from './cluster.js';
+import { drawBoards, drawPositionBar } from './boards.js';
 
 /**
  * Draws one frame of the race.
  *
- * Pure rendering: it reads simulation state and produces pixels, and never
- * writes back.  Keeping it out of React means the scene can redraw every frame
- * without the component tree being involved (PROJECT_SPEC 6.1).
+ * A chase camera from behind the car looking down the strip, matching
+ * `docs/reference/race-view-two-civics.webp`. Stage 1 built this side-on
+ * because the specification said so twice; it was wrong.
+ *
+ * Pure rendering: reads simulation state and produces pixels, never writes back.
+ * Keeping it out of React means the scene redraws every frame without the
+ * component tree being involved (PROJECT_SPEC 6.1) -- and keeping the whole view
+ * behind this one function is what made swapping the camera affordable at all.
  */
 export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void {
-  const camera = state.positionM;
-
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.fillStyle = COLORS.frame;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+  const travelled = state.positionM;
+
+  drawSky(ctx);
+  drawRoad(ctx, travelled);
+  drawRoadside(ctx, travelled);
+  drawStagingLines(ctx, travelled);
+  drawDistanceMarks(ctx, travelled);
+  drawChristmasTree(ctx, state);
+  drawPlayerCar(ctx, state);
+  drawStageIndicators(ctx, state);
+  drawPrompt(ctx, state);
+
+  ctx.strokeStyle = COLORS.panelEdge;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(VIEW.x + 0.5, VIEW.y + 0.5, VIEW.w - 1, VIEW.h - 1);
+
+  drawBoards(ctx, state);
+  drawPositionBar(ctx, state);
+  drawCluster(ctx, state, state.prevInput.throttle);
+}
+
+function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
   const shaken = state.wheelspin || state.wheelsLocked;
   const ride = suspensionMotion(state.positionM, state.speedMs, shaken);
 
-  drawSky(ctx);
-  drawScenery(ctx, camera);
-  drawTrack(ctx, camera);
-  drawStagingWindow(ctx, camera, state);
-  drawDistanceMarkers(ctx, camera);
-  drawFinishLine(ctx, camera);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
+  ctx.clip();
 
-  drawCar(ctx, {
-    noseX: CAR_SCREEN_X,
-    wheelAngle: state.wheelOmega * 0.06 + state.positionM * 1.4,
-    // Squat is proportional to acceleration, capped so it stays a suggestion,
-    // with the surface working the body on top of it.
-    pitch: Math.max(-0.03, Math.min(0.03, state.accelMs2 * 0.0035)) + ride.pitchWobble,
-    bounce: ride.bounce,
-    drivenAxle: state.car.drivetrain === 'RWD' ? 'rear' : 'front',
+  PLACEHOLDER_CAR.drawRear(ctx, {
+    laneOffsetM: -LANE_OFFSET_M,
+    z: CAR_Z,
+    paint: DEFAULT_PAINT,
+    bounceM: ride.bounceM,
+    // Acceleration squats the tail; the surface works the body on top of that.
+    pitch: Math.max(-0.03, Math.min(0.03, -state.accelMs2 * 0.0035)) + ride.pitchWobble,
+    braking: state.prevInput.brake,
     wheelspin: shaken,
   });
 
-  drawHud(ctx, state);
-  drawTree(ctx, state);
-  drawDistanceStrip(ctx, state);
-}
-
-// ---------------------------------------------------------------------------
-// Scenery
-// ---------------------------------------------------------------------------
-
-function drawSky(ctx: CanvasRenderingContext2D): void {
-  const sky = ctx.createLinearGradient(0, HUD_HEIGHT, 0, HORIZON_Y);
-  sky.addColorStop(0, COLORS.skyTop);
-  sky.addColorStop(1, COLORS.skyBottom);
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, HUD_HEIGHT, CANVAS_WIDTH, HORIZON_Y - HUD_HEIGHT);
-
-  // The verge between the horizon and the strip. Lightens towards the track so
-  // the ground reads as receding rather than as a flat slab.
-  const ground = ctx.createLinearGradient(0, HORIZON_Y, 0, TRACK_Y);
-  ground.addColorStop(0, COLORS.distant);
-  ground.addColorStop(1, '#2b3340');
-  ctx.fillStyle = ground;
-  ctx.fillRect(0, HORIZON_Y, CANVAS_WIDTH, TRACK_Y - HORIZON_Y);
-}
-
-function drawTrack(ctx: CanvasRenderingContext2D, camera: number): void {
-  const surface = ctx.createLinearGradient(0, TRACK_Y - 4, 0, TRACK_BOTTOM);
-  surface.addColorStop(0, COLORS.trackTop);
-  surface.addColorStop(1, COLORS.trackBottom);
-  ctx.fillStyle = surface;
-  ctx.fillRect(0, TRACK_Y - 4, CANVAS_WIDTH, TRACK_BOTTOM - TRACK_Y + 4);
-
-  ctx.strokeStyle = COLORS.laneLine;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, TRACK_Y - 4.5);
-  ctx.lineTo(CANVAS_WIDTH, TRACK_Y - 4.5);
-  ctx.stroke();
-
-  // Surface texture every metre, which is what sells the sense of speed.
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-  const spacing = 1;
-  const first = Math.floor((camera - CAR_SCREEN_X / PX_PER_M) / spacing) * spacing;
-  for (let m = first; worldToScreen(m, camera) < CANVAS_WIDTH; m += spacing) {
-    const x = worldToScreen(m, camera);
-    if (x < 0) continue;
-    ctx.beginPath();
-    ctx.moveTo(x, TRACK_Y + 6);
-    ctx.lineTo(x, TRACK_BOTTOM);
-    ctx.stroke();
-  }
+  ctx.restore();
 }
 
 /**
- * The staging window: the pre-stage line, the stage line, and the band between
- * them the car has to stop in.
+ * The pre-stage and stage lines, painted across the road.
  *
- * Shaded so the target is judged by eye rather than by reading a number, and
- * lit differently once the car has settled inside it.
+ * Lines rather than the shaded band the side-on view used: from behind, a band
+ * is foreshortened into almost nothing, so the two edges have to carry it.
  */
-function drawStagingWindow(
-  ctx: CanvasRenderingContext2D,
-  camera: number,
-  state: PassState,
-): void {
-  const startX = worldToScreen(stagingZoneStart(), camera);
-  const lineX = worldToScreen(0, camera);
-  if (lineX < -80 || startX > CANVAS_WIDTH + 80) return;
+function drawStagingLines(ctx: CanvasRenderingContext2D, travelled: number): void {
+  const zoneStartM = -1.2;
 
-  const settled = state.phase === 'staged' || state.phase === 'tree';
-  const rolledThrough = state.positionM > 0 && state.clockStartTick === null;
-
-  ctx.fillStyle = settled ? 'rgba(63, 211, 90, 0.16)' : 'rgba(232, 163, 23, 0.10)';
-  ctx.fillRect(startX, TRACK_Y - 4, lineX - startX, TRACK_BOTTOM - TRACK_Y + 4);
-
-  drawStagingLine(ctx, startX, 'PRE-STAGE', state.lights.prestage, false);
-  drawStagingLine(ctx, lineX, 'STAGE', settled, true);
-
-  if (rolledThrough) {
-    ctx.font = 'bold 13px Verdana, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = COLORS.red;
-    ctx.fillText('ROLLED THROUGH — SELECT R AND BACK UP', CANVAS_WIDTH / 2, HORIZON_Y + 40);
-  }
-}
-
-function drawStagingLine(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  label: string,
-  lit: boolean,
-  solid: boolean,
-): void {
-  if (x < -60 || x > CANVAS_WIDTH + 60) return;
-
-  ctx.strokeStyle = lit ? COLORS.accent : COLORS.marker;
-  ctx.lineWidth = lit ? 3 : 2;
-  if (!solid) ctx.setLineDash([6, 5]);
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(x, TRACK_BOTTOM);
-  ctx.lineTo(x, TRACK_Y - 74);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
+  ctx.clip();
 
-  ctx.font = '10px "Lucida Console", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = lit ? COLORS.accent : COLORS.marker;
-  ctx.fillText(label, x, TRACK_Y - 80);
+  surfaceBand(ctx, zoneStartM - travelled, -travelled, 'rgba(232, 163, 23, 0.22)');
+  surfaceLine(ctx, zoneStartM - travelled, COLORS.accent, 0.12);
+  surfaceLine(ctx, -travelled, COLORS.laneLine, 0.2);
+
+  ctx.restore();
 }
 
-function drawDistanceMarkers(ctx: CanvasRenderingContext2D, camera: number): void {
-  const majors: readonly (readonly [number, string])[] = [
-    [TRACK_MARKS.sixtyFoot, '60 FT'],
+/** The distance marks, painted across the surface where they actually are. */
+function drawDistanceMarks(ctx: CanvasRenderingContext2D, travelled: number): void {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
+  ctx.clip();
+
+  const marks: readonly (readonly [number, string])[] = [
+    [TRACK_MARKS.sixtyFoot, '60'],
     [TRACK_MARKS.threeThirty, '330'],
     [TRACK_MARKS.eighthMile, '1/8'],
     [TRACK_MARKS.thousandFoot, '1000'],
-    [TRACK_MARKS.quarterMile, '1/4'],
   ];
 
-  ctx.font = 'bold 11px "Lucida Console", monospace';
-  ctx.textAlign = 'center';
-
-  for (const [distance, label] of majors) {
-    const x = worldToScreen(distance, camera);
-    if (x < -40 || x > CANVAS_WIDTH + 40) continue;
-
-    ctx.strokeStyle = COLORS.markerMajor;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x, TRACK_Y - 4);
-    ctx.lineTo(x, TRACK_Y - 46);
-    ctx.stroke();
-
-    ctx.fillStyle = COLORS.markerMajor;
-    ctx.fillText(label, x, TRACK_Y - 52);
+  for (const [distance, label] of marks) {
+    const z = distance - travelled;
+    if (!isVisible(z) || z > 160) continue;
+    surfaceLine(ctx, z, 'rgba(232, 234, 238, 0.7)', 0.1);
+    markerPost(ctx, z, label);
   }
+
+  // The finish line gets a chequered band.
+  const finishZ = TRACK_MARKS.quarterMile - travelled;
+  if (isVisible(finishZ) && finishZ < 200) chequered(ctx, finishZ);
+
+  ctx.restore();
 }
 
-function drawFinishLine(ctx: CanvasRenderingContext2D, camera: number): void {
-  const x = worldToScreen(TRACK_MARKS.quarterMile, camera);
-  if (x < -20 || x > CANVAS_WIDTH + 20) return;
-
-  const squares = 8;
-  const size = (TRACK_BOTTOM - TRACK_Y + 4) / squares;
-  for (let i = 0; i < squares; i++) {
-    ctx.fillStyle = i % 2 === 0 ? '#e8eaee' : '#1a1d23';
-    ctx.fillRect(x - 8, TRACK_Y - 4 + i * size, 16, size);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Instruments
-// ---------------------------------------------------------------------------
-
-function drawHud(ctx: CanvasRenderingContext2D, state: PassState): void {
-  ctx.fillStyle = COLORS.hudBg;
-  ctx.fillRect(0, 0, CANVAS_WIDTH, HUD_HEIGHT);
-  ctx.strokeStyle = '#454c59';
-  ctx.beginPath();
-  ctx.moveTo(0, HUD_HEIGHT - 0.5);
-  ctx.lineTo(CANVAS_WIDTH, HUD_HEIGHT - 0.5);
-  ctx.stroke();
-
-  // The clock stops at the finish line. What follows is the shut-down area, not
-  // part of the run, so the ET on the dash is the one that was earned.
-  const elapsed =
-    state.splits.quarterMile ??
-    (state.clockStartTick === null
-      ? 0
-      : Math.max(0, (state.tick - state.clockStartTick) / SIM_HZ));
-
-  readout(ctx, 16, 'ET', elapsed.toFixed(3));
-  readout(ctx, 118, 'MPH', Math.abs(msToMph(state.speedMs)).toFixed(1));
-  readout(ctx, 208, 'GEAR', gearLabel(state.gear));
-  readout(ctx, 268, 'FEET', metresToFeet(state.positionM).toFixed(0));
-
-  drawTacho(ctx, 386, 12, 400, 30, state);
-}
-
-function readout(ctx: CanvasRenderingContext2D, x: number, label: string, value: string): void {
-  ctx.textAlign = 'left';
-  ctx.font = '9px Verdana, sans-serif';
-  ctx.fillStyle = COLORS.textDim;
-  ctx.fillText(label, x, 17);
-
-  ctx.font = 'bold 20px "Lucida Console", monospace';
-  ctx.fillStyle = COLORS.text;
-  ctx.fillText(value, x, 40);
-}
-
-/** Horizontal rev counter, with the last slice before redline marked out. */
-function drawTacho(
+/** A stripe painted across the road at a given distance. */
+function surfaceLine(
   ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  state: PassState,
+  z: number,
+  color: string,
+  thicknessM: number,
 ): void {
-  const { redlineRpm } = state.car.engine;
-  const rpm = engineRpm(state);
-  const fraction = Math.max(0, Math.min(1, rpm / redlineRpm));
-  const redlineStart = 0.88;
+  if (!isVisible(z)) return;
+  const near = project(0, z);
+  const far = project(0, z + thicknessM);
+  const halfNear = roadHalfWidth(z);
+  const halfFar = roadHalfWidth(z + thicknessM);
 
-  ctx.fillStyle = '#0a0c10';
-  ctx.fillRect(x, y, width, height);
-
-  ctx.fillStyle = 'rgba(229, 70, 47, 0.22)';
-  ctx.fillRect(x + width * redlineStart, y, width * (1 - redlineStart), height);
-
-  ctx.fillStyle = state.limiterActive
-    ? COLORS.red
-    : fraction > redlineStart
-      ? COLORS.amber
-      : COLORS.green;
-  ctx.fillRect(x + 2, y + 2, (width - 4) * fraction, height - 4);
-
-  ctx.strokeStyle = '#454c59';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
-
-  ctx.textAlign = 'right';
-  ctx.font = 'bold 12px "Lucida Console", monospace';
-  ctx.fillStyle = COLORS.text;
-  ctx.fillText(`${rpm.toFixed(0)} RPM`, x + width + 140, y + 21);
-
-  ctx.textAlign = 'left';
-  ctx.font = '9px Verdana, sans-serif';
-  ctx.fillStyle = COLORS.textDim;
-  ctx.fillText('TACHO', x, y - 1);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(VIEW_CENTER_X - halfNear, near.y);
+  ctx.lineTo(VIEW_CENTER_X + halfNear, near.y);
+  ctx.lineTo(VIEW_CENTER_X + halfFar, far.y);
+  ctx.lineTo(VIEW_CENTER_X - halfFar, far.y);
+  ctx.closePath();
+  ctx.fill();
 }
 
-/**
- * The Christmas tree.
- *
- * Fixed to the left of the canvas rather than standing at the start line in
- * world space, so it stays readable once the car has left it behind.
- */
-function drawTree(ctx: CanvasRenderingContext2D, state: PassState): void {
-  const x = 40;
-  const top = HUD_HEIGHT + 18;
-  const spacing = 21;
-  const radius = 8;
+function surfaceBand(
+  ctx: CanvasRenderingContext2D,
+  zNear: number,
+  zFar: number,
+  color: string,
+): void {
+  if (!isVisible(zFar)) return;
+  const a = project(0, Math.max(zNear, 0.4));
+  const b = project(0, zFar);
+  const halfA = roadHalfWidth(Math.max(zNear, 0.4));
+  const halfB = roadHalfWidth(zFar);
 
-  ctx.fillStyle = 'rgba(10, 12, 16, 0.72)';
-  ctx.fillRect(x - 22, top - 14, 44, spacing * 6 + 26);
-  ctx.strokeStyle = '#454c59';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x - 21.5, top - 13.5, 43, spacing * 6 + 25);
-
-  const { lights } = state;
-  const bulbs: readonly (readonly [boolean, string])[] = [
-    [lights.prestage, COLORS.amber],
-    [lights.stage, COLORS.amber],
-    [lights.ambers[0]!, COLORS.amber],
-    [lights.ambers[1]!, COLORS.amber],
-    [lights.ambers[2]!, COLORS.amber],
-    [lights.green, COLORS.green],
-    [lights.red, COLORS.red],
-  ];
-
-  bulbs.forEach(([lit, color], index) => {
-    // The two staging bulbs are small, as they are on a real tree.
-    const small = index < 2;
-    const cy = top + index * spacing - (small ? 6 : 0);
-    const r = small ? radius * 0.55 : radius;
-
-    ctx.beginPath();
-    ctx.arc(x, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = lit ? color : COLORS.bulbOff;
-    ctx.fill();
-
-    if (lit) {
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    ctx.strokeStyle = '#12151b';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  });
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(VIEW_CENTER_X - halfA, a.y);
+  ctx.lineTo(VIEW_CENTER_X + halfA, a.y);
+  ctx.lineTo(VIEW_CENTER_X + halfB, b.y);
+  ctx.lineTo(VIEW_CENTER_X - halfB, b.y);
+  ctx.closePath();
+  ctx.fill();
 }
 
-/** Split times along the bottom, filling in as the car passes each mark. */
-function drawDistanceStrip(ctx: CanvasRenderingContext2D, state: PassState): void {
-  const y = TRACK_BOTTOM + 8;
-  ctx.fillStyle = COLORS.hudBg;
-  ctx.fillRect(0, y, CANVAS_WIDTH, CANVAS_HEIGHT - y);
+function markerPost(ctx: CanvasRenderingContext2D, z: number, label: string): void {
+  const edge = project(-4.6, z);
+  const height = 1.8 * edge.scale;
+  if (height < 6) return;
 
-  const columns: readonly (readonly [string, number | undefined])[] = [
-    ['60 FT', state.splits.sixtyFoot],
-    ['330', state.splits.threeThirty],
-    ['1/8 ET', state.splits.eighthMile],
-    ['1000', state.splits.thousandFoot],
-    ['1/4 ET', state.splits.quarterMile],
-  ];
+  ctx.fillStyle = 'rgba(10, 13, 18, 0.8)';
+  const w = Math.max(10, 1.4 * edge.scale);
+  const h = Math.max(8, 0.9 * edge.scale);
+  ctx.fillRect(edge.x - w / 2, edge.y - height - h, w, h);
 
-  const columnWidth = CANVAS_WIDTH / columns.length;
+  ctx.fillStyle = COLORS.accent;
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `bold ${Math.max(7, Math.round(h * 0.62))}px "Lucida Console", monospace`;
+  ctx.fillText(label, edge.x, edge.y - height - h / 2);
+}
 
-  columns.forEach(([label, value], index) => {
-    const cx = columnWidth * (index + 0.5);
+function chequered(ctx: CanvasRenderingContext2D, z: number): void {
+  const near = project(0, z);
+  const far = project(0, z + 1.2);
+  const halfNear = roadHalfWidth(z);
+  const halfFar = roadHalfWidth(z + 1.2);
+  const squares = 12;
 
-    ctx.font = '9px Verdana, sans-serif';
-    ctx.fillStyle = COLORS.textDim;
-    ctx.fillText(label, cx, y + 16);
+  for (let i = 0; i < squares; i++) {
+    const t0 = i / squares;
+    const t1 = (i + 1) / squares;
+    ctx.fillStyle = i % 2 === 0 ? '#e8eaee' : '#1a1d23';
+    ctx.beginPath();
+    ctx.moveTo(VIEW_CENTER_X + (t0 * 2 - 1) * halfNear, near.y);
+    ctx.lineTo(VIEW_CENTER_X + (t1 * 2 - 1) * halfNear, near.y);
+    ctx.lineTo(VIEW_CENTER_X + (t1 * 2 - 1) * halfFar, far.y);
+    ctx.lineTo(VIEW_CENTER_X + (t0 * 2 - 1) * halfFar, far.y);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
 
-    ctx.font = 'bold 15px "Lucida Console", monospace';
-    ctx.fillStyle = value === undefined ? '#3a404b' : COLORS.accent;
-    ctx.fillText(value === undefined ? '--.---' : value.toFixed(3), cx, y + 38);
+/** The state of the run, called out under the tree as the original did. */
+function drawPrompt(ctx: CanvasRenderingContext2D, state: PassState): void {
+  const text = promptFor(state);
+  if (!text) return;
 
-    if (index > 0) {
-      ctx.strokeStyle = '#2c313b';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(columnWidth * index, y + 4);
-      ctx.lineTo(columnWidth * index, CANVAS_HEIGHT - 4);
-      ctx.stroke();
-    }
-  });
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 19px Verdana, sans-serif';
+
+  const y = VIEW.y + VIEW.h - 30;
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(6, 9, 13, 0.85)';
+  ctx.strokeText(text, VIEW_CENTER_X, y);
+
+  ctx.fillStyle = state.foul ? COLORS.red : COLORS.green;
+  ctx.fillText(text, VIEW_CENTER_X, y);
+}
+
+function promptFor(state: PassState): string | null {
+  if (state.positionM > 0 && state.clockStartTick === null) return 'BACK UP';
+  switch (state.phase) {
+    case 'approach':
+      return 'ROLL UP';
+    case 'staged':
+      return 'STAGING';
+    case 'tree':
+      return 'STAGED';
+    case 'running':
+      return state.foul ? 'RED LIGHT' : null;
+    case 'shutdown':
+      return 'SHUT DOWN';
+    case 'finished':
+      return null;
+  }
 }

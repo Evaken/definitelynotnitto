@@ -9,10 +9,9 @@ tuning that actually matters.
 Stage 1 of 16 is done: one car (a stock Honda Civic Si), one lane, and a clock.
 [ROADMAP.md](ROADMAP.md) lists all sixteen stages and what is next.
 
-> **The race view is currently side-on and it should not be.** Surviving
-> screenshots ([`docs/reference/`](docs/reference/)) show the original used a
-> chase camera from behind both cars. The spec said otherwise and Stage 1 was
-> built to it. Rebuilding the view is the next job.
+Viewed from behind the car looking down the strip, with the tree between the
+lanes and a full instrument cluster below — matching the surviving screenshots
+in [`docs/reference/`](docs/reference/).
 
 ---
 
@@ -47,6 +46,9 @@ hand, and sprung, so it shuts on its own when you let go.
 
 Roll up to the lines, stop with the nose inside the staging window, wait for the
 tree, and go. Roll through the line and you have to reverse back in.
+
+The gas pedal is the bar on the instrument panel, dragged with the mouse. It is
+sprung, so it shuts on its own when you let go.
 
 The quick way to launch is the real one: hold revs in neutral on the brakes and
 select first as the tree drops. Nobody scripted that — it falls out of the car
