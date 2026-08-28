@@ -776,6 +776,60 @@ body {
   text-align: center;
   text-transform: uppercase;
   color: #8a8472;
+}
+
+/* Stage 3.4: a persistent, animated workshop rather than a static catalogue. */
+.screen--workshop { animation:workshop-screen-enter .34s cubic-bezier(.2,.8,.3,1) both; }
+.workshop { position:relative; background:repeating-linear-gradient(115deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px),radial-gradient(circle at 50% 42%,rgba(0,151,205,.2),transparent 48%),linear-gradient(#0d1b28,#050b11); box-shadow:inset 0 0 0 2px #31495a,inset 0 0 28px #000; }
+.workshop::before,.workshop::after { content:''; position:absolute; z-index:20; width:7px; height:7px; border:1px solid #697783; border-radius:50%; background:radial-gradient(circle at 35% 35%,#d8e0e3,#313a40 55%,#0b0d0f 60%); pointer-events:none; }
+.workshop::before { left:5px; top:5px; }.workshop::after { right:5px; top:5px; }
+.workshop-sound { padding:4px 7px;color:#75b5ca;border:1px solid #2e6275;background:#081620;font:7px var(--font-ui);letter-spacing:.8px;text-transform:uppercase;cursor:pointer; }
+.workshop-sound[aria-pressed="true"] { color:#5fe8ff;border-color:#3aa4bd;box-shadow:inset 0 0 7px rgba(48,210,242,.2); }
+
+.garage-car-art__mod { position:absolute; z-index:5; opacity:0; pointer-events:none; transition:opacity .38s,transform .38s; }
+.garage-car-art__mod--intercooler { left:21%; top:61%; width:86px; height:18px; transform:scale(.7); border:2px solid #b8d3dd; border-radius:4px; background:repeating-linear-gradient(90deg,#263c46 0 4px,#b9d5df 4px 6px); box-shadow:0 0 8px #51dfff; }
+.garage-car-art__mod--exhaust { right:9%; top:69%; width:40px; height:11px; transform:translateX(12px); border:3px solid #c8d6db; border-left-width:18px; border-radius:50%; background:#0c171d; box-shadow:0 0 5px rgba(106,221,248,.7); }
+.garage-car-art__mod--wheels { left:21%; top:64%; width:67px; height:67px; transform:scale(.72); border:3px solid #89e8ff; border-radius:50%; box-shadow:0 0 13px #23d6ff,inset 0 0 10px #23d6ff; }
+.garage-car-art__mod--wheels::after { content:''; position:absolute; left:286px; top:-14px; width:58px; height:58px; border:3px solid #89e8ff; border-radius:50%; box-shadow:0 0 13px #23d6ff,inset 0 0 10px #23d6ff; }
+.garage-car-art__mod--suspension { left:29%; top:51%; width:7px; height:52px; transform:translateY(-12px); border-radius:4px; background:repeating-linear-gradient(0deg,#21bde7 0 5px,#e9f4f7 5px 8px); box-shadow:0 0 8px #28d8ff; }
+.garage-car-art__mod--seat { left:55%; top:23%; width:42px; height:65px; transform:scale(.75); border:2px solid #39b9df; border-radius:45% 45% 22% 22%; background:linear-gradient(145deg,rgba(3,8,12,.96),rgba(22,75,95,.88)); box-shadow:0 0 10px #24c9f0; }
+.car-bay--fitted-turbo .garage-car-art__mod--intercooler,.car-bay--fitted-supercharger .garage-car-art__mod--intercooler,.car-bay--part-intercooler .garage-car-art__mod--intercooler { opacity:.92;transform:scale(1); }
+.car-bay--fitted-exhaust .garage-car-art__mod--exhaust { opacity:1;transform:none; }
+.car-bay--fitted-wheels .garage-car-art__mod--wheels,.car-bay--fitted-tyres .garage-car-art__mod--wheels { opacity:.82;transform:scale(1); }
+.car-bay--fitted-suspension .garage-car-art__mod--suspension { opacity:1;transform:none; }
+.car-bay--fitted-weight-reduction .garage-car-art__mod--seat { opacity:.9;transform:scale(1); }
+.car-bay--fitted-suspension .garage-car-art img { transform:scale(1.3) translateY(5px); }
+
+.category-art__tier { position:absolute;z-index:6;right:2px;bottom:2px;display:flex!important;gap:2px;padding:3px 4px;border:1px solid #26849c;background:rgba(2,12,18,.84); }
+.category-art__tier span { display:block!important;width:4px;height:11px;background:linear-gradient(#73edff,#078cb3);box-shadow:0 0 4px #31d9fa; }
+.category-art--variant-1 { filter:drop-shadow(0 8px 9px rgba(0,0,0,.75)) saturate(.74) brightness(1.12); }
+.category-art--variant-2 { filter:drop-shadow(0 8px 9px rgba(0,0,0,.75)) hue-rotate(17deg) contrast(1.08); }
+.category-art--variant-3 { filter:drop-shadow(0 8px 9px rgba(0,0,0,.75)) saturate(1.35) brightness(.92); }
+.category-art--variant-4 { filter:drop-shadow(0 8px 9px rgba(0,0,0,.75)) hue-rotate(-18deg) brightness(1.08); }
+
+.factory-component { align-content:start; }
+.factory-component__diagram { position:relative;height:86px;margin:4px 0 10px;display:grid;place-content:center;border:1px solid #17465a;background:radial-gradient(circle,rgba(19,139,180,.25),transparent 60%),repeating-linear-gradient(0deg,transparent 0 7px,rgba(65,177,209,.08) 8px); }
+.factory-component__diagram span { display:grid;place-content:center;width:48px;height:48px;color:#75dcf3;border:2px solid #418fa7;border-radius:50%;font:12px var(--font-data);box-shadow:0 0 13px rgba(35,203,239,.4); }
+.factory-component__diagram i { position:absolute;left:50%;top:50%;width:72px;border-top:1px solid #2f829b;transform-origin:left; }.factory-component__diagram i:nth-child(1){transform:rotate(0)}.factory-component__diagram i:nth-child(2){transform:rotate(120deg)}.factory-component__diagram i:nth-child(3){transform:rotate(240deg)}
+.garage-part-detail__actions { display:flex;gap:7px;flex-wrap:wrap; }.workshop-action--secondary { border-color:#547987;background:linear-gradient(#284452,#122631);color:#abd2df; }
+
+.performance-preview { grid-column:1/-1;display:grid;grid-template-columns:minmax(150px,.8fr) minmax(220px,1.2fr);gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid #205066; }
+.performance-preview__graph { min-width:0; }.performance-preview__graph>span { color:#55dff9;font-size:7px;letter-spacing:1px;text-transform:uppercase; }.performance-preview__graph svg { display:block;width:100%;height:64px;margin-top:2px;background:repeating-linear-gradient(0deg,transparent 0 15px,rgba(63,147,178,.15) 16px),repeating-linear-gradient(90deg,transparent 0 29px,rgba(63,147,178,.12) 30px);border-left:1px solid #315e70;border-bottom:1px solid #315e70;overflow:visible; }
+.performance-preview__graph path { fill:none;stroke-width:2;vector-effect:non-scaling-stroke; }.performance-preview__graph path.before { stroke:#697d87; }.performance-preview__graph path.after { stroke:#35e4ff;filter:drop-shadow(0 0 3px #1ec9ec); }
+.performance-preview__graph small { display:flex;gap:9px;align-items:center;color:#7896a2;font-size:6px;text-transform:uppercase; }.performance-preview__graph small i,.performance-preview__graph small b { width:10px;border-top:2px solid #697d87; }.performance-preview__graph small b { border-color:#35e4ff; }
+.performance-preview__metrics { display:grid;grid-template-columns:repeat(2,1fr);gap:3px; }.performance-preview__metrics>div { display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:5px;padding:4px 5px;border:1px solid #1c4658;background:rgba(3,15,22,.7); }.performance-preview__metrics span { grid-column:1/-1;color:#628b9c!important;font-size:6px!important;letter-spacing:1px;text-transform:uppercase; }.performance-preview__metrics del { color:#5f7781;font:8px var(--font-data); }.performance-preview__metrics strong { color:#e9f8fc;font:9px var(--font-data); }.performance-preview__metrics em { color:#56e77f;font:7px var(--font-data); }.performance-preview__metrics em.negative { color:#f06d5d; }
+.product-selection--rich { grid-template-columns:minmax(220px,1fr) auto auto;align-items:start;animation:workshop-panel-in .28s ease-out both; }.product-selection__copy p { margin:3px 0;color:#91b1be;font-size:8px;line-height:1.4; }.product-selection--rich>.workshop-action { align-self:center; }
+.product-browser { height:455px;overflow-y:auto;scrollbar-color:#159bc0 #07121b; }
+.product-browser .product-card { height:200px; }
+.product-browser .product-card .category-art { inset:91px 17px 7px; }
+.product-selection--rich .performance-preview__graph svg { height:48px; }
+.garage-part-detail { overflow-y:auto; }.garage-part-detail .performance-preview { grid-template-columns:1fr; }.garage-part-detail .performance-preview__graph svg { height:45px; }.garage-part-detail .performance-preview__metrics { grid-template-columns:1fr 1fr; }
+
+@media(max-width:760px){
+  .performance-preview{grid-template-columns:1fr}.performance-preview__metrics{grid-template-columns:1fr 1fr}.product-browser{height:auto;max-height:none}.workshop-sound{display:none}
+}
+
+@keyframes workshop-screen-enter { from { opacity:0;transform:scale(.985);filter:brightness(.5) blur(2px); } to { opacity:1;transform:none;filter:none; } }
 @media(prefers-reduced-motion:reduce){
-  .garage-car-art,.car-bay__sweep,.garage-car-art__hotspot::after,.setup-subcategory-strip button,.garage-part-detail,.product-browser .product-card{animation:none!important}
+  .screen--workshop,.garage-car-art,.car-bay__sweep,.garage-car-art__hotspot::after,.setup-subcategory-strip button,.garage-part-detail,.product-browser .product-card,.product-selection--rich{animation:none!important}
 }

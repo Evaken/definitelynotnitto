@@ -1,5 +1,23 @@
 # Changelog
 
+## Stage 3.4 — Complete workshop experience pass
+
+- Synced Evan's boost-pressure, clutch-capacity and conflict-replacement work
+  before changing the workshop, so every preview uses the current simulation.
+- Added versioned local persistence for cash, ownership and fitted hardware,
+  with malformed and unknown saved parts safely discarded.
+- Added live before/after power curves plus horsepower, torque, weight and grip
+  comparisons to store and garage part details.
+- Added factory-equipment diagrams, direct Speedshop navigation, product copy,
+  tiered per-product visual variants and cursor-driven horizontal browsing.
+- Fitted exhaust, forced-induction, wheel, suspension and weight-reduction
+  hardware now changes the workshop car rather than only changing numbers.
+- Added synthesised menu, selection, purchase, installation and engine-preview
+  sounds with a persistent mute control; no sampled client audio was copied.
+- Added screen wipes, component-install reveals, richer metal/carbon chrome and
+  reduced-motion fallbacks.
+- Replaced the 4.1MB live PNG pair with equivalent 66KB and 94KB WebP assets.
+
 ## Parts that replace instead of stacking
 
 An audit of all thirty parts asked two questions: does each one actually change

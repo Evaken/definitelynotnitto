@@ -16,6 +16,12 @@ the source's broad visual language, while the specific vehicle render, parts,
 lighting and animation are independently created. They must not be treated as
 historical evidence for exact artwork or motion timing.
 
+Stage 3.4 extends those inventions with fitted-part overlays, synthetic Web
+Audio feedback, product descriptions, tier marks and before/after graphs. These
+are interface improvements, not recovered historical facts. Local browser
+persistence was brought forward as a usability measure; Stage 9 still owns
+accounts and authoritative server persistence.
+
 What is actually known about the original pre-2007 Nitto 1320 Challenge, and
 what has been invented to get the game running.
 

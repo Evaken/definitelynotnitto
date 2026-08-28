@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import type { Part, PartCategory } from '@nitto/game-core';
+import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 
 export const WORKSHOP_GROUPS = [
   { id: 'intake', label: 'Intake', shortLabel: 'IN', categories: ['intake'] },
@@ -33,6 +34,13 @@ export function partsForGroup(parts: readonly Part[], groupId: WorkshopGroupId):
   return parts.filter((part) => (group.categories as readonly PartCategory[]).includes(part.category));
 }
 
+export function edgeScroll(event:ReactPointerEvent<HTMLElement>):void{
+  if(event.pointerType==='touch')return;
+  const target=event.currentTarget;const bounds=target.getBoundingClientRect();const position=(event.clientX-bounds.left)/bounds.width;
+  const velocity=position<.18?(position-.18)*34:position>.82?(position-.82)*34:0;
+  if(velocity)target.scrollLeft+=velocity;
+}
+
 export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false }: {
   cash: number;
   children: ReactNode;
@@ -40,14 +48,20 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
   onBack?: () => void;
   shop?: boolean;
 }) {
+  const audio=useWorkshopAudio();
+  const playButton=(event:ReactPointerEvent<HTMLDivElement>)=>{
+    const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button');
+    if(!button||button.dataset.sound==='silent'||button.disabled)return;
+    audio.play((button.dataset.sound as WorkshopSound|undefined)??'click');
+  };
   return (
-    <div className="workshop">
+    <div className="workshop" onPointerDownCapture={playButton}>
       <div className="workshop__brandbar">
         <div><strong>1320</strong><span>{shop ? 'MOTORSPORT SPEEDSHOP' : 'PERFORMANCE WORKS'}</span></div>
-        <div className="workshop__account"><span>MEMBER GARAGE</span><strong>${cash.toLocaleString()}</strong></div>
+        <div className="workshop__account"><button type="button" className="workshop-sound" data-sound="silent" aria-pressed={audio.enabled} onClick={audio.toggle}>{audio.enabled?'Sound on':'Sound off'}</button><span>MEMBER GARAGE</span><strong>${cash.toLocaleString()}</strong></div>
       </div>
       {(showDepartments || onBack) && <div className="workshop__toolbar">
-        {onBack && <button className="workshop-back" type="button" onClick={onBack}><span aria-hidden="true">◀</span> Back</button>}
+        {onBack && <button className="workshop-back" data-sound="select" type="button" onClick={onBack}><span aria-hidden="true">◀</span> Back</button>}
         {showDepartments && <nav className="workshop__modes" aria-label="Garage departments">
           <button className="workshop-tab workshop-tab--active" type="button">Modifications</button>
           <button className="workshop-tab" type="button" disabled title="Stage 4">Tune &amp; Dyno <small>Stage 4</small></button>
@@ -65,14 +79,16 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
   );
 }
 
-export function CategoryArtwork({ groupId, label }: { groupId: WorkshopGroupId; label: string }) {
+export function CategoryArtwork({ groupId, label, part }: { groupId: WorkshopGroupId; label: string; part?:Part }) {
   const spritePosition: Partial<Record<WorkshopGroupId,string>> = {
     intake:'0% 0%', exhaust:'33.333% 0%', engine:'66.667% 0%', boost:'100% 0%',
     drivetrain:'0% 100%', tyres:'33.333% 100%', suspension:'66.667% 100%', weight:'100% 100%',
   };
   const position=spritePosition[groupId];
-  return <span className={`category-art category-art--${groupId}${position?' category-art--sprite':''}`} aria-label={`${label} illustration`}
-    {...(position?{style:{backgroundImage:`url(${import.meta.env.BASE_URL}assets/speedshop-parts-sheet.png)`,backgroundPosition:position}}:{})}><i/><b/></span>;
+  const variant=part?[...part.id].reduce((sum,letter)=>sum+letter.charCodeAt(0),0)%5:0;
+  const tier=part?Math.max(1,Math.min(4,Math.ceil(part.price/1600))):0;
+  return <span className={`category-art category-art--${groupId}${position?' category-art--sprite':''}${part?` category-art--variant-${variant}`:''}`} aria-label={`${label} illustration`}
+    {...(position?{style:{backgroundImage:`url(${import.meta.env.BASE_URL}assets/speedshop-parts-sheet.webp)`,backgroundPosition:position}}:{})}><i/><b/>{tier>0&&<em className="category-art__tier" aria-hidden="true">{Array.from({length:tier},(_,index)=><span key={index}/>)}</em>}</span>;
 }
 
 export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
@@ -81,12 +97,12 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   showAll?: boolean;
 }) {
   const groups = showAll ? WORKSHOP_GROUPS : WORKSHOP_GROUPS.filter(group => !('lockedStage' in group));
-  return <div className="category-carousel" aria-label="Modification categories">
+  return <div className="category-carousel" aria-label="Modification categories" onPointerMove={edgeScroll}>
     {groups.map(group => {
       const locked = 'lockedStage' in group;
       return <button key={group.id} type="button"
         className={`category-card${activeGroup===group.id?' category-card--active':''}`}
-        aria-pressed={activeGroup===group.id} disabled={locked} onClick={()=>onSelect(group.id)}>
+        aria-pressed={activeGroup===group.id} data-sound="select" disabled={locked} onClick={()=>onSelect(group.id)}>
         <span className="category-card__name">{group.label}</span>
         <CategoryArtwork groupId={group.id} label={group.label}/>
         {locked && <span className="category-card__lock">Locked · {group.lockedStage}</span>}
@@ -95,14 +111,21 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   </div>;
 }
 
-export function CarBay({ title, subtitle, badge, highlight }: { title: string; subtitle: string; badge: string; highlight?: WorkshopGroupId }) {
+export function CarBay({ title, subtitle, badge, highlight, fittedParts=[] }: { title: string; subtitle: string; badge: string; highlight?: WorkshopGroupId; fittedParts?:readonly Part[] }) {
+  const fitted=new Set(fittedParts.map(part=>part.category));
+  const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`)).join(' ');
   return (
-    <div className={`car-bay${highlight ? ` car-bay--${highlight}` : ''}`} aria-label={`${title}, ${subtitle}`}>
+    <div className={`car-bay${highlight ? ` car-bay--${highlight}` : ''} ${fittedClasses}`} aria-label={`${title}, ${subtitle}`}>
       <div className="car-bay__scanlines" />
       <div className="car-bay__sweep" />
       <div className="car-bay__badge">{badge}</div>
       <div className="garage-car-art">
-        <img src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.png`} alt="" draggable={false}/>
+        <img src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.webp`} alt="" draggable={false}/>
+        <span className="garage-car-art__mod garage-car-art__mod--intercooler" />
+        <span className="garage-car-art__mod garage-car-art__mod--exhaust" />
+        <span className="garage-car-art__mod garage-car-art__mod--wheels" />
+        <span className="garage-car-art__mod garage-car-art__mod--suspension" />
+        <span className="garage-car-art__mod garage-car-art__mod--seat" />
         <span className="garage-car-art__hotspot garage-car-art__hotspot--engine" />
         <span className="garage-car-art__hotspot garage-car-art__hotspot--drivetrain" />
         <span className="garage-car-art__hotspot garage-car-art__hotspot--rear" />

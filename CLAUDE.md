@@ -161,11 +161,10 @@ du -h apps/web/public/assets/*
 Everything here also sits on the GitHub Pages critical path, so weight is
 load time on the deployed site, not just clone time.
 
-**Current state, flagged rather than fixed:** `speedshop-parts-sheet.png` is
-2.3MB and `garage-civic-ek.png` is 2.0MB — together about 4.1MB, well over
-budget. They work and they are not worth rewriting history over, but they should
-be optimised in place before more art lands beside them, and new sheets should
-not follow their example.
+**Current state:** the original PNG additions remain in Git history, but the
+deployed files were replaced in Stage 3.4 by `speedshop-parts-sheet.webp`
+(94KB) and `garage-civic-ek.webp` (66KB). Keep future workshop assets around
+this scale; do not reintroduce the 4.1MB PNG pair on the live path.
 
 **Never commit original game artwork, binaries, logos or brands.** Everything
 drawn for this project is a clean-room replacement. That is a hard line, not a

@@ -172,7 +172,7 @@ fair game.
 
 - The garage follows the Version 1.53 visual hierarchy and the recovered 1.52
   state flow: selected-car overview, Vehicle Setup, department tabs, top-level
-  modification category, subsystem and component detail over a schematic car.
+  modification category, subsystem and component detail over a rendered car.
 - Owned inventory is separate from fitted hardware. Stored parts can be
   installed again and installed parts can be returned to storage.
 - Session average ET, best ET and completed runs appear on the selected car and
@@ -188,6 +188,13 @@ fair game.
 - Nitrous is visible as a locked Speedshop department until Stage 5.
 - A persistent bottom rail carries the selected car, cash and challenge status
   across the Garage and Speedshop flows.
+- Cash, owned parts and the fitted build persist locally between visits. This is
+  browser-only; Stage 9 still owns account and authoritative server saves.
+- Part detail screens show simulation-derived before/after power curves and
+  performance metrics, while visible workshop overlays reflect fitted systems.
+- The workshop has original replacement component art, sound feedback,
+  cursor-driven carousels and screen/component transitions. Exact art, sound
+  and timing remain clean-room inventions rather than historical claims.
 
 ---
 
