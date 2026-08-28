@@ -82,6 +82,10 @@ export type { DynoPoint, DynoResult } from './sim/dyno.js';
 export { runDyno } from './sim/dyno.js';
 export type { CpuOpponent } from './sim/cpu.js';
 export { CPU_OPPONENTS, playerBeatCpu, raceTotal, runCpuOpponent } from './sim/cpu.js';
+export type { RaceDecision, RaceEntry, RaceMode } from './sim/raceRules.js';
+export { adjudicateRace } from './sim/raceRules.js';
+export type { DrivePlan, DriveResult } from './testing/drive.js';
+export { drive, goodDrivePlan } from './testing/drive.js';
 export { ATMOSPHERIC_BAR, barToPsi, boostBar, chargeTorqueMultiplier, wotBoostBar } from './sim/boost.js';
 export {
   forwardGearCount,

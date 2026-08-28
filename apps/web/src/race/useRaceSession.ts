@@ -110,7 +110,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
   };
 }
 
-export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void,onCompleted?:(slip:TimingSlip)=>void,appearance?:Appearance) {
+export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void,onCompleted?:(slip:TimingSlip)=>void,appearance?:Appearance,onRecorded?:(slip:TimingSlip,timeline:import('@nitto/game-core').InputTimeline)=>void) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<PassState>(createPassState(car, tune, 1));
   const recorderRef = useRef<TimelineRecorder>(new TimelineRecorder(1));
@@ -123,8 +123,10 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
   const nitrousRef=useRef(false);
   const stressCallbackRef=useRef(onPassStress);
   const completedCallbackRef=useRef(onCompleted);
+  const recordedCallbackRef=useRef(onRecorded);
   useEffect(()=>{stressCallbackRef.current=onPassStress;},[onPassStress]);
   useEffect(()=>{completedCallbackRef.current=onCompleted;},[onCompleted]);
+  useEffect(()=>{recordedCallbackRef.current=onRecorded;},[onRecorded]);
   /** Last value pushed to React, so the spring-back only re-renders on change. */
   const throttleShownRef = useRef(0);
   const [throttle, setThrottleState] = useState(0);
@@ -309,6 +311,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
         setHistory((previous) => [...previous, completedSlip]);
         stressCallbackRef.current?.(state.mechanicalStress);
         completedCallbackRef.current?.(completedSlip);
+        recordedCallbackRef.current?.(completedSlip,recorderRef.current.build());
       }
 
       const phaseChanged = state.phase !== lastPhase;

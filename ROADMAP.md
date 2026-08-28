@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 8 complete. Stage 9 is next. The Garage Alpha milestone is playable.**
+**Current stage: Stage 12 complete in code. Stage 13 is next. The Online Beta runs with the local API; public backend deployment remains Stage 16.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -318,6 +318,37 @@ Completion criteria met:
 - [x] Simulator logic contains no Civic-specific performance branch.
 - [x] Two copies of a model can be visually distinct without separate renders.
 
+### Stages 9–12 — Online Beta
+
+- A separate Node API owns accounts, PBKDF2 password hashes, expiring sessions,
+  garages, wallets, owned cars, inventory, saved tunes and a fifty-pass history.
+  Versioned JSON persistence is atomic and intentionally replaceable by a
+  production database without moving gameplay rules into the web client.
+- Online garage actions and CPU-race payouts are server-authoritative. The web
+  app can request a transaction but cannot submit a replacement cash balance,
+  car list, part inventory or result slip.
+- Player search and asynchronous challenges support heads-up and bracket modes.
+  The server replays the stored input stream against an immutable build/tune
+  snapshot; the defender sees neither the first slip nor its inputs beforehand.
+- Heads-up fouls, bracket dial-ins, breakouts, double breakouts and ties are
+  decided by pure shared rules. Cash is escrowed before either challenge can be
+  committed and settlement is idempotent.
+- Teams support creation, applications, invitations, leader/member roles,
+  deposits, leader-only withdrawals, team-bank wagers, asynchronous team races
+  and persistent team records.
+
+Completion criteria met in automated service tests:
+
+- [x] A session restores the same server-owned garage and race history.
+- [x] Two racers can complete a challenge without overlapping online sessions.
+- [x] Locked runs remain hidden and immutable until adjudication.
+- [x] Heads-up, bracket and escrow edge cases have deterministic tests.
+- [x] Teams can hold funds and resolve asynchronous races exactly once.
+
+Deployment note: GitHub Pages serves only the web client. Cross-device accounts
+become publicly usable when the API is deployed and `VITE_API_URL` is set in
+Stage 16; this is an infrastructure activation dependency, not client storage.
+
 ---
 
 ## All sixteen stages
@@ -343,11 +374,11 @@ Stage 3 is yours.
 | ✅ | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
 | ✅ | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
 | ✅ | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
-| ▶️ | **9 — Accounts and Persistent Profiles** | **Login, persistent garage, server-authoritative economy** |
-| | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
-| | 11 — Heads-Up, Bracket, Wagers | Dial-ins, breakouts, escrowed cash |
-| | 12 — Teams | Create, join, team funds, team races |
-| | 13 — Special Cars and Endgame | Mopar drag car, funny car, late-game progression |
+| ✅ | 9 — Accounts and Persistent Profiles | Login, persistent garage, server-authoritative economy |
+| ✅ | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
+| ✅ | 11 — Heads-Up, Bracket, Wagers | Dial-ins, breakouts, escrowed cash |
+| ✅ | 12 — Teams | Create, join, team funds, team races |
+| ▶️ | **13 — Special Cars and Endgame** | **Special drag cars and late-game progression** |
 | | 14 — Historical UI Recreation | Making it look like the original |
 | | 15 — Historical Calibration | Making the cars *perform* like the original |
 | | 16 — Admin, Security, Deployment | Balance tools, moderation, monitoring |

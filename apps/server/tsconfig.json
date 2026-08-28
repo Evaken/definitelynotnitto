@@ -1,0 +1,1 @@
+{"extends":"../../tsconfig.base.json","compilerOptions":{"outDir":"./dist","rootDir":"./src","types":["node"],"baseUrl":".","paths":{"@nitto/game-core":["../../packages/game-core/src/index.ts"]}},"include":["src/**/*.ts"],"references":[{"path":"../../packages/game-core"}]}

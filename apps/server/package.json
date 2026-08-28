@@ -1,0 +1,1 @@
+{"name":"@nitto/server","private":true,"version":"0.1.0","type":"module","scripts":{"dev":"node --enable-source-maps dist/server.js","build":"tsc --build","typecheck":"tsc --build"},"dependencies":{"@nitto/game-core":"*"}}

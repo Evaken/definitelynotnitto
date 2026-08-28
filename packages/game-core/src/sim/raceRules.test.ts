@@ -1,0 +1,5 @@
+import { describe,expect,it } from 'vitest';
+import type { TimingSlip } from '../types/sim.js';
+import { adjudicateRace } from './raceRules.js';
+const slip=(et:number,rt=.1,extra:Partial<TimingSlip>={}):TimingSlip=>({reactionTime:rt,sixtyFoot:1.8,threeThirty:5,eighthMileEt:8,eighthMileMph:85,thousandFoot:11,quarterMileEt:et,quarterMileMph:100,foul:false,incomplete:false,...extra});
+describe('Stage 11 race rules',()=>{it('counts reaction time in heads-up racing',()=>{expect(adjudicateRace({slip:slip(12,.3)},{slip:slip(12.1,.05)},'heads-up').winner).toBe('right');});it('loses on a single red light',()=>{expect(adjudicateRace({slip:slip(1,0,{foul:true})},{slip:slip(20)},'heads-up').winner).toBe('right');});it('handles a single breakout',()=>{expect(adjudicateRace({slip:slip(11.9),dialIn:12},{slip:slip(12.1),dialIn:12},'bracket')).toMatchObject({winner:'right',reason:'breakout'});});it('awards a double breakout to the smaller breakout',()=>{expect(adjudicateRace({slip:slip(11.95),dialIn:12},{slip:slip(11.8),dialIn:12},'bracket')).toMatchObject({winner:'left',reason:'double-breakout'});});});
