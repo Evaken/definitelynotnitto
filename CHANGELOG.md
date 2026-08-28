@@ -1,5 +1,37 @@
 # Changelog
 
+## Why the canvas looked blurry
+
+Everything drawn on the race canvas was soft — the timing boards, the stage
+plates, the prompt, the dials — while the DOM text a few pixels away was sharp.
+Two causes, compounding.
+
+The canvas had a fixed 960x600 backing store and `width: 100%` in CSS, so the
+browser was stretching it to whatever the container happened to be — 972px, a
+1.0125x upscale. Then `image-rendering: pixelated` forced that fractional
+upscale through nearest-neighbour, which is exactly the wrong filter for smooth
+vector art and is what turned 8px labels to mush. On top of that the buffer was
+960 device pixels wide regardless of display density, so a 1.1x display upscaled
+it again.
+
+The backing store is now sized in JS to the displayed box times
+`devicePixelRatio`, with the context scaled by the same factor — 1070x669 on
+this machine instead of 960x600, and 1920x1200 on a 2x display. **Every drawing
+function still works in the same 960x600 coordinates**; the scale lives entirely
+in the transform, so nothing in `renderer/` had to change. A `ResizeObserver`
+keeps it in step, and the render loop re-checks `devicePixelRatio` in case the
+window is dragged to a different monitor.
+
+`image-rendering: pixelated` is gone.
+
+## The shift light moved onto the tacho
+
+The reference puts it lapping the tachometer's rim at the upper right, not
+floating in the gap beside it — and after the dials were clustered there was no
+gap left to float in. It now sits tangent to the rim with the same brushed ring
+the dials wear, and has lost its label: there is nowhere to put one, and the
+original has no label there either.
+
 ## The instrument binnacle
 
 The three dials were a row of evenly spaced discs. In the original they are a

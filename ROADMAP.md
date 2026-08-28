@@ -230,6 +230,10 @@ that asserts an exact ET now means rewriting it later.
   go when the page is reloaded or the car changes. Persisting them means
   deciding where they live, and that is Stage 9's question — writing to local
   storage now would be a second answer thrown away when accounts arrive.
+- **The canvas renders at device resolution now**, sized to the displayed box
+  times `devicePixelRatio`. If a future change reintroduces a fixed `width`
+  attribute on the canvas element, or `image-rendering: pixelated` in the CSS,
+  the whole scene goes soft again — both were the original cause.
 - **The dashboard is the right shape but not the right finish.** The original's
   casting is rendered metal with photographic gauge faces; ours is canvas paths
   and gradients. Matching it wants a background image asset — Stage 14, with the

@@ -182,6 +182,41 @@ export function useRaceSession(car: Car, tune: Tune) {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    /**
+     * Match the backing store to the pixels the canvas actually occupies.
+     *
+     * A 960x600 buffer stretched by CSS to any other size is resampled by the
+     * browser, and on a high-density display it is resampled again -- which is
+     * why the canvas text looked soft next to the DOM text beside it, drawn at
+     * native resolution. Sizing the buffer to (displayed box x devicePixelRatio)
+     * and scaling the context by the same factor means every stroke lands on a
+     * real device pixel while the drawing code goes on working in the 960x600
+     * coordinates it was written in.
+     */
+    const applyScale = () => {
+      const box = canvas.getBoundingClientRect();
+      if (box.width <= 0) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.round(box.width * dpr);
+      const height = Math.round((box.width * dpr * CANVAS_HEIGHT) / CANVAS_WIDTH);
+
+      // Assigning either dimension clears the canvas and resets the context, so
+      // only do it when something really changed.
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      lastDpr = dpr;
+      ctx.setTransform(width / CANVAS_WIDTH, 0, 0, height / CANVAS_HEIGHT, 0, 0);
+    };
+
+    let lastDpr = window.devicePixelRatio || 1;
+    applyScale();
+
+    const observer = new ResizeObserver(applyScale);
+    observer.observe(canvas);
+
     const keyboard = new KeyboardReader();
     const detach = keyboard.attach();
 
@@ -195,6 +230,10 @@ export function useRaceSession(car: Car, tune: Tune) {
 
     const loop = (now: number) => {
       frameHandle = requestAnimationFrame(loop);
+
+      // Dragging the window to a display of a different density changes this
+      // without changing the element's size, so the observer never fires.
+      if (window.devicePixelRatio !== lastDpr) applyScale();
 
       const keys = keyboard.read();
       if (keys.reset && !resetHeld) startPass();
@@ -286,6 +325,7 @@ export function useRaceSession(car: Car, tune: Tune) {
 
     return () => {
       cancelAnimationFrame(frameHandle);
+      observer.disconnect();
       detach();
     };
   }, [car, tune, startPass]);

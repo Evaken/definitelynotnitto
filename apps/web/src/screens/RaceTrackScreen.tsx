@@ -38,8 +38,6 @@ export function RaceTrackScreen() {
     throttle,
     setThrottle,
     releaseThrottle,
-    width,
-    height,
   } = useRaceSession(car, tune);
 
   const runComplete = snapshot.slip !== null;
@@ -61,8 +59,6 @@ export function RaceTrackScreen() {
         <canvas
           ref={canvasRef}
           className="race__canvas"
-          width={width}
-          height={height}
           aria-label="Drag strip, viewed from behind the car"
         />
         <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />

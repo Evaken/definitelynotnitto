@@ -42,7 +42,7 @@ const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
  * car is doing, this one is asking for an input, and it has to be readable
  * without looking away from the strip.
  */
-export const SHIFT_LIGHT = { cx: 484, cy: 406, r: 12 } as const;
+export const SHIFT_LIGHT = { cx: 486, cy: 415, r: 19 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -317,7 +317,9 @@ function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
 function drawShiftLight(ctx: CanvasRenderingContext2D, state: PassState): void {
   const { cx, cy, r } = SHIFT_LIGHT;
   const lit = shouldShiftUp(state.car, state.tune, state.gear, engineRpm(state));
-  lamp(ctx, cx, cy, COLORS.green, lit, 'SHIFT', r);
+  // No label: it sits on the tacho's rim, where there is nowhere to put one.
+  // The original has no label here either.
+  lamp(ctx, cx, cy, COLORS.green, lit, '', r, true);
 }
 
 function lamp(
@@ -328,6 +330,8 @@ function lamp(
   lit: boolean,
   label: string,
   radius = 11,
+  /** Ring it in the same brushed rim the dials use, so it reads as fitted. */
+  dialRim = false,
 ): void {
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -339,9 +343,11 @@ function lamp(
     ctx.fill();
     ctx.shadowBlur = 0;
   }
-  ctx.strokeStyle = '#12151b';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = dialRim ? COLORS.dialRim : '#12151b';
+  ctx.lineWidth = dialRim ? 2.5 : 1.5;
   ctx.stroke();
+
+  if (label === '') return;
 
   ctx.font = '8px Verdana, sans-serif';
   ctx.fillStyle = COLORS.textDim;

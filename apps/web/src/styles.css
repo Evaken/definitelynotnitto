@@ -241,12 +241,18 @@ body {
   line-height: 0;
 }
 
+/*
+ * The backing store is sized in JS to the displayed box times the device pixel
+ * ratio. "image-rendering: pixelated" used to live here and was making things
+ * worse: this is smooth vector art, and forcing nearest-neighbour onto a
+ * fractional upscale is what turned the small text to mush.
+ */
 .race__canvas {
   display: block;
   width: 100%;
   min-width: 0;
+  aspect-ratio: 960 / 600;
   background: #0b0d11;
-  image-rendering: pixelated;
 }
 
 /* --- Throttle grip ------------------------------------------------------ */
