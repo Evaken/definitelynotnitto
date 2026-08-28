@@ -132,6 +132,39 @@ The starter car being the wrong Civic *was* on this list. It is fixed —
 `BALANCE_NOTES.md` at once, exactly as predicted, which is why the file records
 both the before and after.
 
+## Images and binary assets
+
+Live in `apps/web/public/assets/`. Two rules, both learned the expensive way.
+
+**Git keeps every version of a binary forever.** Text files diff; a PNG does
+not. Re-exporting a 2MB sheet five times leaves 10MB in the repository
+permanently, and `git clone` pays it every time even though only the last one is
+ever used. There is no tidying it up later without rewriting history, which is
+blocked on `main`.
+
+So: **budget roughly 300KB per asset**, and prefer WebP — the reference
+screenshots in `docs/reference/` already are. A sprite sheet built for a 960x600
+canvas rarely needs more. Check what you are about to add:
+
+```bash
+du -h apps/web/public/assets/*
+```
+
+Everything here also sits on the GitHub Pages critical path, so weight is
+load time on the deployed site, not just clone time.
+
+**Current state, flagged rather than fixed:** `speedshop-parts-sheet.png` is
+2.3MB and `garage-civic-ek.png` is 2.0MB — together about 4.1MB, well over
+budget. They work and they are not worth rewriting history over, but they should
+be optimised in place before more art lands beside them, and new sheets should
+not follow their example.
+
+**Never commit original game artwork, binaries, logos or brands.** Everything
+drawn for this project is a clean-room replacement. That is a hard line, not a
+preference: the project's whole claim to being a recreation rather than a copy
+rests on it. Say so in the commit when you add art, as
+`a86867b` did.
+
 ## Git
 
 `main` is protected against force-push and deletion. Everything else in git is
