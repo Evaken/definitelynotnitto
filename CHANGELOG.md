@@ -1,5 +1,30 @@
 # Changelog
 
+## Two artefacts down the left edge, and square tyres
+
+A dark stripe between the timing panel and the grass, and a thin grey line just
+inside it. Both were mine, and they had different causes.
+
+**The stripe was the panel's shadow**, drawn as a 4px stroke offset three pixels
+inside the panel edge. A stroke has a hard edge on *both* sides, so instead of
+the panel appearing to stand proud of the picture, a dark band appeared to be
+painted onto the grass. It now comes off the panel's own fill with
+`shadowBlur`, which falls off the way a shadow does.
+
+**The grey line was the viewport's own border.** `strokeRect` around the road
+view made sense when the view was a box in a rectangular layout. Once the side
+panels swept outward past the view's own edge — anywhere below about y=130 —
+that border stopped being covered and showed through onto the scene as a hairline.
+The panels frame the sides now, the canvas edge is the top and the cowl covers
+the bottom, so the border was bounding nothing. Removed.
+
+**The tyres are rectangles.** A wheel's axis points across the car, so from
+directly behind you see the tread band edge-on: as wide as the tyre's section,
+as tall as its diameter. The round faces are turned away and contribute nothing.
+Drawing ellipses put the circle in the one plane where it cannot be seen, which
+is why it looked wrong without it being obvious why. The gradient across the
+width is the only curvature there is to show.
+
 ## Why the canvas looked blurry
 
 Everything drawn on the race canvas was soft — the timing boards, the stage

@@ -155,18 +155,30 @@ function body(
   ctx.fill();
 }
 
+/**
+ * A tyre, seen from directly behind.
+ *
+ * A rectangle, not a circle. The wheel's axis points across the car, so from
+ * behind you are looking at the tread band edge-on: as wide as the tyre's
+ * section and as tall as its diameter. The round faces are turned away and
+ * contribute nothing. Drawing them as ellipses put the circle in the one plane
+ * where it cannot be seen, which is why it read as wrong without being obvious
+ * why.
+ *
+ * The gradient across the width is the only curvature there is to show -- a
+ * cylinder lit from in front, brightest along its centre line.
+ */
 function wheel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
   if (r < 0.6) return;
-  ctx.fillStyle = '#15181d';
-  ctx.beginPath();
-  ctx.ellipse(x, y, r * 0.62, r, 0, 0, Math.PI * 2);
-  ctx.fill();
 
-  if (r < 3) return;
-  ctx.fillStyle = '#9aa2b0';
-  ctx.beginPath();
-  ctx.ellipse(x, y, r * 0.3, r * 0.5, 0, 0, Math.PI * 2);
-  ctx.fill();
+  const halfWidth = r * 0.62;
+  const shade = ctx.createLinearGradient(x - halfWidth, 0, x + halfWidth, 0);
+  shade.addColorStop(0, '#0e1115');
+  shade.addColorStop(0.42, '#2b3138');
+  shade.addColorStop(1, '#12161b');
+
+  ctx.fillStyle = shade;
+  ctx.fillRect(x - halfWidth, y - r, halfWidth * 2, r * 2);
 }
 
 /**

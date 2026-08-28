@@ -52,10 +52,6 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   // Everything from here is the casting the game sits in, painted over the
   // finished scene rather than the scene being fitted around it. That is what
   // keeps the projection out of it: the cowl can move without the road moving.
-  ctx.strokeStyle = COLORS.panelEdge;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(VIEW.x + 0.5, VIEW.y + 0.5, VIEW.w - 1, VIEW.h - 1);
-
   // The side panels are blocks of dashboard the view is a hole in, so they go
   // down before the boards that sit on them.
   drawSidePanels(ctx);

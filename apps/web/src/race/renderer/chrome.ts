@@ -180,6 +180,14 @@ function panel(ctx: CanvasRenderingContext2D, side: 'left' | 'right'): void {
   shade.addColorStop(0.5, '#5a4715');
   shade.addColorStop(0.85, '#9c7d24');
   shade.addColorStop(1, '#cfa93a');
+
+  // The shadow comes off the panel's own fill rather than a second stroke laid
+  // over the picture. A stroke has hard edges on both sides, so it read as a
+  // dark stripe painted on the grass instead of as the panel standing proud of
+  // it -- which is exactly how it looked.
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetX = inward * 5;
   ctx.fillStyle = shade;
   ctx.fill();
   ctx.restore();
@@ -190,14 +198,6 @@ function panel(ctx: CanvasRenderingContext2D, side: 'left' | 'right'): void {
   traceEdge(ctx, p);
   ctx.strokeStyle = 'rgba(246, 216, 130, 0.6)';
   ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // ...and the shadow it casts onto the picture.
-  const shifted = p.map(([x, y]) => [x - inward * 3, y] as [number, number]);
-  ctx.beginPath();
-  traceEdge(ctx, shifted);
-  ctx.strokeStyle = 'rgba(6, 8, 12, 0.5)';
-  ctx.lineWidth = 4;
   ctx.stroke();
   ctx.restore();
 }
