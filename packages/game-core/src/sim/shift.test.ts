@@ -11,11 +11,9 @@ const { redlineRpm } = CIVIC_SI.engine;
 /**
  * A deliberately peaky engine, for the tests that need a crossover to exist.
  *
- * The Civic's curve is flat -- 13% from peak to redline -- so no gearbox put in
- * front of it ever wants an early shift, and comparisons between gearboxes all
- * come out at the limiter. This one falls away hard after 4000, which is what
- * makes the choice of ratio matter. It is roughly the shape the EK B16 will
- * have when the starter car is corrected at Stage 15.
+ * No gearbox put in front of the Civic ever wants an early shift, so comparisons
+ * between gearboxes all come out at the limiter and prove nothing. This engine
+ * falls away hard after 4000, which is what makes the choice of ratio bite.
  */
 function peaky(gearRatios: readonly number[]): Car {
   return {
@@ -111,13 +109,14 @@ describe('the shift light', () => {
 
 describe('the stock Civic', () => {
   it('wants every gear held to the limiter', () => {
-    // Its curve is flat enough that the next gear never out-pulls the current
-    // one before the revs run out, which is what BALANCE_NOTES already records
-    // by measurement: shifting at 6800 beats shifting at 6500.
+    // Not because the B16's curve is flat -- it is not -- but because the S4C's
+    // ratios are close enough that the revs barely fall on a change, so the next
+    // gear never out-pulls the one selected before the limiter arrives.
     //
-    // This is a fact about the K20A3 curve, not a rule. Correcting the starter
-    // car to the EK B16 at Stage 15 should be expected to break it, and that is
-    // the test doing its job -- a peakier engine genuinely wants earlier shifts.
+    // This survived the correction from the EP3, which was not expected: the
+    // prediction was that a peakier engine would want earlier shifts. It wants
+    // them just as late and punishes getting them wrong far harder. Ratios turn
+    // out to matter more here than the shape of the curve.
     for (let gear = 1; gear < CIVIC_SI.gearbox.gearRatios.length; gear++) {
       expect(optimalShiftRpm(CIVIC_SI, tune, gear), `gear ${gear}`).toBe(redlineRpm);
     }

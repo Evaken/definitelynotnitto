@@ -7,72 +7,100 @@ Stage 15, once there is a roster to calibrate and evidence to calibrate against.
 This file exists to record what the current numbers actually are, so a future
 change that moves them is visible.
 
-## Everything below describes the wrong car
-
-The starter car is a **sixth-generation EK Civic hatchback**
-(`docs/reference/garage-paint-shop.webp`), not the EP3 this project models. A
-B16 revs past 8,000rpm and makes far less torque, much higher up, than the
-K20A3 in `data/cars/civic-si.ts`.
-
-So every figure here is internally consistent and externally wrong. They still
-serve their purpose — showing which driving levers matter and by how much — but
-do not treat them as targets. Correcting the car is calibration work; see
-`HISTORICAL_NOTES.md`.
+Every figure below was regenerated after the starter car was corrected from an
+EP3 K20A3 to the EK B16A2 the original actually used. The car is now plausible
+*as the right car*; it is still not calibrated to the game.
 
 ## Current measured performance
 
-Honda Civic Si, stock, as of Stage 1. Well-driven pass, seed 7, staged mid-window
-with revs held at 3500 in neutral:
+Civic Si Hatchback, stock, seed 7, staged 0.27m off the line, revs held at 5,500
+in neutral, shifting at 8,100:
 
-| Measure | Value |
-|---|---|
-| Reaction time | 0.372 |
-| 60 ft | 2.408 |
-| 1/8 ET | ~10.1 |
-| 1/4 ET | 15.747 |
-| 1/4 MPH | 87.7 |
+| Measure | Value | Was, as an EP3 |
+|---|---|---|
+| Reaction time | 0.399 | 0.372 |
+| 60 ft | 2.493 | 2.408 |
+| 1/8 ET | 9.889 | ~10.1 |
+| 1/4 ET | **15.272** | 15.747 |
+| 1/4 MPH | **91.2** | 87.7 |
 
-Reasonable for a real 2003 Civic Si. **Unverified against Nitto 1320
-Challenge** — see HISTORICAL_NOTES.md.
+Quicker and quite a bit faster through the traps, which is the expected shape:
+140kg less to move and 1,400rpm more to use, against 27Nm less torque to do it
+with. A real 1999 Civic Si ran mid-15s at around 90mph, so this sits where it
+should. **Still unverified against Nitto 1320 Challenge.**
 
 ## How driving affects the stock Civic
 
-Measured, holding everything else constant. These are the levers Stage 2 will
-sharpen.
+Measured, holding everything else constant.
 
 **Launch technique.** Revs held in neutral, first selected as the tree drops:
 
 | Revs held | 60 ft | 1/4 ET | |
 |---|---|---|---|
-| 1500 | 2.721 | 16.242 | bogged |
-| 2500 | 2.462 | 15.903 | |
-| 3500 | 2.408 | 15.747 | best |
-| 4500 | 2.494 | 16.007 | |
-| 5500 | 2.579 | 16.251 | |
-| 6500 | 2.694 | 16.492 | wheelspin |
-| *sit in gear, open throttle* | 2.918 | 16.460 | no revs to launch on |
+| 1500 | 2.823 | 15.955 | bogged |
+| 2500 | 2.609 | 15.689 | |
+| 3500 | 2.511 | 15.515 | |
+| 4500 | 2.487 | 15.425 | |
+| 5500 | 2.493 | **15.272** | best |
+| 6500 | 2.533 | 15.763 | wheelspin |
+| 7500 | 2.579 | 16.015 | |
+| *sit in gear, open throttle* | 2.915 | 16.058 | no revs to launch on |
 
-Note the last row: simply opening the throttle from a standstill in gear is
-worse than every neutral-rev launch except a redline one. The clutch comes home
-while the engine is still near idle.
+The optimum moved from 3,500 to 5,500 with the engine, which is right — a B16
+has nothing worth using below about 4,000.
 
-**Shift point,** quarter-mile ET: 4500 rpm gives 24.554, 5500 gives 21.416,
-6500 gives 15.747, and shifting at the limiter gives 15.652. This gearbox
-rewards shifting late; whether that should remain true is a Stage 2 question.
+**This nearly did not survive the correction.** Carried over unchanged, the
+EP3's `peakGrip: 1.15` was more grip than a stock B16 can overcome: launch revs
+became monotonically better all the way to the limiter and the choice
+disappeared entirely. The sweep that settled it, best launch rpm by grip:
+
+| peakGrip | Best launch | ET | Behaviour |
+|---|---|---|---|
+| 1.15 | 8000 | 15.091 | no optimum — more revs always better |
+| **1.05** | **5500** | **15.272** | clear optimum, real penalty either side |
+| 1.00 | 4500 | 15.405 | |
+| 0.95 | 3500 | 15.529 | |
+| 0.90 | 2500 | 15.663 | spins on almost anything |
+
+1.05 is the value in the car. It is still above what a street tyre manages in
+the real world, for the reason the comment in `civic-si.ts` gives: a prepared
+strip is sticky.
+
+**Shift point,** quarter-mile ET:
+
+| Shift at | 1/4 ET | MPH |
+|---|---|---|
+| 4500 | 26.003 | 60.6 |
+| 5500 | 17.815 | 79.4 |
+| 6500 | 16.759 | 83.2 |
+| 7500 | 15.867 | 88.2 |
+| 8100 | 15.272 | 91.2 |
+| 8200 (limiter) | 15.243 | 91.5 |
+
+Short-shifting is now *savage* — 4,500 costs more than ten seconds, where the
+same mistake in the EP3 cost nine. That is the difference between a flat 2.0 and
+a 1.6 that makes nothing off VTEC, and it is the single biggest change in feel.
+
+`optimalShiftRpm` still returns the limiter for all four changes. **This did not
+move with the engine, contrary to what was expected**: the S4C's ratios are close
+enough that the revs barely fall on a change, so the next gear never out-pulls
+the one selected before the limiter arrives. The shift light therefore still
+lights at 7,800. The peaky curve made short-shifting cost far more, but it did
+not move where the shift belongs.
 
 **Staging depth,** across the 1.2 m window:
 
 | Stopped at | R/T | 1/4 ET |
 |---|---|---|
-| −0.87 m | 0.638 | 15.496 |
-| −0.54 m | 0.509 | 15.616 |
-| −0.27 m | 0.372 | 15.747 |
-| −0.20 m | 0.328 | 15.789 |
-| −0.06 m | 0.197 | 15.916 |
+| −0.87 m | 0.665 | 15.021 |
+| −0.54 m | 0.537 | 15.141 |
+| −0.27 m | 0.399 | 15.272 |
+| −0.20 m | 0.354 | 15.316 |
+| −0.06 m | 0.235 | 15.431 |
 
-Roughly 0.44 s of reaction time traded against 0.42 s of elapsed time across the
-window — a much larger and more legible decision than the few hundredths the
-earlier NHRA-width beams allowed.
+About 0.43 s of reaction time traded against 0.41 s of elapsed time across the
+window — essentially unchanged by the new car, as it should be, since it is a
+property of the staging geometry rather than the engine.
 
 ## Targets from the specification
 
@@ -87,7 +115,7 @@ validated during research:
 | Viper | low 6s |
 | Special drag cars | much faster |
 
-Nothing is known about stock ETs, which is what Stage 1 through 6 actually need.
+Nothing is known about stock ETs, which is what Stages 1 through 6 actually need.
 
 ## Prices
 

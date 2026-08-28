@@ -3,7 +3,9 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 1 complete, view rebuilt. Stage 2 is next.**
+**Current stage: Stage 2, in progress.** Stage 1 is complete, the view has been
+rebuilt, and the starter car has been corrected from an EP3 to the EK B16 the
+original actually used.
 
 Surviving screenshots turned up in [`docs/reference/`](docs/reference/) after
 Stage 1 was finished and showed the race view was wrong -- the original used a
@@ -199,13 +201,10 @@ that asserts an exact ET now means rewriting it later.
 ## Known limitations
 
 - **The Civic's figures are real-world approximations, not values recovered
-  from Nitto 1320 Challenge.** It currently runs about 15.7s at 87mph. That is
-  reasonable for a real 2003 Civic Si; whether it matches the original game is
-  unknown. Calibration is Stage 15.
-- **The starter car is the wrong Civic.** The original's is a sixth-generation
-  EK hatchback; this project models an EP3. Different engine family, ~1,400rpm
-  more redline, much less torque. Every figure in BALANCE_NOTES.md is therefore
-  externally wrong while remaining internally consistent.
+  from Nitto 1320 Challenge.** It runs about 15.3s at 91mph, which is reasonable
+  for a real 1999 Civic Si. Whether it matches the original game is still
+  unknown, and calibrating to that is Stage 15. The car is at least the right
+  car now: the EP3/EK mistake is fixed.
 - **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
   slider. Leaving it out is a project decision, not an oversight — but the
   neutral-rev launch technique exists *because* of that choice.

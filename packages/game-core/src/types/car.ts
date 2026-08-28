@@ -29,7 +29,7 @@ export interface TorquePoint {
 export type TorqueCurve = readonly TorquePoint[];
 
 export interface EngineSpec {
-  /** Human-readable engine code, e.g. "K20A3". Display only. */
+  /** Human-readable engine code, e.g. "B16A2". Display only. */
   readonly code: string;
   readonly curve: TorqueCurve;
   /** Lowest speed the engine will hold without stalling. */

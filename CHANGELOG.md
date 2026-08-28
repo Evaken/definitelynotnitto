@@ -1,5 +1,52 @@
 # Changelog
 
+## The right Civic
+
+The starter car was an EP3 with a K20A3. The original's is a sixth-generation EK
+hatchback with a B16 — a different engine family, 1,400rpm more redline and far
+less torque, made much higher up. `data/cars/civic-si.ts` now describes a B16A2:
+160hp at 7,600, 111 lb-ft at 7,000, an 8,200 fuel cut, the S4C five-speed behind
+a 4.266 final drive, in a car 140kg lighter.
+
+Brought forward from Stage 15 for the reason the chase camera was brought
+forward from Stage 14: Stage 2 is driving feel, and tuning feel against the wrong
+engine family is work thrown away.
+
+The car got quicker and considerably faster — **15.272 at 91.2mph**, against
+15.747 at 87.7 — which is the shape you would expect from less weight and more
+revs against less torque.
+
+Two things the correction turned up, both of which are the interesting part:
+
+**The tyre grip had to move with the engine.** `peakGrip: 1.15` was chosen for a
+car 140kg heavier making 27Nm more. Against a stock B16 it is simply more grip
+than the engine can overcome, and launch revs stopped mattering at all — more was
+monotonically better right up to the limiter, with the 60ft flat to three decimal
+places from 5,500 upward. The choice between bogging and wheelspin, which is one
+of Stage 2's stated criteria, had quietly disappeared. At 1.05 there is a real
+optimum at 5,500 with a genuine penalty either side.
+
+That failure was invisible from the test suite, which stayed green throughout.
+`goodDrivePlan` still short-shifted at 6,500 — 1,700rpm below the new limiter —
+and launching above that tripped the scripted driver's upshift the instant the
+car moved. The resulting cliff looked exactly like wheelspin and kept the
+"there is an optimum" test passing for entirely the wrong reason. The plan now
+shifts at 8,100 and holds 5,500.
+
+**The shift point did not move, and was expected to.** The prediction, written
+into `HISTORICAL_NOTES.md` and a test comment the day before, was that a peakier
+engine would want a noticeably earlier shift. It does not: the S4C's ratios are
+close enough that the revs barely fall on a change, so the next gear never
+out-pulls the one selected before the limiter arrives. Where to shift is
+unchanged. What changed is the cost of getting it wrong — short-shifting at 4,500
+now throws away more than ten seconds, against nine before. Ratios turn out to
+matter more here than the shape of the curve, which is an argument for having
+computed the shift point rather than picked one.
+
+All of it is still real-world approximation, not recovered from the game. The car
+is now right *as a Civic*; whether it is right *as the original's Civic* is
+unknown, and Stage 15 still owns that.
+
 ## A shift light, and a staging bar you can read backwards
 
 Two instrument changes.
@@ -24,12 +71,11 @@ would have been wrong for the second car added and wrong again as soon as Stage
 4 lets the player edit ratios; this follows both.
 
 On the stock Civic the answer is the limiter in every gear, which is not a
-special case but a fact about a flat torque curve — it only falls 13% from peak
-to redline, so the next gear never gets ahead before the revs run out.
+special case but a consequence of close gear ratios — the revs barely fall on a
+change, so the next gear never gets ahead before they run out.
 `BALANCE_NOTES.md` had already measured the same thing from the other end:
-shifting at 6,800 beats shifting at 6,500. Correcting the starter car to the EK
-B16 will move these shift points down, and `shift.test.ts` asserts the current
-behaviour so that change announces itself.
+shifting at 6,800 beats shifting at 6,500. (Correcting the car to the EK B16 was
+expected to move these shift points down. It did not — see the entry above.)
 
 The LIMIT tell-tale went from green to amber. Two green lamps meaning opposite
 things — *shift now* and *you left it too late* — was the wrong signal.

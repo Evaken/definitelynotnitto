@@ -218,8 +218,8 @@ export function goodDrivePlan(seed = 1): DrivePlan {
     stageAtM: -0.5,
     creepThrottle: 0.14,
     launchThrottle: 1,
-    neutralRevRpm: 3500,
+    neutralRevRpm: 5500,
     reactionSeconds: 0,
-    shiftRpm: 6500,
+    shiftRpm: 8100,
   };
 }

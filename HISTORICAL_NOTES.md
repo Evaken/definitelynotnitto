@@ -195,12 +195,16 @@ change (`sim/shift.ts`), not hardcoded: hardcoding a rev figure would be wrong
 for the second car added, and wrong again the moment Stage 4 lets the player
 change ratios.
 
-On the stock Civic it works out at the limiter, because a curve that only falls
-13% from peak to redline never gives the next gear the advantage before the revs
-run out. That agrees with `BALANCE_NOTES.md`, which measured shifting at 6,800
-as quicker than at 6,500. **Correcting the starter car to the EK B16 should be
-expected to move it well down the range** — a peakier engine genuinely wants an
-earlier shift — and `shift.test.ts` will fail when it does, which is the point.
+On the stock Civic it works out at the limiter in every gear. **This was expected
+to change when the car was corrected to the EK B16, and it did not.** The
+reasoning was that a peaky engine wants an earlier shift, which is true as far as
+it goes -- but where the shift belongs depends on the ratios as much as the
+curve, and the S4C's are close enough that the revs barely fall on a change. The
+next gear therefore never out-pulls the one selected before the limiter arrives.
+
+What the correction *did* change is the cost of getting it wrong: short-shifting
+at 4,500 now costs more than ten seconds over the quarter, against nine before.
+The lever got much heavier without moving.
 
 The lamp comes on 400rpm before the crossover so a driver who reacts to it is
 not already past. That lead is invented.
@@ -249,29 +253,37 @@ The Civic's reverse ratio is a real-world figure. Reverse exists so a driver who
 rolls through the stage line can back up; whether the original allowed that is
 unknown.
 
-### Civic Si — wrong generation, `sourced`
+### Civic Si — corrected to the EK B16, `sourced`
 
 Source: `garage-paint-shop.webp` and `race-view-two-civics.webp`.
 
-The starter car is called `Civic SI Hatchback`, and the render is unmistakably
-a **sixth-generation EK hatchback** (1996–2000) — the low, wide shape with
-sixth-gen headlights. **Not** the EP3 this project modelled.
+The starter car is called `Civic SI Hatchback`, and the render is unmistakably a
+**sixth-generation EK hatchback** (1996-2000). The project modelled an EP3 with a
+K20A3 until this was noticed, which was the wrong car and the wrong engine family
+entirely.
 
-That is not a cosmetic difference. Our car data is a K20A3: 160hp, peak torque
-around 5,000rpm, 6,800rpm redline. The EK-era Si is a B16 — similar peak power
-but far less torque, made much higher up, with a redline north of 8,000rpm. A
-peakier, more gear-sensitive car that would want shifting differently.
+**`data/cars/civic-si.ts` now describes a B16A2** -- the 1.6 VTEC of the
+1999-2000 Civic Si, 160hp at 7,600rpm, 111 lb-ft at 7,000rpm, 8,200rpm fuel cut,
+the S4C five-speed behind a 4.266 final drive, in a car around 140kg lighter.
+Those are real-world figures, tagged accordingly: they make the car right *as a
+Civic*, not right *as the original game's Civic*, which nobody has evidence for.
+Calibrating to the game is still Stage 15.
 
-**`data/cars/civic-si.ts` still describes the EP3 and is now known to be the
-wrong car.** Correcting it means a new torque curve, redline, gearing and mass.
-It is deliberately not done yet: it changes every measured figure in
-`BALANCE_NOTES.md` at once, so it belongs with the calibration work rather than
-being slipped in alongside a renderer rewrite.
+Corrected before Stage 2's driving-feel work rather than at Stage 15, for the
+same reason the chase camera was rebuilt early: tuning how a car feels to drive
+against the wrong engine family is work thrown away. Every figure in
+`BALANCE_NOTES.md` was regenerated.
 
-**The original game's stock Civic performance is still unknown.** PROJECT_SPEC 15
-notes a *fully modified* Civic should reach the low 8s, which says nothing about
-the stock car. Until a figure is found, Stage 1's tests assert only wide
-plausibility bands (13–19s).
+Two things the correction taught us, both recorded there in full:
+
+- **The tyre grip had to move with it.** `peakGrip: 1.15` was chosen for a
+  heavier, torquier car, and against a B16 it was simply more grip than the
+  engine can overcome -- launch revs stopped mattering at all. 1.05 restores a
+  real optimum. Grip is per-car data, so this does not touch any other car.
+- **The shift point did not move.** It was expected to drop well below the
+  limiter on a peaky engine; it did not, because the S4C's ratios are close
+  enough that the revs barely fall on a change. Short-shifting now costs far
+  more, but where to shift is unchanged.
 
 ### Economy — not yet implemented
 

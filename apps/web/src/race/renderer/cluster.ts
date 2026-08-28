@@ -313,8 +313,9 @@ function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
  *
  * Where that point falls is computed from the torque curve and the two ratios
  * either side of the change, not hardcoded -- see sim/shift.ts. On the stock
- * Civic the curve is flat enough that it works out at the limiter, but a peakier
- * engine or a closer gearset will move it, and the light moves with it.
+ * Civic it works out at the limiter, because the gearbox's ratios are close
+ * enough that the revs barely fall on a change -- a wider gearset or a curve that
+ * collapses after peak will move it, and the light moves with it.
  *
  * It comes on shortly before the crossover so a driver who reacts to it is not
  * already past. LIMIT beside it still means what it always did: too late.

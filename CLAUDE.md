@@ -121,10 +121,16 @@ asymptotically. Judge "stopped" against a threshold.
 Recorded in `ROADMAP.md` with the reasoning. Do not "fix" it in passing — it is
 its own piece of work.
 
-- **The starter car is the wrong Civic.** The original's is a sixth-generation
-  EK hatchback; `data/cars/civic-si.ts` models an EP3. Different engine family
-  entirely. Changing it moves every number in `BALANCE_NOTES.md` at once, so it
-  belongs with calibration.
+- **`COMMUNITY` is missing from the navigation.** The original had eight tabs;
+  the spec lists seven. Adding it is Stage 14's work, not a one-line patch, and
+  nothing is known about what the screen contained.
+- **The car art is a placeholder.** A generic hatchback rear behind the
+  `CarArtwork` seam. Real per-car artwork is Stage 8.
+
+The starter car being the wrong Civic *was* on this list. It is fixed —
+`data/cars/civic-si.ts` is now a B16A2. Correcting it moved every figure in
+`BALANCE_NOTES.md` at once, exactly as predicted, which is why the file records
+both the before and after.
 
 ## Git
 
