@@ -5,11 +5,25 @@
 A dark stripe between the timing panel and the grass, and a thin grey line just
 inside it. Both were mine, and they had different causes.
 
-**The stripe was the panel's shadow**, drawn as a 4px stroke offset three pixels
-inside the panel edge. A stroke has a hard edge on *both* sides, so instead of
-the panel appearing to stand proud of the picture, a dark band appeared to be
-painted onto the grass. It now comes off the panel's own fill with
-`shadowBlur`, which falls off the way a shadow does.
+**The stripe was bare canvas.** I first blamed the panel's drop shadow, changed
+it, and the stripe was still there — the fix that mattered came from sampling a
+row of pixels instead of reasoning about the code:
+
+    x=205: 69,76,89   board bezel
+    x=208: 61,56,48   panel edge
+    x=211: 11,13,17   <- nothing had drawn here
+    x=214: 64,94,64   grass
+
+A three-pixel gutter between the board's bezel and the road view, painted by
+nothing at all. The side panels used to cover it; once their curve swept
+outward past the view's own edge — below about y=130 — they stopped reaching,
+and the background showed through. The boards are three pixels wider now so
+their bezels meet the view, and `chrome.test.ts` asserts that they do.
+
+The shadow change stands on its own merits — a 4px stroke has a hard edge on
+*both* sides, so it read as a band painted on the grass rather than as the panel
+standing proud of it, and it comes off the fill with `shadowBlur` now. But it
+was not the bug.
 
 **The grey line was the viewport's own border.** `strokeRect` around the road
 view made sense when the view was a box in a rectangular layout. Once the side
@@ -18,9 +32,11 @@ that border stopped being covered and showed through onto the scene as a hairlin
 The panels frame the sides now, the canvas edge is the top and the cowl covers
 the bottom, so the border was bounding nothing. Removed.
 
-**The tyres are rectangles.** A wheel's axis points across the car, so from
-directly behind you see the tread band edge-on: as wide as the tyre's section,
-as tall as its diameter. The round faces are turned away and contribute nothing.
+**The tyres are rectangles**, as wide as the gap between the track and the body
+(0.22m, which is a real tyre) so their outer walls line up with the flanks
+rather than standing proud of them. A wheel's axis points across the car, so
+from behind you see the tread band edge-on: as wide as the section, as tall as
+the diameter. The round faces are turned away and contribute nothing.
 Drawing ellipses put the circle in the one plane where it cannot be seen, which
 is why it looked wrong without it being obvious why. The gradient across the
 width is the only curvature there is to show.

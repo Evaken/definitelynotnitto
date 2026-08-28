@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { COWL_CROWN_Y, dashTopY, panelEdgeXAt } from './chrome.js';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, HORIZON_Y, VIEW } from './layout.js';
+import { BOARD_BEZEL_PAD, COWL_CROWN_Y, dashTopY, panelEdgeXAt } from './chrome.js';
+import {
+  BOARD_LEFT,
+  BOARD_RIGHT,
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  HORIZON_Y,
+  VIEW,
+} from './layout.js';
 import { CLUTCH_SLIDER, DIALS, GAS_SLIDER, SHIFT_LIGHT } from './cluster.js';
 
 const CENTRE = CANVAS_WIDTH / 2;
@@ -189,5 +196,26 @@ describe('the dial cluster', () => {
       expect(d.cy + d.r, `${name} bottom`).toBeLessThan(CANVAS_HEIGHT);
       expect(d.cx - d.r, `${name} left`).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('the boards and the road view', () => {
+  it('leave no bare canvas between them', () => {
+    // Where the side panels sweep outward past the view's own edge they stop
+    // covering this gutter, and anything the boards do not reach shows through
+    // as a strip of raw background -- which read as a dark stripe nobody had
+    // drawn, sitting between the timing panel and the grass.
+    expect(BOARD_LEFT.x + BOARD_LEFT.w + BOARD_BEZEL_PAD).toBeGreaterThanOrEqual(VIEW.x);
+    expect(BOARD_RIGHT.x - BOARD_BEZEL_PAD).toBeLessThanOrEqual(VIEW.x + VIEW.w);
+  });
+
+  it('reach down far enough for the cowl to take over', () => {
+    const bottom = Math.max(BOARD_LEFT.y + BOARD_LEFT.h, BOARD_RIGHT.y + BOARD_RIGHT.h);
+    expect(bottom + BOARD_BEZEL_PAD).toBeGreaterThanOrEqual(dashTopY(BOARD_LEFT.x + BOARD_LEFT.w));
+  });
+
+  it('sits them symmetrically', () => {
+    expect(BOARD_LEFT.x).toBe(CANVAS_WIDTH - (BOARD_RIGHT.x + BOARD_RIGHT.w));
+    expect(BOARD_LEFT.w).toBe(BOARD_RIGHT.w);
   });
 });

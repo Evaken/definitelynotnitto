@@ -19,6 +19,11 @@ const BODY_WIDTH_M = 1.72;
 const BODY_HEIGHT_M = 1.36;
 const TRACK_WIDTH_M = 1.5;
 const WHEEL_DIAMETER_M = 0.6;
+/**
+ * Tyre section width, derived so the outer wall lines up with the flank rather
+ * than standing proud of it. Falls out at 0.22m, which is a real tyre.
+ */
+const TYRE_WIDTH_M = BODY_WIDTH_M - TRACK_WIDTH_M;
 
 export interface CarPaint {
   /** Main bodywork. */
@@ -77,8 +82,9 @@ export const PLACEHOLDER_CAR: CarArtwork = {
     // Wheels first: the body overlaps them, which reads as the arches sitting
     // proud of the tyres rather than the car floating above them.
     const trackHalf = (TRACK_WIDTH_M / 2) * s;
-    wheel(ctx, base.x - trackHalf, groundY - wheelR, wheelR);
-    wheel(ctx, base.x + trackHalf, groundY - wheelR, wheelR);
+    const tyreHalf = (TYRE_WIDTH_M / 2) * s;
+    wheel(ctx, base.x - trackHalf, groundY - wheelR, wheelR, tyreHalf);
+    wheel(ctx, base.x + trackHalf, groundY - wheelR, wheelR, tyreHalf);
 
     ctx.save();
     ctx.translate(base.x, groundY);
@@ -168,10 +174,15 @@ function body(
  * The gradient across the width is the only curvature there is to show -- a
  * cylinder lit from in front, brightest along its centre line.
  */
-function wheel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
+function wheel(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  halfWidth: number,
+): void {
   if (r < 0.6) return;
 
-  const halfWidth = r * 0.62;
   const shade = ctx.createLinearGradient(x - halfWidth, 0, x + halfWidth, 0);
   shade.addColorStop(0, '#0e1115');
   shade.addColorStop(0.42, '#2b3138');

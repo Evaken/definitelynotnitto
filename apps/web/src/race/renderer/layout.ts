@@ -14,11 +14,18 @@ export const CANVAS_HEIGHT = 600;
 // --- Regions ---------------------------------------------------------------
 
 /** Progress down the strip, down the far left edge. */
-export const POSITION_BAR = { x: 0, y: 6, w: 22, h: 394 } as const;
+export const POSITION_BAR = { x: 0, y: 6, w: 22, h: 400 } as const;
 
-/** Timing boards either side of the road. Left is the player. */
-export const BOARD_LEFT = { x: 34, y: 6, w: 172, h: 394 } as const;
-export const BOARD_RIGHT = { x: 754, y: 6, w: 172, h: 394 } as const;
+/**
+ * Timing boards either side of the road. Left is the player.
+ *
+ * Sized so their bezels meet the road view exactly. Where the side panels sweep
+ * outward past the view's own edge they stop covering this gutter, and anything
+ * narrower leaves a strip of bare canvas showing between the board and the
+ * grass -- which is what it looked like: a dark stripe nobody had drawn.
+ */
+export const BOARD_LEFT = { x: 34, y: 6, w: 175, h: 400 } as const;
+export const BOARD_RIGHT = { x: 751, y: 6, w: 175, h: 400 } as const;
 
 /** The road view itself. */
 export const VIEW = { x: 214, y: 0, w: 532, h: 412 } as const;

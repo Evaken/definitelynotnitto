@@ -236,11 +236,10 @@ export function drawBoardBezel(
   ctx: CanvasRenderingContext2D,
   box: { readonly x: number; readonly y: number; readonly w: number; readonly h: number },
 ): void {
-  const pad = 5;
-  const x = box.x - pad;
-  const y = box.y - pad;
-  const w = box.w + pad * 2;
-  const h = box.h + pad * 2;
+  const x = box.x - BOARD_BEZEL_PAD;
+  const y = box.y - BOARD_BEZEL_PAD;
+  const w = box.w + BOARD_BEZEL_PAD * 2;
+  const h = box.h + BOARD_BEZEL_PAD * 2;
 
   const face = ctx.createLinearGradient(x, y, x + w, y + h);
   face.addColorStop(0, '#6a6355');
@@ -264,6 +263,10 @@ export function drawBoardBezel(
   ctx.stroke();
 }
 
+/** How far the raised surround stands outside its board on every side. */
+export const BOARD_BEZEL_PAD = 5;
+
 /** Where the cowl's crown sits, for anything that needs to clear it. */
 export const COWL_CROWN_Y = COWL.cy - COWL.ry;
+
 
