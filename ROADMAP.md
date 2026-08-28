@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 12 complete in code. Stage 13 is next. The Online Beta runs with the local API; public backend deployment remains Stage 16.**
+**Current stage: Stages 13–14 and the Stage 16 release foundation are complete. Stage 15 remains evidence-limited; public API activation needs a hosting target and secrets.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -349,6 +349,52 @@ Deployment note: GitHub Pages serves only the web client. Cross-device accounts
 become publicly usable when the API is deployed and `VITE_API_URL` is set in
 Stage 16; this is an infrastructure activation dependency, not client storage.
 
+### Stage 13 — Special Cars and Endgame
+
+- Three purpose-built competition cars extend the showroom to a thirteen-car
+  roster: Mopar Drag Car, F-Type Drag Special and Funny Car.
+- Career wins gate the specials at 25, 60 and 100 victories, followed by large
+  purchase prices. These are explicit clean-room progression assumptions; the
+  historical membership/event gates have not been recovered.
+- All three remain ordinary structured `Car` data. They use the same clutch,
+  tyres, gearing, damage, appearance, ownership and server economy systems.
+- Original transparent showroom renders give each class a recognisable period
+  pre-rendered look without reusing client bitmaps, logos or liveries.
+- Regression tests preserve the road car → drag car → funny car performance gap.
+
+### Stage 14 — Historical UI Recreation
+
+- Every top-level tab now has a functioning screen. Community is an online
+  member directory rather than the last placeholder.
+- The top navigation, masthead, Main, Challenge Info, Garage, Race Track,
+  Speedshop, Showroom and Team flows share the fixed 960px, beveled silver,
+  cyan-panel and black/gold visual hierarchy derived from the references.
+- The painted Graphic Settings control is now interactive and provides a saved
+  reduced-motion option without changing deterministic simulation timing.
+- UI remains a clean-room composition using original code and assets.
+
+### Stage 15 — Historical Calibration (evidence-limited)
+
+- `docs/HISTORICAL_BALANCE_MATRIX.md` records current deterministic baselines,
+  every planned historical field, the rough target classes from the spec and
+  the evidence status for all thirteen cars.
+- Factory clutch capacity now scales with factory torque. This fixes high-output
+  road cars silently slipping a Civic-strength assumed clutch.
+- Exact historical builds, gear ratios, stock ETs, prices and community tunes
+  remain unrecovered. They are deliberately not fabricated or marked complete.
+
+### Stage 16 — Administration, Security and Deployment
+
+- Production API hardening includes request/body limits, strict replay-stream
+  validation, security headers, expiring/revocable sessions, rate limiting,
+  stderr error records and health reporting.
+- Key-protected admin endpoints expose aggregate status, economy ledger, race
+  inspection, account moderation/session revocation and on-demand backups.
+- A production Docker image, persistent `/data` boundary, environment template
+  and HTTPS/backup deployment guide are included.
+- Actual public deployment remains pending a Node hosting provider, durable
+  volume, domain/TLS termination and secrets. GitHub Pages cannot run the API.
+
 ---
 
 ## All sixteen stages
@@ -378,10 +424,10 @@ Stage 3 is yours.
 | ✅ | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
 | ✅ | 11 — Heads-Up, Bracket, Wagers | Dial-ins, breakouts, escrowed cash |
 | ✅ | 12 — Teams | Create, join, team funds, team races |
-| ▶️ | **13 — Special Cars and Endgame** | **Special drag cars and late-game progression** |
-| | 14 — Historical UI Recreation | Making it look like the original |
-| | 15 — Historical Calibration | Making the cars *perform* like the original |
-| | 16 — Admin, Security, Deployment | Balance tools, moderation, monitoring |
+| ✅ | 13 — Special Cars and Endgame | Special drag cars and late-game progression |
+| ✅ | 14 — Historical UI Recreation | Making it look like the original |
+| ⚠️ | 15 — Historical Calibration | Matrix and regression framework done; primary evidence still missing |
+| ⚠️ | 16 — Admin, Security, Deployment | Release foundation done; public hosting not activated |
 
 Milestones: **Prototype** 0–2 · **Offline Alpha** 3–6 · **Garage Alpha** 7–8 ·
 **Online Beta** 9–12 · **Historical Recreation** 13–16.
@@ -409,10 +455,8 @@ that asserts an exact ET now means rewriting it later.
   for a real 1999 Civic Si. Whether it matches the original game is still
   unknown, and calibrating to that is Stage 15. The car is at least the right
   car now: the EP3/EK mistake is fixed.
-- **Run history lasts as long as the tab does.** Times are held in memory and
-  go when the page is reloaded or the car changes. Persisting them means
-  deciding where they live, and that is Stage 9's question — writing to local
-  storage now would be a second answer thrown away when accounts arrive.
+- **Offline run history lasts as long as the tab does.** Signed-in profiles keep
+  their last fifty verified passes on the server and restore them next session.
 - **The canvas renders at device resolution now**, sized to the displayed box
   times `devicePixelRatio`. If a future change reintroduces a fixed `width`
   attribute on the canvas element, or `image-rendering: pixelated` in the CSS,
@@ -420,13 +464,15 @@ that asserts an exact ET now means rewriting it later.
 - **The dashboard now matches the composition, not the original pixels.** Its
   oval silver casting, overlapping dial hierarchy, sliders and gear rail follow
   the screenshot, but remain clean-room canvas and CSS rendering.
-- **`GRAPHIC SETTINGS` is visual only.** The control is present where the
-  original put it, but there are no adjustable rendering options yet.
+- **Graphic Settings is intentionally small.** It currently saves reduced
+  motion; the canvas already follows device resolution and simulation timing is
+  never coupled to rendering preferences.
 - **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
   slider. Leaving it out is a project decision, not an oversight — but the
   neutral-rev launch technique exists *because* of that choice.
-- **`COMMUNITY` is a placeholder.** Its tab is restored, but no reliable source
-  shows what the original community screen contained.
+- **Community is a conservative member directory.** No reliable source shows
+  the complete original Community feature set, so unsupported forums/chat have
+  not been invented.
 - **The staging window is deliberately unrealistic** at 1.2 m, against the 7
   inches NHRA runs. A realistic window is not a playable target.
 - **The tree style is a guess.** A Sportsman tree at one second a step is

@@ -13,6 +13,7 @@ import { AccountPanel } from './screens/AccountPanel.js';
 import { api,type OnlineProfile } from './onlineApi.js';
 import { ChallengeScreen } from './screens/ChallengeScreen.js';
 import { TeamScreen } from './screens/TeamScreen.js';
+import { CommunityScreen } from './screens/CommunityScreen.js';
 
 /**
  * The game shell: a bounded canvas with the original's seven tabs.
@@ -70,7 +71,7 @@ export function App() {
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 12 &middot; Online Beta</span>
+        <span className="shell__stage">Stage 16 &middot; Release Candidate</span>
       </header>
 
       <NavBar active={screen} onNavigate={navigate} />
@@ -78,10 +79,10 @@ export function App() {
       <div className="shell__brand" aria-label="Nitto 1320 Challenge">
         <span>NITTO<br/><small>EXTREME PERFORMANCE</small></span>
         <strong>1320 <i>CHALLENGE</i></strong>
-        <em>Version 0.12</em>
+        <em>Version 0.16 RC</em>
       </div>
 
-      {screen==='main'?<MainScreen state={garage} onRace={startCpuRace} accountPanel={accountPanel}/>:screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} appearance={garage.appearance} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress} onRecorded={recordRun} {...(cpuRace?{opponent:cpuRace,onCompleted:completeCpuRace}:{})}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={fit} onRemove={remove} onTune={tune} onRepair={repair} onAppearance={appearance}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={purchase}/>:screen==='showroom'?<ShowroomScreen state={garage} message={shopMessage} onBuy={purchaseCar} onSelect={chooseCar}/>:screen==='challenge'?<ChallengeScreen token={onlineToken} profile={onlineProfile} lastRun={lastRecordedRun}/>:screen==='team'?<TeamScreen token={onlineToken} profile={onlineProfile} lastRun={lastRecordedRun}/>: (
+      {screen==='main'?<MainScreen state={garage} onRace={startCpuRace} accountPanel={accountPanel}/>:screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} appearance={garage.appearance} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress} onRecorded={recordRun} {...(cpuRace?{opponent:cpuRace,onCompleted:completeCpuRace}:{})}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={fit} onRemove={remove} onTune={tune} onRepair={repair} onAppearance={appearance}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={purchase}/>:screen==='showroom'?<ShowroomScreen state={garage} message={shopMessage} onBuy={purchaseCar} onSelect={chooseCar}/>:screen==='challenge'?<ChallengeScreen token={onlineToken} profile={onlineProfile} lastRun={lastRecordedRun}/>:screen==='team'?<TeamScreen token={onlineToken} profile={onlineProfile} lastRun={lastRecordedRun}/>:screen==='community'?<CommunityScreen token={onlineToken} profile={onlineProfile}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

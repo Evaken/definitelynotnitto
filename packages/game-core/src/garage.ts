@@ -24,7 +24,8 @@ export function repairCar(state:GarageState):GarageResult{const cost=repairCost(
 export function applyPassStress(state:GarageState,stress:number):GarageState{return{...state,condition:Math.max(0,state.condition-Math.max(0,stress))};}
 export function applyAppearance(state:GarageState,appearance:Appearance):GarageResult{const values=[appearance.hue,appearance.saturation,appearance.brightness,appearance.graphicsHue,appearance.wheelStyle,appearance.rideHeight];if(values.some(value=>!Number.isFinite(value)))return{ok:false,reason:'Invalid appearance settings.'};return{ok:true,state:{...state,appearance:{hue:Math.max(0,Math.min(360,appearance.hue)),saturation:Math.max(0,Math.min(100,appearance.saturation)),brightness:Math.max(35,Math.min(115,appearance.brightness)),graphicsHue:Math.max(0,Math.min(360,appearance.graphicsHue)),wheelStyle:Math.max(0,Math.min(3,Math.round(appearance.wheelStyle))),rideHeight:Math.max(-35,Math.min(25,appearance.rideHeight))}}};}
 export function ownedCarIds(state:GarageState):readonly string[]{return[state.build.carId,...state.ownedCars.map(car=>car.build.carId)];}
-export function buyCar(state:GarageState,carId:string):GarageResult{const car=getCar(carId);if(ownedCarIds(state).includes(carId))return{ok:false,reason:'Car already owned.'};if(state.cash<car.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-car.price,ownedCars:[...state.ownedCars,stockOwnedCar(carId)],transactions:transaction(state,'car',-car.price,`${car.manufacturer} ${car.displayName}`)}};}
+export function carUnlockReason(state:GarageState,carId:string):string|null{const car=getCar(carId);return car.unlockWins!==undefined&&state.record.wins<car.unlockWins?`Requires ${car.unlockWins} career wins (${state.record.wins}/${car.unlockWins}).`:null;}
+export function buyCar(state:GarageState,carId:string):GarageResult{const car=getCar(carId);if(ownedCarIds(state).includes(carId))return{ok:false,reason:'Car already owned.'};const locked=carUnlockReason(state,carId);if(locked)return{ok:false,reason:locked};if(state.cash<car.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-car.price,ownedCars:[...state.ownedCars,stockOwnedCar(carId)],transactions:transaction(state,'car',-car.price,`${car.manufacturer} ${car.displayName}`)}};}
 export function selectCar(state:GarageState,carId:string):GarageResult{if(carId===state.build.carId)return{ok:false,reason:'Car already selected.'};const selected=state.ownedCars.find(car=>car.build.carId===carId);if(!selected)return{ok:false,reason:'Car not owned.'};const current:OwnedCarState={build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};return{ok:true,state:{...state,...selected,ownedCars:[...state.ownedCars.filter(car=>car.build.carId!==carId),current]}};}
 export type CpuDifficulty='easy'|'medium'|'hard';
 export const CPU_PRIZES:Readonly<Record<CpuDifficulty,number>>={easy:450,medium:900,hard:1800};
@@ -93,7 +94,7 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
 export function resolveBuild(build:Build,condition=100):Car{
   const base=getCar(build.carId);
   let tm=1,kg=0,grip=1,eff=0;
-  let boostBar=0,spoolRpm=0,clutchNm=0;
+  let boostBar=0,spoolRpm=0,clutchNm=base.gearbox.clutchCapacityNm??0;
   let induction:InductionType|null=null;
   let nitrous:NitrousSpec|undefined;
 

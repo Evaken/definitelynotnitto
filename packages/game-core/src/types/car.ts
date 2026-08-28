@@ -145,6 +145,10 @@ export interface Car {
   readonly year: number;
   /** Showroom price in game dollars. Unused until Stage 7. */
   readonly price: number;
+  /** Clean-room career gate for endgame vehicles; absent for normal showroom cars. */
+  readonly unlockWins?: number;
+  /** Marks purpose-built competition vehicles in presentation and progression. */
+  readonly special?: boolean;
   readonly drivetrain: DrivetrainType;
   readonly engine: EngineSpec;
   readonly gearbox: GearboxSpec;

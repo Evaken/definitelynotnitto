@@ -517,6 +517,16 @@ race simulation. Gear ratios do not change that curve; they change wheel torque
 and road speed in a pass. This is physically coherent clean-room behaviour, not
 a recovered historical formula.
 
+## Stage 13 special-car presentation — clean-room
+
+The specification and surviving roster notes identify Mopar drag, F-type and
+funny-car classes, but do not provide reusable source artwork or dependable
+unlock rules. Their 25/60/100-win career gates, prices and performance values
+are isolated clean-room progression assumptions. The three showroom images are
+new transparent renders generated for this project: they use early-2000s
+pre-rendered showroom lighting and drag-car proportions, with no extracted
+client pixels, manufacturer badges, team logos or copied liveries.
+
 ## Research leads
 
 Not yet pursued:

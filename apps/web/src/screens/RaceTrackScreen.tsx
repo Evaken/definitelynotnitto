@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import { lastRunWasBestEt, type Appearance, type Car, type InputTimeline, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
@@ -59,6 +59,9 @@ export function RaceTrackScreen({
   const buildLabel = modified
     ? `MODIFIED — ${fittedPartCount} PART${fittedPartCount === 1 ? '' : 'S'} FITTED`
     : 'STOCK — NO PARTS FITTED';
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  const [reducedMotion,setReducedMotion]=useState(()=>window.localStorage.getItem('nitto1320.reducedMotion')==='true');
+  const saveMotion=(enabled:boolean)=>{setReducedMotion(enabled);window.localStorage.setItem('nitto1320.reducedMotion',String(enabled));document.documentElement.dataset.reducedMotion=String(enabled);};
 
   const {
     canvasRef,
@@ -90,6 +93,8 @@ export function RaceTrackScreen({
           aria-label="Drag strip, viewed from behind the car"
         />
         <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />
+        <button className="graphic-settings-hit" type="button" aria-label="Graphic settings" onClick={()=>setSettingsOpen(true)}/>
+        {settingsOpen&&<div className="graphic-settings-dialog" role="dialog" aria-modal="true" aria-label="Graphic settings"><header><span>Display Control</span><h3>Graphic Settings</h3></header><label><input type="checkbox" checked={reducedMotion} onChange={event=>saveMotion(event.target.checked)}/> Reduce interface motion</label><p>The race canvas remains sharp at your screen resolution. Reduced motion disables decorative transitions without changing simulation timing.</p><button onClick={()=>setSettingsOpen(false)}>Apply &amp; Return</button></div>}
         {car.nitrous&&<button className={`nitrous-trigger${snapshot.nitrousActive?' nitrous-trigger--active':''}`} type="button" onPointerDown={()=>setNitrous(true)} onPointerUp={()=>setNitrous(false)} onPointerLeave={()=>setNitrous(false)}><strong>N₂O</strong><span>{snapshot.nitrousRemainingSeconds.toFixed(1)} sec</span></button>}
         {opponent&&<aside className={`cpu-race-strip${opponent.settled?(opponent.won?' cpu-race-strip--win':' cpu-race-strip--loss'):''}`}><span>{opponent.difficulty} CPU</span><strong>{opponent.name}</strong><b>{opponent.settled?opponent.won?'YOU WIN':'YOU LOSE':'OPPONENT STAGED'}</b><small>{opponent.settled?`${opponent.slip.quarterMileEt.toFixed(3)} @ ${opponent.slip.quarterMileMph.toFixed(1)} mph`:'Time hidden until finish'}</small></aside>}
       </div>
