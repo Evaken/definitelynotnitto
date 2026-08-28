@@ -146,14 +146,10 @@ export const CIVIC_RACE_ART: CarArtwork = {
 
     ctx.drawImage(image, -width * 0.5, -height, width, height);
 
-    // Keep the existing paint seam useful. The deliberately light source-atop
-    // glaze shifts body colour without flattening the rendered glass and metal.
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.globalAlpha = 0.13;
-    ctx.fillStyle = options.paint.body;
-    ctx.fillRect(-width * 0.5, -height, width, height);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
+    // Do not tint directly on the scene canvas. `source-atop` would composite
+    // against the road already behind the sprite and reveal the bitmap's whole
+    // rectangular bounds. Stage 8's paint system needs isolated body masks or
+    // an offscreen layer; the present asset already carries the stock yellow.
 
     if (options.braking) {
       ctx.fillStyle = 'rgba(255, 42, 20, 0.5)';

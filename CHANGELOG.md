@@ -1,5 +1,12 @@
 # Changelog
 
+## Race sprite transparency fix
+
+- Removed the scene-canvas tint blend that coloured the full rectangular sprite
+  bounds against the road. The Civic now renders with clean transparent edges.
+- Left the paint parameters at the `CarArtwork` seam; later recolouring requires
+  isolated body masks or an offscreen layer rather than scene compositing.
+
 ## Full race-interface fidelity rebuild
 
 - Re-proportioned the race canvas so the title bar, eight-tab navigation,
