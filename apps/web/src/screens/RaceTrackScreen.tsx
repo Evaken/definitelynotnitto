@@ -51,7 +51,7 @@ export function RaceTrackScreen() {
     <div className="screen">
       <section className="panel" style={{ marginBottom: 0 }}>
         <h2 className="panel__heading">
-          Race Track &mdash; {car.manufacturer} {car.displayName} &mdash; Stock
+          Race Track - {car.manufacturer} {car.displayName} - Stock
         </h2>
       </section>
 

@@ -7,7 +7,7 @@ import { RaceTrackScreen } from './screens/RaceTrackScreen.js';
 /**
  * The game shell: a bounded canvas with the original's seven tabs.
  *
- * Only the Race Track is built in Stage 1. The rest are honest placeholders
+ * Only the Race Track is built through Stage 2. The rest are honest placeholders
  * naming the stage that fills them in (PROJECT_SPEC 11.4 -- later stages must
  * not be scaffolded early).
  */
@@ -28,7 +28,7 @@ export function App() {
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 1 &middot; Drag Race Simulator</span>
+        <span className="shell__stage">Stage 2 &middot; Nitto Driving Feel</span>
       </header>
 
       <NavBar active={screen} onNavigate={setScreen} />
