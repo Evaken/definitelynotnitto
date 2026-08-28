@@ -9,12 +9,12 @@
  */
 
 export const CANVAS_WIDTH = 960;
-export const CANVAS_HEIGHT = 600;
+export const CANVAS_HEIGHT = 500;
 
 // --- Regions ---------------------------------------------------------------
 
 /** Progress down the strip, down the far left edge. */
-export const POSITION_BAR = { x: 0, y: 6, w: 22, h: 400 } as const;
+export const POSITION_BAR = { x: 0, y: 6, w: 22, h: 330 } as const;
 
 /**
  * Timing boards either side of the road. Left is the player.
@@ -24,20 +24,20 @@ export const POSITION_BAR = { x: 0, y: 6, w: 22, h: 400 } as const;
  * narrower leaves a strip of bare canvas showing between the board and the
  * grass -- which is what it looked like: a dark stripe nobody had drawn.
  */
-export const BOARD_LEFT = { x: 34, y: 6, w: 175, h: 400 } as const;
-export const BOARD_RIGHT = { x: 751, y: 6, w: 175, h: 400 } as const;
+export const BOARD_LEFT = { x: 34, y: 6, w: 175, h: 330 } as const;
+export const BOARD_RIGHT = { x: 751, y: 6, w: 175, h: 330 } as const;
 
 /** The road view itself. */
-export const VIEW = { x: 214, y: 0, w: 532, h: 412 } as const;
+export const VIEW = { x: 214, y: 0, w: 532, h: 342 } as const;
 export const VIEW_RIGHT = VIEW.x + VIEW.w;
 export const VIEW_BOTTOM = VIEW.y + VIEW.h;
 export const VIEW_CENTER_X = VIEW.x + VIEW.w / 2;
 
 /** Where the road meets the sky. Everything beyond converges here. */
-export const HORIZON_Y = VIEW.y + 147;
+export const HORIZON_Y = VIEW.y + 120;
 
 /** The instrument cluster fills the rest. */
-export const CLUSTER = { x: 0, y: 384, w: CANVAS_WIDTH, h: CANVAS_HEIGHT - 384 } as const;
+export const CLUSTER = { x: 0, y: 320, w: CANVAS_WIDTH, h: CANVAS_HEIGHT - 320 } as const;
 
 // --- Camera ----------------------------------------------------------------
 
@@ -67,14 +67,14 @@ export const COLORS = {
   frame: '#0b0d11',
   panel: '#171a20',
   panelEdge: '#454c59',
-  skyTop: '#2a5d8f',
-  skyBottom: '#9dc4e0',
+  skyTop: '#79b8da',
+  skyBottom: '#d7f0f4',
   hills: '#3f5a52',
   treeLine: '#24402f',
-  grassNear: '#3c5a34',
-  grassFar: '#43614a',
-  roadNear: '#4a4f57',
-  roadFar: '#5b616b',
+  grassNear: '#456239',
+  grassFar: '#6b7f58',
+  roadNear: '#353442',
+  roadFar: '#555563',
   rumbleLight: '#d8dce3',
   rumbleDark: '#b23b2e',
   laneLine: '#e8eaee',

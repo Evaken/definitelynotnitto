@@ -1,5 +1,21 @@
 # Changelog
 
+## Full race-interface fidelity rebuild
+
+- Re-proportioned the race canvas so the title bar, eight-tab navigation,
+  masthead, race view, instrument binnacle and selected-car rail fit as one
+  bounded game interface.
+- Replaced the angled Civic with an original straight-rear sprite and removed
+  raster rotation, eliminating the sideways stance and frame-to-frame twitch.
+- Replaced alternating asphalt blocks and geometric trees with smooth road
+  shading plus an original transparent foliage and skyline plate.
+- Restyled the timing towers, staging plates, centre prompt, dashboard, gauges,
+  sliders and gear rail against the surviving Version 1.52 race screenshot.
+- Restored the visible Community tab and Graphic Settings control; their future
+  functionality remains explicitly deferred.
+- All replacement raster assets are clean-room creations. No original client
+  artwork, logos, binaries or extracted media were added.
+
 ## Race artwork fidelity pass
 
 - Replaced the strip's geometric placeholder hatchback with an original 43KB

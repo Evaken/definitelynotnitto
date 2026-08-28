@@ -114,9 +114,9 @@ export function drawChristmasTree(ctx: CanvasRenderingContext2D, state: PassStat
  * keeps them clear of the tree at any distance.
  */
 export function drawStageIndicators(ctx: CanvasRenderingContext2D, state: PassState): void {
-  const w = 112;
-  const h = 40;
-  const y = VIEW.y + 6;
+  const w = 96;
+  const h = 54;
+  const y = VIEW.y + 5;
 
   // Positioned off the side panels' actual curve rather than a fixed inset.
   // The panel is at its narrowest right at the top edge and widens fast, so a
@@ -138,15 +138,18 @@ function plate(
   prestaged: boolean,
   staged: boolean,
 ): void {
-  ctx.fillStyle = 'rgba(10, 13, 18, 0.86)';
+  const face = ctx.createLinearGradient(0, y, 0, y + h);
+  face.addColorStop(0, '#edf2ef');
+  face.addColorStop(1, '#56646a');
+  ctx.fillStyle = face;
   ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = COLORS.panelEdge;
+  ctx.strokeStyle = '#28353a';
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
 
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 9px Verdana, sans-serif';
+  ctx.font = 'bold 7px Verdana, sans-serif';
 
   const rows: readonly (readonly [string, boolean])[] = [
     ['PRE-STAGED', prestaged],
@@ -154,17 +157,26 @@ function plate(
   ];
 
   rows.forEach(([label, lit], index) => {
-    const rowY = y + 12 + index * 17;
-    ctx.fillStyle = lit ? COLORS.amber : COLORS.textDim;
-    ctx.fillText(label, x + 8, rowY);
+    const rowTop = y + index * 27;
+    ctx.fillStyle = '#eef2ee';
+    ctx.fillRect(x + 4, rowTop + 2, w - 8, 11);
+    ctx.fillStyle = '#be2d28';
+    ctx.fillText(label, x + w / 2, rowTop + 7.5);
 
     for (let bulb = 0; bulb < 2; bulb++) {
-      const cx = x + w - 24 + bulb * 13;
+      const cx = x + w / 2 - 7 + bulb * 14;
+      const cy = rowTop + 20;
       ctx.beginPath();
-      ctx.arc(cx, rowY, 4, 0, Math.PI * 2);
-      ctx.fillStyle = lit ? COLORS.amber : COLORS.bulbOff;
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fillStyle = lit ? '#fff4a9' : '#c6c2a9';
       ctx.fill();
-      ctx.strokeStyle = '#0e1116';
+      if (lit) {
+        ctx.shadowColor = '#fff8b0';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      ctx.strokeStyle = '#586165';
       ctx.lineWidth = 1;
       ctx.stroke();
     }

@@ -5,7 +5,7 @@ interface NavBarProps {
   onNavigate: (screen: ScreenId) => void;
 }
 
-/** The period top navigation: seven equal tabs, no menus, no drawers. */
+/** The period top navigation: eight equal tabs, no menus, no drawers. */
 export function NavBar({ active, onNavigate }: NavBarProps) {
   return (
     <nav className="nav">

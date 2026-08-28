@@ -111,6 +111,25 @@ What did **not** change:
 The seam that made this affordable is `drawRace(ctx, state)` — one function,
 called in one place. Keep it that way.
 
+### Race-interface fidelity pass
+
+The first clean-room Civic strip render exposed the remaining mismatch rather
+than fixing it: it faced diagonally across a straight lane, rotated with body
+pitch and sat inside flat alternating road bands and geometric tree shapes. The
+full race interface was rebuilt against the Version 1.52 screenshot:
+
+- straight-rear Civic art with vertical suspension travel but no raster
+  rotation;
+- smooth asphalt, dense transparent foliage and a distant skyline;
+- shorter original-proportioned race canvas, silver oval instrument binnacle,
+  period timing towers, white/red staging plates and the centre staging arrow;
+- blue title bar, eight silver navigation tabs, black/gold 1320 masthead,
+  Graphic Settings control and selected-car status rail.
+
+This is sourced composition with original assets and code, not recovered client
+media. Community and Graphic Settings are visual entry points only until their
+scheduled functionality exists.
+
 ### The car art seam
 
 Two angles are needed per car: three-quarter front for the showroom, garage and
@@ -265,18 +284,16 @@ that asserts an exact ET now means rewriting it later.
   times `devicePixelRatio`. If a future change reintroduces a fixed `width`
   attribute on the canvas element, or `image-rendering: pixelated` in the CSS,
   the whole scene goes soft again — both were the original cause.
-- **The dashboard is the right shape but not the right finish.** The original's
-  casting is rendered metal with photographic gauge faces; ours is canvas paths
-  and gradients. Matching it wants a background image asset — Stage 14, with the
-  art pipeline Stage 8 needs anyway.
-- **`GRAPHIC SETTINGS` and the header band are not built.** Both are visible in
-  `race-view-two-civics.webp`: a button in the bottom-left corner, and a band
-  above the view with the Nitto logo, a `1320 CHALLENGE` wordmark and a version
-  number.
+- **The dashboard now matches the composition, not the original pixels.** Its
+  oval silver casting, overlapping dial hierarchy, sliders and gear rail follow
+  the screenshot, but remain clean-room canvas and CSS rendering.
+- **`GRAPHIC SETTINGS` is visual only.** The control is present where the
+  original put it, but there are no adjustable rendering options yet.
 - **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
   slider. Leaving it out is a project decision, not an oversight — but the
   neutral-rev launch technique exists *because* of that choice.
-- **`COMMUNITY` is missing from the navigation.** The original had eight tabs.
+- **`COMMUNITY` is a placeholder.** Its tab is restored, but no reliable source
+  shows what the original community screen contained.
 - **The staging window is deliberately unrealistic** at 1.2 m, against the 7
   inches NHRA runs. A realistic window is not a playable target.
 - **The tree style is a guess.** A Sportsman tree at one second a step is

@@ -72,13 +72,7 @@ export function RaceTrackScreen({
     : PROMPTS[snapshot.phase];
 
   return (
-    <div className="screen">
-      <section className="panel" style={{ marginBottom: 0 }}>
-        <h2 className="panel__heading">
-          Race Track - {car.manufacturer} {car.displayName} - {modified ? 'Modified' : 'Stock'}
-        </h2>
-      </section>
-
+    <div className="screen screen--race">
       <div className="race__viewport">
         <canvas
           ref={canvasRef}
@@ -86,6 +80,17 @@ export function RaceTrackScreen({
           aria-label="Drag strip, viewed from behind the car"
         />
         <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />
+      </div>
+
+      <div className="race-status" aria-label="Selected car and account status">
+        <div className="race-status__car">
+          <span>Selected car:</span>
+          <img src={`${import.meta.env.BASE_URL}assets/race-civic-ek-rear-v2.webp`} alt="" />
+          <strong>{car.displayName}</strong>
+          <small>{modified ? `${fittedPartCount} parts fitted` : 'Stock'}</small>
+        </div>
+        <div className="race-status__account">Edit my account</div>
+        <div className="race-status__challenge">No new challenge info</div>
       </div>
 
       <p className="race__prompt">{prompt}</p>

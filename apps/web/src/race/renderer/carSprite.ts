@@ -113,7 +113,7 @@ function loadedCivicRearImage(): HTMLImageElement | null {
   if (civicRearImage === null) {
     civicRearImage = new Image();
     civicRearImage.decoding = 'async';
-    civicRearImage.src = `${import.meta.env.BASE_URL}assets/race-civic-ek-rear.webp`;
+    civicRearImage.src = `${import.meta.env.BASE_URL}assets/race-civic-ek-rear-v2.webp`;
   }
 
   return civicRearImage.complete && civicRearImage.naturalWidth > 0 ? civicRearImage : null;
@@ -128,7 +128,7 @@ export const CIVIC_RACE_ART: CarArtwork = {
     }
 
     const base = project(options.laneOffsetM, options.z);
-    const width = 2.55 * base.scale;
+    const width = 2.35 * base.scale;
     const height = width * (image.naturalHeight / image.naturalWidth);
     const groundY = base.y - options.bounceM * base.scale;
 
@@ -136,13 +136,12 @@ export const CIVIC_RACE_ART: CarArtwork = {
 
     ctx.save();
     ctx.translate(base.x, groundY);
-    ctx.rotate(options.pitch);
 
     // A tight road shadow belongs in the renderer rather than in the bitmap so
     // it follows the road projection and body movement.
     ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
     ctx.beginPath();
-    ctx.ellipse(0, -height * 0.035, width * 0.42, height * 0.075, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, -height * 0.025, width * 0.43, height * 0.055, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.drawImage(image, -width * 0.5, -height, width, height);
@@ -161,8 +160,8 @@ export const CIVIC_RACE_ART: CarArtwork = {
       ctx.shadowColor = '#ff321f';
       ctx.shadowBlur = Math.max(4, width * 0.05);
       ctx.beginPath();
-      ctx.ellipse(-width * 0.42, -height * 0.53, width * 0.032, height * 0.09, -0.08, 0, Math.PI * 2);
-      ctx.ellipse(-width * 0.045, -height * 0.53, width * 0.04, height * 0.1, -0.08, 0, Math.PI * 2);
+      ctx.ellipse(-width * 0.34, -height * 0.54, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
+      ctx.ellipse(width * 0.34, -height * 0.54, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 

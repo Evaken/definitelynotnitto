@@ -20,7 +20,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, VIEW } from './layout.js';
  * queryable: `dashTopY` is what tells the instruments whether they are actually
  * sitting on the dashboard, and a bezier would only tell you after you drew it.
  */
-const COWL = { cx: CANVAS_WIDTH / 2, cy: 656, rx: 640, ry: 272 } as const;
+const COWL = { cx: CANVAS_WIDTH / 2, cy: 555, rx: 640, ry: 245 } as const;
 
 /** Height of the bright lip running along the top of the cowl. */
 const LIP_HEIGHT = 13;
@@ -63,11 +63,11 @@ export function drawDashCowl(ctx: CanvasRenderingContext2D): void {
   cowlPath(ctx);
 
   const face = ctx.createLinearGradient(0, top, 0, CANVAS_HEIGHT);
-  face.addColorStop(0, '#b7bbbf');
-  face.addColorStop(0.035, '#70747a');
-  face.addColorStop(0.12, '#42454a');
-  face.addColorStop(0.4, '#26282b');
-  face.addColorStop(1, '#0a0b0c');
+  face.addColorStop(0, '#f3f5f5');
+  face.addColorStop(0.025, '#9ca2a7');
+  face.addColorStop(0.1, '#4d5157');
+  face.addColorStop(0.34, '#25282d');
+  face.addColorStop(1, '#08090b');
   ctx.fillStyle = face;
   ctx.fill();
 
@@ -126,7 +126,7 @@ export function drawSidePanels(ctx: CanvasRenderingContext2D): void {
  * it read as a cockpit rather than as three panels bolted together.
  */
 const EDGE_OFFSETS = [62, -22, -38, -22] as const;
-const EDGE_HEIGHTS = [-1, 110, 260, CANVAS_HEIGHT + 20] as const;
+const EDGE_HEIGHTS = [-1, 90, 220, CANVAS_HEIGHT + 20] as const;
 
 /**
  * The four control points of one panel's inner edge, top to bottom.

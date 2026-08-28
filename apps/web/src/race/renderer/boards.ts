@@ -57,28 +57,42 @@ function drawBoard(
   state: PassState,
   isPlayer: boolean,
 ): void {
-  ctx.fillStyle = '#141922';
+  const surround = ctx.createLinearGradient(box.x, box.y, box.x + box.w, box.y + box.h);
+  surround.addColorStop(0, '#aebfc2');
+  surround.addColorStop(0.48, '#6f8e94');
+  surround.addColorStop(1, '#26373d');
+  ctx.fillStyle = surround;
   ctx.fillRect(box.x, box.y, box.w, box.h);
-  ctx.strokeStyle = COLORS.panelEdge;
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#0aa1c4';
+  ctx.lineWidth = 2;
   ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
 
   // Sponsor plate.
-  const plate = ctx.createLinearGradient(0, box.y, 0, box.y + 54);
-  plate.addColorStop(0, '#39404d');
-  plate.addColorStop(1, '#222831');
+  const plate = ctx.createLinearGradient(0, box.y, 0, box.y + 78);
+  plate.addColorStop(0, '#e8f2f3');
+  plate.addColorStop(0.55, '#8ba5aa');
+  plate.addColorStop(1, '#52676d');
   ctx.fillStyle = plate;
-  ctx.fillRect(box.x + 6, box.y + 6, box.w - 12, 48);
+  ctx.fillRect(box.x + 7, box.y + 7, box.w - 14, 72);
+
+  ctx.strokeStyle = isPlayer ? '#198fbe' : '#8e9da1';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(box.x + box.w / 2, box.y + 32, 18, 0, Math.PI * 2);
+  ctx.stroke();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 13px Verdana, sans-serif';
-  ctx.fillStyle = isPlayer ? COLORS.accent : COLORS.textDim;
-  ctx.fillText(isPlayer ? 'YOUR LANE' : 'OPEN LANE', box.x + box.w / 2, box.y + 30);
+  ctx.font = 'bold 12px Verdana, sans-serif';
+  ctx.fillStyle = '#f5f8f8';
+  ctx.shadowColor = 'rgba(0,0,0,.7)';
+  ctx.shadowBlur = 2;
+  ctx.fillText(isPlayer ? 'RACE TEAM' : 'OPEN LANE', box.x + box.w / 2, box.y + 61);
+  ctx.shadowBlur = 0;
 
   // Elapsed time, as a red LED readout.
   const etText = isPlayer ? elapsedText(state) : '--.---';
-  ledPanel(ctx, box.x + 6, box.y + 60, box.w - 12, 34, etText, isPlayer);
+  ledPanel(ctx, box.x + 7, box.y + 86, box.w - 14, 30, etText, isPlayer);
 
   // Splits fill in as the car passes each mark.
   const rows: readonly (readonly [string, number | undefined])[] = isPlayer
@@ -98,10 +112,10 @@ function drawBoard(
       ];
 
   ctx.fillStyle = '#0a0d12';
-  ctx.fillRect(box.x + 6, box.y + 102, box.w - 12, box.h - 140);
+  ctx.fillRect(box.x + 7, box.y + 123, box.w - 14, box.h - 154);
 
   rows.forEach(([label, value], index) => {
-    const y = box.y + 122 + index * 30;
+    const y = box.y + 143 + index * 25;
     ctx.textAlign = 'left';
     ctx.font = '10px Verdana, sans-serif';
     ctx.fillStyle = COLORS.textDim;

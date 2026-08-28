@@ -402,6 +402,14 @@ design are therefore artistic assumptions rather than recovered facts. The
 path-drawn hatchback remains as a load-safe fallback, while multi-car and
 separately tintable artwork stays scheduled for Stages 7–8.
 
+The first replacement interpreted "rear three-quarter" too aggressively and
+faced across the lane. The corrected strip asset is nearly straight rear, as the
+reference cars are, and is never rotated with simulated body pitch. Pitching a
+single raster changes its direction rather than its suspension attitude; only
+small vertical spring travel is applied now. The dense foliage/skyline plate is
+also an original transparent render, replacing geometric ellipses without
+claiming its invented city or individual trees are historical facts.
+
 ### Garage and Speedshop state model — `sourced`
 
 Source: static analysis of the verified Version 1.52 client, recorded without

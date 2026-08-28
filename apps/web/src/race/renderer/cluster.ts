@@ -21,20 +21,20 @@ import { CLUSTER, COLORS } from './layout.js';
  */
 
 /** Where the gas slider is drawn. Exported so the drag surface can sit on it. */
-export const GAS_SLIDER = { x: 694, y: 430, w: 34, h: 140 } as const;
+export const GAS_SLIDER = { x: 650, y: 360, w: 31, h: 110 } as const;
 /** The clutch bar. A readout here, not a control -- see below. */
-export const CLUTCH_SLIDER = { x: 748, y: 430, w: 34, h: 140 } as const;
+export const CLUTCH_SLIDER = { x: 705, y: 360, w: 31, h: 110 } as const;
 
 export const DIALS = {
   // Sized and spaced off the reference: the tacho dominates, the three overlap
   // rather than sitting in a row, and the centre one rides slightly higher than
   // its neighbours. Overlaps are 16px and 9px.
-  boost: { cx: 254, cy: 508, r: 66 },
-  rpm: { cx: 400, cy: 492, r: 96 },
-  mph: { cx: 571, cy: 500, r: 84 },
+  boost: { cx: 270, cy: 430, r: 58 },
+  rpm: { cx: 400, cy: 416, r: 82 },
+  mph: { cx: 548, cy: 424, r: 72 },
 } as const;
 
-const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
+const GEAR_COLUMN = { x: 866, y: 326, w: 42, rowHeight: 20.5 } as const;
 
 /**
  * The shift light, in the gap between the tachometer and the speedometer.
@@ -43,7 +43,7 @@ const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
  * car is doing, this one is asking for an input, and it has to be readable
  * without looking away from the strip.
  */
-export const SHIFT_LIGHT = { cx: 481, cy: 420, r: 19 } as const;
+export const SHIFT_LIGHT = { cx: 468, cy: 356, r: 16 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -285,7 +285,7 @@ function drawGearColumn(ctx: CanvasRenderingContext2D, state: PassState): void {
     ctx.lineWidth = 1;
     ctx.strokeRect(GEAR_COLUMN.x + 0.5, y + 0.5, GEAR_COLUMN.w - 1, GEAR_COLUMN.rowHeight - 4);
 
-    ctx.font = 'bold 15px "Lucida Console", monospace';
+    ctx.font = 'bold 13px "Lucida Console", monospace';
     ctx.fillStyle = selected ? '#ffffff' : usable ? COLORS.text : '#3a404b';
     ctx.fillText(
       gearLabel(gear),
@@ -300,8 +300,8 @@ function drawGearColumn(ctx: CanvasRenderingContext2D, state: PassState): void {
  * green, so it does not read as a second shift light -- it means the opposite.
  */
 function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
-  lamp(ctx, 816, 476, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
-  lamp(ctx, 816, 536, COLORS.amber, state.limiterActive, 'LIMIT');
+  lamp(ctx, 784, 401, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP', 9);
+  lamp(ctx, 784, 451, COLORS.amber, state.limiterActive, 'LIMIT', 9);
 }
 
 /**

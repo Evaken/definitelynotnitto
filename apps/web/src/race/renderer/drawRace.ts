@@ -63,6 +63,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
 
   drawDashCowl(ctx);
   drawCluster(ctx, state, state.prevInput.throttle);
+  drawGraphicSettings(ctx);
 }
 
 function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
@@ -226,13 +227,14 @@ function drawPrompt(ctx: CanvasRenderingContext2D, state: PassState): void {
   const text = promptFor(state);
   if (!text) return;
 
+  const stagingPrompt = state.phase === 'approach' || state.phase === 'staged' || state.phase === 'tree';
+  if (stagingPrompt) drawDirectionArrow(ctx);
+
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 19px Verdana, sans-serif';
+  ctx.font = 'bold 25px Impact, "Arial Narrow", sans-serif';
 
-  // Between the two stage plates rather than down by the dash, where the cowl's
-  // leading edge now cuts through it.
-  const y = VIEW.y + 26;
+  const y = stagingPrompt ? VIEW.y + 274 : VIEW.y + 78;
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'rgba(6, 9, 13, 0.85)';
   ctx.strokeText(text, VIEW_CENTER_X, y);
@@ -241,11 +243,60 @@ function drawPrompt(ctx: CanvasRenderingContext2D, state: PassState): void {
   ctx.fillText(text, VIEW_CENTER_X, y);
 }
 
+function drawGraphicSettings(ctx: CanvasRenderingContext2D): void {
+  const x = 52;
+  const y = 343;
+  const w = 140;
+  const h = 28;
+  const face = ctx.createLinearGradient(0, y, 0, y + h);
+  face.addColorStop(0, '#5fcbe4');
+  face.addColorStop(1, '#087796');
+  ctx.fillStyle = face;
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = '#d9f4fb';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+
+  const orb = ctx.createRadialGradient(x + 17, y + 10, 2, x + 18, y + 14, 11);
+  orb.addColorStop(0, '#fff4a0');
+  orb.addColorStop(0.55, '#e0ae18');
+  orb.addColorStop(1, '#473300');
+  ctx.fillStyle = orb;
+  ctx.beginPath();
+  ctx.arc(x + 18, y + h / 2, 9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 10px Verdana, sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('GRAPHIC SETTINGS', x + 34, y + h / 2);
+}
+
+function drawDirectionArrow(ctx: CanvasRenderingContext2D): void {
+  const x = VIEW_CENTER_X;
+  const y = VIEW.y + 210;
+  ctx.fillStyle = '#ffd51c';
+  ctx.strokeStyle = 'rgba(85, 62, 0, 0.72)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 25);
+  ctx.lineTo(x + 24, y);
+  ctx.lineTo(x + 10, y);
+  ctx.lineTo(x + 10, y + 28);
+  ctx.lineTo(x - 10, y + 28);
+  ctx.lineTo(x - 10, y);
+  ctx.lineTo(x - 24, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
 function promptFor(state: PassState): string | null {
   if (state.positionM > 0 && state.clockStartTick === null) return 'BACK UP';
   switch (state.phase) {
     case 'approach':
-      return 'ROLL UP';
+      return 'ROLL FORWARD';
     case 'staged':
       return 'STAGING';
     case 'tree':

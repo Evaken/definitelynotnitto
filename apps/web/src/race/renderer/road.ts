@@ -25,7 +25,18 @@ import { Z_NEAR, isVisible, project, roadHalfWidth } from './projection.js';
 /** Length of one surface band, metres. */
 const BAND_M = 3;
 const POST_SPACING_M = 24;
-const TREE_SPACING_M = 11;
+
+let sceneryImage: HTMLImageElement | null = null;
+
+function loadedSceneryImage(): HTMLImageElement | null {
+  if (typeof Image === 'undefined') return null;
+  if (sceneryImage === null) {
+    sceneryImage = new Image();
+    sceneryImage.decoding = 'async';
+    sceneryImage.src = `${import.meta.env.BASE_URL}assets/race-scenery-v2.webp`;
+  }
+  return sceneryImage.complete && sceneryImage.naturalWidth > 0 ? sceneryImage : null;
+}
 
 /**
  * Stable pseudo-random value for an object index.
@@ -74,6 +85,8 @@ export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
   ctx.fillStyle = ground;
   ctx.fillRect(VIEW.x, HORIZON_Y, VIEW.w, VIEW_BOTTOM - HORIZON_Y);
 
+  smoothRoad(ctx);
+
   // Stepped from the far plane inwards so nearer bands paint over further ones
   // and the edges stay clean.
   const phase = ((cameraM % BAND_M) + BAND_M) % BAND_M;
@@ -91,8 +104,6 @@ export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
 
     // Indexed in world space, so the stripes do not crawl along the surface.
     const alternate = Math.floor((cameraM + zNear) / BAND_M) % 2 === 0;
-
-    band(ctx, yNear, yFar, halfNear, halfFar, alternate ? COLORS.roadNear : COLORS.roadFar);
 
     const rumbleColor = alternate ? COLORS.rumbleLight : COLORS.rumbleDark;
     edgeBand(ctx, yNear, yFar, halfNear, halfFar, -1, rumbleColor);
@@ -112,24 +123,39 @@ export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
       ctx.fill();
     }
   }
+
+  drawSceneryPlate(ctx);
 }
 
-function band(
-  ctx: CanvasRenderingContext2D,
-  yNear: number,
-  yFar: number,
-  halfNear: number,
-  halfFar: number,
-  color: string,
-): void {
-  ctx.fillStyle = color;
+function smoothRoad(ctx: CanvasRenderingContext2D): void {
+  const near = project(0, Z_NEAR);
+  const far = project(0, FAR_PLANE_M);
+  const halfNear = roadHalfWidth(Z_NEAR);
+  const halfFar = roadHalfWidth(FAR_PLANE_M);
+  const asphalt = ctx.createLinearGradient(0, far.y, 0, near.y);
+  asphalt.addColorStop(0, COLORS.roadFar);
+  asphalt.addColorStop(0.65, '#454550');
+  asphalt.addColorStop(1, COLORS.roadNear);
+  ctx.fillStyle = asphalt;
   ctx.beginPath();
-  ctx.moveTo(VIEW_CENTER_X - halfNear, yNear);
-  ctx.lineTo(VIEW_CENTER_X + halfNear, yNear);
-  ctx.lineTo(VIEW_CENTER_X + halfFar, yFar);
-  ctx.lineTo(VIEW_CENTER_X - halfFar, yFar);
+  ctx.moveTo(VIEW_CENTER_X - halfNear, near.y);
+  ctx.lineTo(VIEW_CENTER_X + halfNear, near.y);
+  ctx.lineTo(VIEW_CENTER_X + halfFar, far.y);
+  ctx.lineTo(VIEW_CENTER_X - halfFar, far.y);
   ctx.closePath();
   ctx.fill();
+}
+
+function drawSceneryPlate(ctx: CanvasRenderingContext2D): void {
+  const image = loadedSceneryImage();
+  if (image === null) return;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
+  ctx.clip();
+  ctx.drawImage(image, VIEW.x - 20, VIEW.y + 16, VIEW.w + 40, 250);
+  ctx.restore();
 }
 
 function edgeBand(
@@ -167,25 +193,16 @@ export function drawRoadside(ctx: CanvasRenderingContext2D, cameraM: number): vo
   interface Item {
     readonly z: number;
     readonly xM: number;
-    readonly kind: 'tree' | 'post';
-    readonly seed: number;
+    readonly kind: 'post';
   }
 
   const items: Item[] = [];
-
-  const firstTree = Math.floor(cameraM / TREE_SPACING_M);
-  for (let i = firstTree; i * TREE_SPACING_M - cameraM < FAR_PLANE_M; i++) {
-    const z = i * TREE_SPACING_M - cameraM;
-    if (!isVisible(z)) continue;
-    items.push({ z, xM: -7 - hash(i) * 4, kind: 'tree', seed: hash(i) });
-    items.push({ z, xM: 7 + hash(i * 7919) * 4, kind: 'tree', seed: hash(i * 104729) });
-  }
 
   const firstPost = Math.floor(cameraM / POST_SPACING_M);
   for (let i = firstPost; i * POST_SPACING_M - cameraM < FAR_PLANE_M; i++) {
     const z = i * POST_SPACING_M - cameraM;
     if (!isVisible(z)) continue;
-    items.push({ z, xM: -5.4, kind: 'post', seed: hash(i * 31) });
+    items.push({ z, xM: -5.4, kind: 'post' });
   }
 
   items.sort((a, b) => b.z - a.z);
@@ -195,38 +212,9 @@ export function drawRoadside(ctx: CanvasRenderingContext2D, cameraM: number): vo
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
   ctx.clip();
   for (const item of items) {
-    if (item.kind === 'tree') tree(ctx, item.xM, item.z, item.seed);
-    else post(ctx, item.xM, item.z);
+    post(ctx, item.xM, item.z);
   }
   ctx.restore();
-}
-
-function tree(ctx: CanvasRenderingContext2D, xM: number, z: number, seed: number): void {
-  const base = project(xM, z);
-  if (base.x < VIEW.x - 90 || base.x > VIEW_RIGHT + 90) return;
-
-  const h = (4 + seed * 4) * base.scale;
-  const w = (1.6 + seed * 1.4) * base.scale;
-  if (h < 1.5) return;
-
-  ctx.fillStyle = '#2c2118';
-  ctx.fillRect(base.x - w * 0.07, base.y - h * 0.32, Math.max(1, w * 0.14), h * 0.32);
-
-  ctx.fillStyle = COLORS.treeLine;
-  ctx.beginPath();
-  ctx.ellipse(base.x, base.y - h * 0.62, w / 2, h * 0.34, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(
-    base.x + (seed - 0.5) * w * 0.4,
-    base.y - h * 0.85,
-    w * 0.34,
-    h * 0.22,
-    0,
-    0,
-    Math.PI * 2,
-  );
-  ctx.fill();
 }
 
 function post(ctx: CanvasRenderingContext2D, xM: number, z: number): void {

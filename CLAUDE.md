@@ -129,9 +129,9 @@ asymptotically. Judge "stopped" against a threshold.
 Recorded in `ROADMAP.md` with the reasoning. Do not "fix" it in passing — it is
 its own piece of work.
 
-- **`COMMUNITY` is missing from the navigation.** The original had eight tabs;
-  the spec lists seven. Adding it is Stage 14's work, not a one-line patch, and
-  nothing is known about what the screen contained.
+- **`COMMUNITY` is only a navigation placeholder.** The surviving screenshots
+  prove the eighth tab existed, so the race-interface rebuild restored it, but
+  nothing reliable is known about the screen it opened.
 - **The car-art pipeline is incomplete.** The Civic now has an original
   clean-room rear three-quarter strip render, with the generic path hatchback
   retained only as its loading fallback. Multi-car artwork and separately

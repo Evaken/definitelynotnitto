@@ -23,6 +23,7 @@ const PLACEHOLDER_SUMMARIES: Partial<Record<ScreenId, string>> = {
   parts: 'Buy and fit individual parts. Compatibility and exclusions enforced here.',
   showroom: 'Browse and buy the car roster.',
   team: 'Create or join a team, team funds, and team races.',
+  community: 'Period community features are not yet recovered.',
 };
 
 export function App() {
@@ -43,6 +44,12 @@ export function App() {
       </header>
 
       <NavBar active={screen} onNavigate={setScreen} />
+
+      <div className="shell__brand" aria-label="Nitto 1320 Challenge">
+        <span>NITTO<br/><small>EXTREME PERFORMANCE</small></span>
+        <strong>1320 <i>CHALLENGE</i></strong>
+        <em>Version 0.3</em>
+      </div>
 
       {screen === 'track' ? <RaceTrackScreen car={car} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />

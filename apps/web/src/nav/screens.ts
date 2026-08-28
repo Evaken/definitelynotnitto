@@ -1,8 +1,8 @@
 /**
- * The seven screens of the game, in the order the original's navigation ran.
+ * The eight screens of the game, in the order the surviving client shows them.
  *
  * PROJECT_SPEC 5:
- *   MAIN | CHALLENGE INFO | GARAGE | RACE TRACK | PARTS SHOP | CAR SHOWROOM | TEAM
+ *   MAIN | CHALLENGE INFO | GARAGE | RACE TRACK | PARTS SHOP | CAR SHOWROOM | TEAM | COMMUNITY
  *
  * Six of them are placeholders in Stage 1. They exist now so navigation is
  * settled before the screens are built, rather than being retrofitted around a
@@ -17,6 +17,7 @@ export const SCREENS = [
   'parts',
   'showroom',
   'team',
+  'community',
 ] as const;
 
 export type ScreenId = (typeof SCREENS)[number];
@@ -29,6 +30,7 @@ export const SCREEN_LABELS: Record<ScreenId, string> = {
   parts: 'Parts Shop',
   showroom: 'Car Showroom',
   team: 'Team',
+  community: 'Community',
 };
 
 /** The stage of the roadmap that fills each screen in. */
@@ -40,4 +42,5 @@ export const SCREEN_STAGE: Record<ScreenId, string> = {
   parts: 'Stage 3',
   showroom: 'Stage 7',
   team: 'Stage 12',
+  community: 'Stage 14',
 };
