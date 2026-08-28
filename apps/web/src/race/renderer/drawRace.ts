@@ -234,7 +234,9 @@ function drawPrompt(ctx: CanvasRenderingContext2D, state: PassState): void {
   ctx.textBaseline = 'middle';
   ctx.font = 'bold 19px Verdana, sans-serif';
 
-  const y = VIEW.y + VIEW.h - 30;
+  // Between the two stage plates rather than down by the dash, where the cowl's
+  // leading edge now cuts through it.
+  const y = VIEW.y + 26;
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'rgba(6, 9, 13, 0.85)';
   ctx.strokeText(text, VIEW_CENTER_X, y);

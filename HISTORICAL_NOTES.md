@@ -133,6 +133,25 @@ Nitto logo, a `1320 CHALLENGE` wordmark and `Version 1.52`. The `PRE-STAGED` /
 `STAGED` plates are also **per lane** -- two sets, not one -- which matters when
 Stage 6 fills the second lane.
 
+
+### The three dials are a cluster, not a row, `sourced`
+
+Source: `race-view-two-civics.webp`, with the dial circles marked over it.
+
+They overlap. The tachometer is much the largest, sits slightly higher than its
+neighbours, and laps over both of them; boost and speed do not touch each other.
+Measured off the markup at the original's own scale and carried across: 66, 96
+and 84 pixel radii on our canvas, overlapping by 16 and 9.
+
+Painted outside-in so the tacho is in front of both, which is the only ordering
+that reads as one binnacle rather than as discs stacked wrong.
+
+The **prompt text** (`ROLL UP`, `STAGED`, `RED LIGHT`) sits at the top of the
+view between the two stage plates. The original puts `STAGING` low and centred
+over the road; ours cannot, because the dashboard now reaches up into that space
+and cut the text in half. This is a departure, and a small one, but it is a
+departure.
+
 ### The left-hand bar is a staging gauge
 
 Source: `race-view-two-civics.webp`, read by someone who played the original.

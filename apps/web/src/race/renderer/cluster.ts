@@ -25,9 +25,12 @@ export const GAS_SLIDER = { x: 694, y: 430, w: 34, h: 140 } as const;
 export const CLUTCH_SLIDER = { x: 748, y: 430, w: 34, h: 140 } as const;
 
 export const DIALS = {
-  boost: { cx: 232, cy: 496, r: 62 },
-  rpm: { cx: 424, cy: 496, r: 80 },
-  mph: { cx: 616, cy: 496, r: 62 },
+  // Sized and spaced off the reference: the tacho dominates, the three overlap
+  // rather than sitting in a row, and the centre one rides slightly higher than
+  // its neighbours. Overlaps are 16px and 9px.
+  boost: { cx: 254, cy: 508, r: 66 },
+  rpm: { cx: 400, cy: 492, r: 96 },
+  mph: { cx: 571, cy: 500, r: 84 },
 } as const;
 
 const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
@@ -39,7 +42,7 @@ const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
  * car is doing, this one is asking for an input, and it has to be readable
  * without looking away from the strip.
  */
-export const SHIFT_LIGHT = { cx: 528, cy: 428, r: 15 } as const;
+export const SHIFT_LIGHT = { cx: 484, cy: 406, r: 12 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -48,9 +51,10 @@ const SWEEP = Math.PI * 1.5;
 export function drawCluster(ctx: CanvasRenderingContext2D, state: PassState, throttle: number): void {
   // The dashboard casting itself is drawn by chrome.ts before this runs.
   // Everything here goes on top of it.
+  // Painted outside-in: the tacho overlaps both neighbours and belongs in front.
   drawBoost(ctx);
-  drawTacho(ctx, state);
   drawSpeedo(ctx, state);
+  drawTacho(ctx, state);
 
   drawSlider(ctx, GAS_SLIDER, throttle, 'GAS', COLORS.green);
   drawSlider(ctx, CLUTCH_SLIDER, state.clutchEngagement, 'CLUTCH', COLORS.amber, true);

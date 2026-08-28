@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COWL_CROWN_Y, dashTopY, panelEdgeXAt } from './chrome.js';
-import { CANVAS_WIDTH, HORIZON_Y, VIEW } from './layout.js';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, HORIZON_Y, VIEW } from './layout.js';
 import { CLUTCH_SLIDER, DIALS, GAS_SLIDER, SHIFT_LIGHT } from './cluster.js';
 
 const CENTRE = CANVAS_WIDTH / 2;
@@ -149,6 +149,45 @@ describe('the side panels', () => {
     for (let y = 0; y <= VIEW.y + VIEW.h; y += 10) {
       const gap = panelEdgeXAt(y, 'right') - panelEdgeXAt(y, 'left');
       expect(gap, `y=${y}`).toBeGreaterThan(VIEW.w * 0.75);
+    }
+  });
+});
+
+describe('the dial cluster', () => {
+  const gap = (a: keyof typeof DIALS, b: keyof typeof DIALS) =>
+    Math.hypot(DIALS[a].cx - DIALS[b].cx, DIALS[a].cy - DIALS[b].cy) - DIALS[a].r - DIALS[b].r;
+
+  it('makes the tacho the biggest', () => {
+    expect(DIALS.rpm.r).toBeGreaterThan(DIALS.mph.r);
+    expect(DIALS.mph.r).toBeGreaterThan(DIALS.boost.r);
+  });
+
+  it('overlaps the tacho with each neighbour', () => {
+    // Measured off the reference, where the three are a cluster rather than a
+    // row. Drawn outside-in so the tacho sits in front of both.
+    expect(gap('boost', 'rpm')).toBeLessThan(0);
+    expect(gap('rpm', 'mph')).toBeLessThan(0);
+  });
+
+  it('overlaps them only a little', () => {
+    // Enough to read as one instrument binnacle, not enough to hide a scale.
+    expect(gap('boost', 'rpm')).toBeGreaterThan(-DIALS.boost.r * 0.4);
+    expect(gap('rpm', 'mph')).toBeGreaterThan(-DIALS.mph.r * 0.4);
+  });
+
+  it('keeps the outer two apart', () => {
+    expect(gap('boost', 'mph')).toBeGreaterThan(0);
+  });
+
+  it('rides the tacho higher than its neighbours', () => {
+    expect(DIALS.rpm.cy).toBeLessThan(DIALS.boost.cy);
+    expect(DIALS.rpm.cy).toBeLessThan(DIALS.mph.cy);
+  });
+
+  it('fits everything on the canvas', () => {
+    for (const [name, d] of Object.entries(DIALS)) {
+      expect(d.cy + d.r, `${name} bottom`).toBeLessThan(CANVAS_HEIGHT);
+      expect(d.cx - d.r, `${name} left`).toBeGreaterThan(0);
     }
   });
 });

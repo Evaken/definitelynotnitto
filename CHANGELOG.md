@@ -1,5 +1,22 @@
 # Changelog
 
+## The instrument binnacle
+
+The three dials were a row of evenly spaced discs. In the original they are a
+cluster: the tachometer much the largest, riding slightly higher than its
+neighbours and lapping over both, with boost and speed not touching each other
+at all. Radii and spacing were measured off a marked-up reference and carried
+across at scale — 66, 96 and 84 pixels, overlapping by 16 and 9.
+
+They are painted outside-in so the tacho lands in front of both. Any other order
+reads as discs stacked wrong rather than as one binnacle.
+
+The prompt text — `ROLL UP`, `STAGED`, `RED LIGHT` — moved to the top of the
+view, between the two stage plates. It used to sit low and centred over the road
+as the original's `STAGING` does, but the dashboard now reaches up into that
+space and was cutting it in half. Worth naming as a deliberate departure from
+the reference rather than letting it look like one nobody noticed.
+
 ## Colour, and the last of the black bands
 
 The race panel had two strips of dead black in it: a thin one above the road
