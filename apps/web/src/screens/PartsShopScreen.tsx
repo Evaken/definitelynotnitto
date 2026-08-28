@@ -6,6 +6,7 @@ export function PartsShopScreen({state,message,onPurchaseAndFit}:{state:GarageSt
   const [group,setGroup]=useState<WorkshopGroupId|null>(null);
   const [selectedId,setSelectedId]=useState('');
   const [pending,setPending]=useState<PurchaseInstallPlan|null>(null);
+  const [showRequirements,setShowRequirements]=useState(false);
   const [localMessage,setLocalMessage]=useState('');
   const parts=useMemo(()=>group?partsForGroup(partList(),group):[],[group]);
   const selected=parts.find(part=>part.id===selectedId)??parts[0];
@@ -13,6 +14,8 @@ export function PartsShopScreen({state,message,onPurchaseAndFit}:{state:GarageSt
   const enterGroup=(next:WorkshopGroupId)=>{setGroup(next);const first=partsForGroup(partList(),next)[0];setSelectedId(first?.id??'');setLocalMessage('');};
   const requestPurchase=()=>{
     if(!selected)return;
+    const missing=selected.requires.filter(id=>!state.build.fittedPartIds.includes(id));
+    if(missing.length){setShowRequirements(true);setLocalMessage('');return;}
     const preview=previewPurchaseAndFit(state,selected.id);
     if(!preview.ok){setLocalMessage(preview.reason);return;}
     setPending(preview.plan);setLocalMessage('');
@@ -46,6 +49,11 @@ export function PartsShopScreen({state,message,onPurchaseAndFit}:{state:GarageSt
       <header>Part Purchase</header>
       <div className="purchase-dialog__body"><span className="purchase-dialog__alert" aria-hidden="true">!</span><div><h2 id="purchase-title">{pending.replacedPartIds.length?'Replace part?':'Confirm purchase?'}</h2><p>{pending.price?<>Purchase and install <strong>{pending.part.displayName}</strong> for <strong>${pending.price.toLocaleString()}</strong>?</>:<>Install the owned <strong>{pending.part.displayName}</strong>?</>}</p>{pending.replacedPartIds.length>0&&<div className="purchase-conflicts"><span>Conflicting parts to be removed:</span><ul>{pending.replacedPartIds.map(id=><li key={id}>{getPart(id).displayName}</li>)}</ul></div>}</div></div>
       <footer><button type="button" onClick={()=>setPending(null)}>Cancel</button><button type="button" className="primary" onClick={proceed}>Proceed</button></footer>
+    </section></div>}
+    {showRequirements&&selected&&<div className="purchase-overlay" role="presentation"><section className="purchase-dialog requirement-dialog" role="dialog" aria-modal="true" aria-labelledby="requirements-title">
+      <header>Required Hardware</header>
+      <div className="purchase-dialog__body"><span className="purchase-dialog__alert" aria-hidden="true">!</span><div><h2 id="requirements-title">Complete the installation first</h2><p><strong>{selected.displayName}</strong> needs the following hardware fitted to your selected car:</p><ul className="requirement-list">{selected.requires.map(id=>{const requirement=getPart(id);const fitted=state.build.fittedPartIds.includes(id);const owned=state.ownedPartIds.includes(id);return <li key={id} className={fitted?'ready':owned?'owned':'missing'}><strong>{requirement.displayName}</strong><span>{fitted?'Installed':owned?'Owned · install in Garage':'Purchase and install'}</span></li>;})}</ul></div></div>
+      <footer><button type="button" className="primary" onClick={()=>setShowRequirements(false)}>Return to Shop</button></footer>
     </section></div>}
   </WorkshopFrame></div>;
 }

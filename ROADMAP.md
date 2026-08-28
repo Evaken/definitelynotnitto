@@ -170,13 +170,16 @@ fair game.
 
 ## Stage 3 — Garage and Parts Shop
 
-- The garage now follows the recovered Version 1.53 hierarchy: selected-car
-  overview, Vehicle Setup, department tabs, modification systems and installed
-  component rows over a schematic car.
+- The garage follows the Version 1.53 visual hierarchy and the recovered 1.52
+  state flow: selected-car overview, Vehicle Setup, department tabs, top-level
+  modification category, subsystem and component detail over a schematic car.
+- Owned inventory is separate from fitted hardware. Stored parts can be
+  installed again and installed parts can be returned to storage.
 - Session average ET, best ET and completed runs appear on the selected car and
   survive navigation away from the Race Track until the build changes.
 - The Speedshop opens on illustrated department cards, then drills into branded
-  product cards with price, requirements and effect information.
+  product cards with price, effect information and an original-style required
+  hardware dialog distinguishing installed, stored and missing components.
 - Purchase and installation are one confirmed transaction. A conflicting part
   opens a replacement dialog listing every component that will be removed; the
   entire change succeeds or fails atomically in game-core.

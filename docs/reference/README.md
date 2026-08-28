@@ -1,11 +1,16 @@
 # Reference screenshots
 
-Surviving screenshots of the original **Nitto 1320 Challenge**. These are the
-only primary sources this project has. Everything tagged `sourced` in
-`config/historical.ts` traces back to one of them.
+Primary reference material for the original **Nitto 1320 Challenge**. The three
+surviving screenshots are accompanied by a clean-room behaviour map from a
+verified Version 1.52 client. Everything tagged `sourced` in
+`config/historical.ts` must trace back to an item here.
 
 Add more here as you find them, and record what each one settles in
 `HISTORICAL_NOTES.md`.
+
+The original client, extracted scripts and proprietary media are deliberately
+not stored in this repository. See `nitto-152-garage-store-map.md` for the
+behavioural findings that can safely guide the recreation.
 
 ---
 

@@ -670,6 +670,32 @@ body {
 .setup-category-strip button { flex:1; min-width:112px; padding:7px 9px; color:#c8dce4; border:1px solid #5fa1b9; border-radius:4px; background:linear-gradient(#167d9e,#0a5069); font:bold 9px var(--font-ui); text-transform:uppercase; cursor:pointer; }
 .setup-category-strip button.active { color:#fff; border-color:#c9f5ff; background:linear-gradient(#24dafc,#079bc3); box-shadow:0 0 8px rgba(49,214,247,.35); }
 
+.setup-subcategory-strip { display:flex; gap:4px; padding:6px 12px; overflow-x:auto; background:linear-gradient(#0a1722,#030a10); border-bottom:3px double #314c5c; }
+.setup-subcategory-strip button { flex:1; min-width:130px; padding:7px 10px; color:#82a8b8; border:1px solid #315c6f; background:linear-gradient(#132c3a,#09151e); font:bold 8px var(--font-ui); letter-spacing:.4px; text-transform:uppercase; cursor:pointer; }
+.setup-subcategory-strip button.active { color:#fff; border-color:#64dcf7; background:linear-gradient(90deg,#119fca,#087692); box-shadow:inset 0 0 12px rgba(84,224,255,.2); }
+
+.garage-components { display:flex; flex-direction:column; }
+.garage-component-browser { min-height:310px; display:grid; grid-template-columns:minmax(150px,.9fr) minmax(180px,1.1fr); }
+.garage-component-list { border-right:1px solid #245166; background:rgba(2,8,13,.72); }
+.garage-component-list > button { width:100%; display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:10px; color:#9bbbc8; border:0; border-bottom:1px solid #17394a; background:linear-gradient(90deg,rgba(8,93,127,.16),transparent); text-align:left; cursor:pointer; }
+.garage-component-list > button:hover,.garage-component-list > button.active { color:#fff; background:linear-gradient(90deg,#079fc9 0 4px,rgba(7,159,201,.35) 5px,rgba(7,159,201,.06)); }
+.garage-component-list > button > span { display:grid; gap:3px; }
+.garage-component-list strong { font-size:9px; text-transform:uppercase; }
+.garage-component-list small { color:#5f8798; font-size:7px; letter-spacing:1px; }
+.garage-component-list b { padding:3px 5px; border:1px solid; font-size:7px; letter-spacing:.7px; text-transform:uppercase; }
+.garage-component-list b.installed { color:#63e88a; border-color:#2c7f48; background:rgba(34,118,67,.2); }
+.garage-component-list b.stored { color:#f0c64a; border-color:#7f6726; background:rgba(118,91,28,.2); }
+.garage-part-detail { min-width:0; align-content:center; padding:20px; background:radial-gradient(circle at 55% 45%,rgba(24,110,145,.28),transparent 62%),linear-gradient(145deg,#0c202d,#050d14); }
+.garage-part-detail h2 { margin:7px 0 10px; color:#fff; font:italic 20px Impact,sans-serif; letter-spacing:.5px; text-transform:uppercase; }
+.garage-part-detail p { margin:0 0 8px; color:#f0c64a; font:10px var(--font-data); }
+.garage-part-detail small { display:block; min-height:34px; color:#789dad; font-size:8px; line-height:1.5; }
+.garage-part-detail--empty { display:grid; place-content:center; color:#527586; font-size:9px; text-align:center; text-transform:uppercase; }
+
+.requirement-list { list-style:none; margin:12px 0 0; padding:0; border-top:1px solid rgba(255,255,255,.25); }
+.requirement-list li { display:flex; justify-content:space-between; gap:12px; padding:7px 5px; border-bottom:1px solid rgba(255,255,255,.16); }
+.requirement-list li strong { font-size:9px; }.requirement-list li span { font-size:8px; text-transform:uppercase; }
+.requirement-list .ready span { color:#64ee8a; }.requirement-list .owned span { color:#ffd44b; }.requirement-list .missing span { color:#fff; }
+
 .car-silhouette--xray { background:linear-gradient(168deg,rgba(38,119,150,.42),rgba(10,38,57,.5) 45%,rgba(5,19,30,.68)); }
 .car-silhouette__engine { position:absolute; z-index:3; left:38px; top:42px; width:74px; height:47px; border:2px solid #6ec6dc; border-radius:8px; background:repeating-linear-gradient(90deg,rgba(82,203,232,.7) 0 5px,rgba(11,55,74,.8) 5px 10px); opacity:.4; transition:opacity .2s,filter .2s; }
 .car-silhouette__pipe { position:absolute; z-index:3; left:102px; top:68px; width:190px; height:15px; border:3px solid #6ec6dc; border-top:0; opacity:.35; transition:opacity .2s,filter .2s; }
@@ -711,5 +737,5 @@ body {
 
 @media(max-width:760px){
   body{padding:0;display:block}.shell{width:100%;max-width:100%;overflow:hidden}.shell__masthead{padding:6px 8px}.shell__title{font-size:12px}.shell__stage{font-size:7px}.nav{overflow-x:auto}.nav__tab{flex:0 0 88px;min-width:88px;font-size:8px}
-  .garage-overview{padding:18px 10px}.garage-records{position:relative;top:auto;right:auto;width:auto;margin-top:7px;display:grid;grid-template-columns:repeat(3,1fr)}.garage-records div{display:grid;text-align:center}.vehicle-setup-button{top:78px;left:8px;width:105px}.garage-ride-card{padding-bottom:45px}.workshop__toolbar{align-items:flex-start}.workshop__toolbar .workshop__modes{justify-content:flex-start}.workshop-status{grid-template-columns:1fr}.workshop-status div{border-bottom:1px solid #2b3c49}.product-selection{grid-template-columns:1fr}.product-selection__effect{white-space:normal}.purchase-dialog footer{padding-left:18px}.category-card{flex-basis:145px;height:190px}.product-card{flex-basis:170px;height:215px}
+  .garage-overview{padding:18px 10px}.garage-records{position:relative;top:auto;right:auto;width:auto;margin-top:7px;display:grid;grid-template-columns:repeat(3,1fr)}.garage-records div{display:grid;text-align:center}.vehicle-setup-button{top:78px;left:8px;width:105px}.garage-ride-card{padding-bottom:45px}.workshop__toolbar{align-items:flex-start}.workshop__toolbar .workshop__modes{justify-content:flex-start}.workshop-status{grid-template-columns:1fr}.workshop-status div{border-bottom:1px solid #2b3c49}.product-selection{grid-template-columns:1fr}.product-selection__effect{white-space:normal}.purchase-dialog footer{padding-left:18px}.category-card{flex-basis:145px;height:190px}.product-card{flex-basis:170px;height:215px}.garage-component-browser{grid-template-columns:1fr}.garage-component-list{border-right:0;border-bottom:1px solid #245166;max-height:150px;overflow:auto}.garage-part-detail{min-height:155px}
 }

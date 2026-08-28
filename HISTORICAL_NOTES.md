@@ -2,9 +2,10 @@
 
 ## Stage 3 parts and prices are assumptions
 
-The surviving gameplay video confirms the Speedshop layout, Garage subsections
-and the presence of branded parts and prices, but not a complete catalogue or
-performance model. Stage 3 therefore uses 30 neutral part names with
+The surviving gameplay video and static analysis of the verified Version 1.52
+client confirm the Speedshop layout, Garage state model and presence of branded
+parts and prices, but not a complete catalogue or performance model. Stage 3
+therefore uses 30 neutral part names with
 provisional prices and conservative effects. They are not claims about the
 original and are tagged for Stage 15 calibration. No product photographs were
 copied.
@@ -15,10 +16,10 @@ what has been invented to get the game running.
 PROJECT_SPEC 11.12 and 11.13: document uncertain behaviour rather than inventing
 certainty, and isolate unknown rules behind configuration.
 
-**Three surviving screenshots are now in [`docs/reference/`](docs/reference/).**
-They are the only primary sources this project has, and everything tagged
-`sourced` traces back to one of them. Everything else is still real-world drag
-racing practice or an outright assumption.
+**Primary references are catalogued in [`docs/reference/`](docs/reference/).**
+They include three surviving screenshots and a clean-room behaviour map from a
+verified Version 1.52 client. Everything else is still real-world drag racing
+practice or an outright assumption.
 
 This document should get longer and more confident, not shorter. Add sources to
 `docs/reference/` as you find them and record what they settle here.
@@ -375,6 +376,26 @@ could not:
 The present recreation follows that hierarchy. Category art remains schematic
 until Stage 8 supplies the real car-art pipeline; Tune, Maintenance, Paint and
 Nitrous functionality remain in their scheduled stages.
+
+### Garage and Speedshop state model — `sourced`
+
+Source: static analysis of the verified Version 1.52 client, recorded without
+original code or media in
+[`docs/reference/nitto-152-garage-store-map.md`](docs/reference/nitto-152-garage-store-map.md).
+
+- Garage modification navigation is category → generated subsystem → component
+  detail, rather than a single flat installed-parts list.
+- Parts are owned by the selected car independently from whether they are
+  installed. Install and uninstall are separate operations, so removed hardware
+  remains in storage and can be fitted again.
+- A successful store purchase targets the selected car and installs the part.
+- Requirement feedback distinguishes installed, owned-but-not-installed and
+  not-yet-owned hardware.
+- Conflicting fitted hardware triggers a replacement flow, including dependent
+  components that can no longer remain fitted.
+- Parts feed vehicle properties such as horsepower, boost, grip, rev limit and
+  weight. The exact historical catalogue and values remain unknown because
+  catalogue data was server supplied.
 
 ### Economy — Stage 3 provisional
 

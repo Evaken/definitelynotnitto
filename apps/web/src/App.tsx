@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { createGarageState, purchaseAndFitPart, removePart, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
+import { createGarageState, fitPart, purchaseAndFitPart, removePart, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -42,7 +42,7 @@ export function App() {
 
       <NavBar active={screen} onNavigate={setScreen} />
 
-      {screen === 'track' ? <RaceTrackScreen car={car} modified={garage.build.fittedPartIds.length>0} initialHistory={raceHistory} onHistoryChange={updateRaceHistory}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} onRemove={id=>apply(removePart(garage,id),'Part removed.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
+      {screen === 'track' ? <RaceTrackScreen car={car} modified={garage.build.fittedPartIds.length>0} initialHistory={raceHistory} onHistoryChange={updateRaceHistory}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

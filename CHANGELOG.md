@@ -1,5 +1,19 @@
 # Changelog
 
+## Stage 3.2 — Recovered 1.52 garage/store behaviour
+
+- Added a clean-room behaviour map from a verified Version 1.52 client; no
+  original scripts, artwork or binaries enter the public repository.
+- Rebuilt Vehicle Setup around category, subsystem and owned-component detail
+  screens instead of showing only currently fitted parts.
+- Separated owned inventory from fitted hardware in the interface, with
+  original-style Install Part and Uninstall Part actions.
+- Added a required-hardware dialog that distinguishes installed,
+  owned-but-stored and not-yet-owned prerequisites.
+- Retained atomic purchase/install and conflict replacement behaviour, while
+  documenting which historical facts are now sourced and which catalogue data
+  remains provisional.
+
 ## Stage 3.1 — Workshop fidelity pass
 
 - Rebuilt the Garage as a two-step flow: car overview first, then Vehicle Setup.

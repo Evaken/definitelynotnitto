@@ -15,6 +15,19 @@ export const WORKSHOP_GROUPS = [
 
 export type WorkshopGroupId = (typeof WORKSHOP_GROUPS)[number]['id'];
 
+const CATEGORY_LABELS: Record<PartCategory, string> = {
+  intake: 'Air Intake', exhaust: 'Exhaust Systems', ecu: 'Electronics', engine: 'Internal Engine',
+  turbo: 'Turbo Systems', supercharger: 'Supercharger Systems', 'turbo-accessory': 'Boost Accessories',
+  nitrous: 'Nitrous Systems', clutch: 'Clutch', transmission: 'Transmission', tyres: 'Tyres',
+  suspension: 'Suspension', 'weight-reduction': 'Weight Reduction', wheels: 'Wheels', cosmetic: 'Appearance',
+};
+
+export function categoryLabel(category: PartCategory): string { return CATEGORY_LABELS[category]; }
+
+export function categoriesForGroup(groupId: WorkshopGroupId): readonly PartCategory[] {
+  return WORKSHOP_GROUPS.find(group => group.id === groupId)?.categories ?? WORKSHOP_GROUPS[0].categories;
+}
+
 export function partsForGroup(parts: readonly Part[], groupId: WorkshopGroupId): Part[] {
   const group = WORKSHOP_GROUPS.find((candidate) => candidate.id === groupId) ?? WORKSHOP_GROUPS[0];
   return parts.filter((part) => (group.categories as readonly PartCategory[]).includes(part.category));
