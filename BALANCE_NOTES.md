@@ -123,9 +123,9 @@ pressure at three engine speeds, and the best pass found by sweeping launch rpm:
 | street blower | 223 | 4.6 | 7.0 | 7.0 | 2000 | 2.543 | 14.310 | 101.8 |
 | street turbo | 245 | 0.0 | 8.7 | 8.7 | 3000 | 2.437 | 14.479 | 103.2 |
 | race blower | 268 | 7.9 | 11.9 | 11.9 | 2000 | 2.635 | 14.648 | 106.8 |
-| race turbo | 313 | 0.0 | 6.2 | 16.0 | 3000 | 2.487 | 13.642 | **114.3** |
-| race blower + grip | 268 | 7.9 | 11.9 | 11.9 | 2000 | 2.289 | **13.192** | 110.2 |
-| race turbo + grip | 313 | 0.0 | 6.2 | 16.0 | 4000 | 2.356 | 14.120 | 111.6 |
+| race turbo | 313 | 0.0 | 6.2 | 16.0 | 3000 | 2.487 | 13.642 | 114.3 |
+| race blower + grip | 268 | 7.9 | 11.9 | 11.9 | 2000 | 2.381 | 13.359 | 110.0 |
+| race turbo + grip | 313 | 0.0 | 6.2 | 16.0 | 4000 | 2.359 | 14.095 | 111.7 |
 
 Pressure in psi at the gauge. Grip builds add street tyres, drag radials and an
 LSD.
@@ -154,58 +154,88 @@ Thirty parts, all Civic-only. **Every price is invented** — the only confirmed
 price in the project is $1,500 to apply paint. Starting balance is $10,000 and
 there is no way to earn yet; prize money is Stage 6.
 
-| Part | Category | Price | Requires |
-|---|---|---|---|
-| High-Flow Panel Filter | intake | $180 | — |
-| Cold-Air Intake | intake | $520 | panel-filter |
-| Short-Ram Intake | intake | $390 | — |
-| Sports Muffler | exhaust | $360 | — |
-| Cat-Back Exhaust | exhaust | $780 | sports-muffler |
-| 4-2-1 Race Header | exhaust | $950 | cat-back |
-| ECU Reflash | ecu | $650 | — |
-| Standalone ECU | ecu | $1750 | ecu-reflash |
-| Performance Camshafts | engine | $1450 | race-header |
-| High-Compression Pistons | engine | $2200 | performance-cams |
-| Ported Cylinder Head | engine | $2600 | performance-cams |
-| Lightweight Flywheel | clutch | $680 | — |
-| Sports Clutch | clutch | $900 | — |
-| Race Clutch | clutch | $1650 | sports-clutch |
-| Short Shifter | transmission | $420 | — |
-| Limited-Slip Differential | transmission | $1800 | — |
-| Performance Street Tyres | tyres | $600 | — |
-| Drag Radials | tyres | $1350 | street-tyres |
-| Sport Springs | suspension | $550 | — |
-| Adjustable Dampers | suspension | $1150 | sport-springs |
-| Rear Seat Delete | weight-reduction | $250 | — |
-| Lightweight Battery | weight-reduction | $480 | — |
-| Stage 1 Weight Reduction | weight-reduction | $1100 | rear-seat-delete |
-| Turbo Manifold | turbo-accessory | $900 | — |
-| Front-Mount Intercooler | turbo-accessory | $1250 | turbo-manifold |
-| Street Turbo Kit | turbo | $3800 | turbo-manifold + intercooler + sports-clutch |
-| Race Turbo Kit | turbo | $6200 | street-turbo + race-clutch |
-| Supercharger Bracket Kit | supercharger | $850 | — |
-| Street Supercharger | supercharger | $4200 | supercharger-bracket + sports-clutch |
-| Race Supercharger | supercharger | $6500 | street-supercharger + race-clutch |
+| Part | Category | Price | Requires | Exclusion group |
+|---|---|---|---|---|
+| High-Flow Panel Filter | intake | $180 | — | intake-path |
+| Cold-Air Intake | intake | $520 | panel-filter | intake-path |
+| Short-Ram Intake | intake | $390 | — | intake-path |
+| Sports Muffler | exhaust | $360 | — | — |
+| Cat-Back Exhaust | exhaust | $780 | sports-muffler | — |
+| 4-2-1 Race Header | exhaust | $950 | cat-back | — |
+| ECU Reflash | ecu | $650 | — | engine-management |
+| Standalone ECU | ecu | $1750 | ecu-reflash | engine-management |
+| Performance Camshafts | engine | $1450 | race-header | — |
+| High-Compression Pistons | engine | $2200 | performance-cams | — |
+| Ported Cylinder Head | engine | $2600 | performance-cams | — |
+| Lightweight Flywheel | clutch | $680 | — | — |
+| Sports Clutch | clutch | $900 | — | clutch |
+| Race Clutch | clutch | $1650 | sports-clutch | — |
+| Short Shifter | transmission | $420 | — | — |
+| Limited-Slip Differential | transmission | $1800 | — | — |
+| Performance Street Tyres | tyres | $600 | — | tyres |
+| Drag Radials | tyres | $1350 | street-tyres | tyres |
+| Sport Springs | suspension | $550 | — | — |
+| Adjustable Dampers | suspension | $1150 | sport-springs | — |
+| Rear Seat Delete | weight-reduction | $250 | — | — |
+| Lightweight Battery | weight-reduction | $480 | — | — |
+| Stage 1 Weight Reduction | weight-reduction | $1100 | rear-seat-delete | — |
+| Turbo Manifold | turbo-accessory | $900 | — | induction-hardware |
+| Front-Mount Intercooler | turbo-accessory | $1250 | turbo-manifold | — |
+| Street Turbo Kit | turbo | $3800 | turbo-manifold + intercooler + sports-clutch | forced-induction |
+| Race Spec Turbo Upgrade Kit | turbo | $6200 | street-turbo + race-clutch | forced-induction-upgrade |
+| Supercharger Bracket Kit | supercharger | $850 | — | induction-hardware |
+| Street Supercharger | supercharger | $4200 | supercharger-bracket + sports-clutch | forced-induction |
+| Race Supercharger | supercharger | $6500 | street-supercharger + race-clutch | forced-induction-upgrade |
 
-Two exclusion groups do real work: `forced-induction` keeps a turbo and a
-supercharger apart, and `induction-hardware` does the same for the manifold and
-the bracket that carry them. `intake-path` and `tyres` make the alternatives
-within those systems mutually exclusive.
+### Stacking versus replacing
 
-Note the shape is inconsistent, deliberately or not: **exhaust, engine and
-clutch parts stack** through `requires` — fitting the Race Header keeps the
-Cat-Back fitted underneath it — while **intake and tyre parts replace** each
-other through an exclusion group. Fitting a lower-tier intake over a higher one
-therefore removes the higher one, which the Speedshop warns about before it
-happens. Whether that split is intended is worth settling before the roster
-grows.
+Two shapes, and the difference is physical rather than stylistic. A part
+**stacks** when it declares its predecessor in `requires` and shares no exclusion
+group with it — both stay fitted and their effects compound. A part **replaces**
+when the two share a group.
 
-Fully built — every part that can legally be fitted together, 25 of the 30 (the
-turbo path and the supercharger path exclude each other) — comes out at **376 hp,
-1080 kg, grip 1.35, 12.379 at 123.3mph, $46,460 spent.** Against a $10,000 start
-with no way to earn, so the top of the tree is unreachable until Stage 6 pays
-out. Note the greedy fit lands on the supercharger: it is fitted before the
-turbo can be, and then blocks it.
+Stacking is right where the parts are genuinely different components that
+coexist on the car:
+
+- exhaust — a muffler, a cat-back and a header are three separate things
+- engine internals — cams, pistons and a head
+- suspension — springs and dampers
+- weight reduction — cumulative by definition
+- forced-induction hardware — a manifold, an intercooler and the kit that uses them
+
+Replacing is right where you can only have one:
+
+| Group | Members | Why |
+|---|---|---|
+| `intake-path` | panel filter, short-ram, cold-air | A car has one intake. A panel filter is an insert in the stock airbox; a cold-air replaces the airbox outright, so the filter has nothing left to sit in. |
+| `tyres` | street tyres, drag radials | One set of tyres. |
+| `engine-management` | reflash, standalone ECU | A standalone replaces the stock ECU; reflashing the one you removed means nothing. |
+| `forced-induction` | street turbo, street blower | Not both. |
+| `forced-induction-upgrade` | race turbo, race blower | Not both. |
+| `induction-hardware` | turbo manifold, blower bracket | Not both. |
+| `clutch` | sports clutch | See below. |
+
+Three of these were added after an audit found them stacking when they should
+not: the intake, tyre and ECU ladders each handed out free performance for
+fitting two mutually exclusive parts. The tyre one was worth 4% of grip on a car
+where grip is the binding constraint.
+
+**One is knowingly still wrong.** The Race Clutch keeps the Sports Clutch fitted
+and their efficiencies compound (0.9230 against 0.9150). It cannot simply be
+given the `clutch` group, because `sports-clutch` is also a prerequisite of both
+forced-induction kits: `previewPurchaseAndFit` cascades a replacement to
+everything that requires it, so upgrading your clutch would uninstall your
+turbo. Fixing it properly means either a notion of *tiers* — "requires a clutch
+of at least this rating" — or dropping the clutch prerequisite from the kits and
+letting the physics enforce it, which it already does: fit a big turbo behind a
+stock clutch and it slips, and the car is slower than standard. The second is
+the smaller change and the better game. Neither is done.
+
+Fully built — every part that can legally be fitted together, 22 of the 30 —
+comes out at **367 hp, 1080 kg, grip 1.30, 12.541 at 122.1mph, $46,460 spent.**
+Against a $10,000 start with no way to earn, so the top of the tree is
+unreachable until Stage 6 pays out. The greedy fit lands on the supercharger: it
+can be fitted before the turbo, and then blocks it.
 
 ---
 
@@ -222,7 +252,7 @@ validated during research:
 | Viper | low 6s |
 | Special drag cars | much faster |
 
-**The fully-built Civic currently runs 12.4s, not low 8s.** That gap is the
+**The fully-built Civic currently runs 12.5s, not low 8s.** That gap is the
 whole of Stage 15's work and is expected, not a bug — but it is the clearest
 single measure of how far from calibrated the game is.
 

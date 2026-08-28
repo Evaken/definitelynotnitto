@@ -1,5 +1,43 @@
 # Changelog
 
+## Parts that replace instead of stacking
+
+An audit of all thirty parts asked two questions: does each one actually change
+the car, and where a part requires its predecessor, do both stay fitted?
+
+Every part earns its place — twenty-eight change the car directly, and the two
+that do not (the turbo manifold and the supercharger bracket) are mounting
+hardware gating a compressor that changes it a great deal.
+
+The second question found an exploit. Three ladders let two mutually exclusive
+components stay fitted together and compound their effects:
+
+- **intake** — a panel filter is an insert in the stock airbox and a cold-air
+  replaces the airbox outright, so the filter has nothing left to sit in
+- **tyres** — one set of tyres, and stacking them was worth 4% of grip on a car
+  where grip is the binding constraint
+- **engine management** — a standalone ECU replaces the stock one; reflashing
+  the unit you just removed means nothing
+
+Each now shares an exclusion group, so the upgrade replaces its predecessor and
+leaves it owned but stored. The Speedshop already warns before a replacement, so
+no new UI was needed.
+
+`Race Turbo Kit` is now `Race Spec Turbo Upgrade Kit` — it adds boost to the
+street kit rather than being a second turbocharger, and the name said otherwise.
+
+**One is knowingly left wrong**, and recorded rather than quietly skipped: the
+Race Clutch still keeps the Sports Clutch fitted. It cannot simply be given the
+group, because `sports-clutch` is a prerequisite of both forced-induction kits
+and the replacement cascade would uninstall the turbo along with the clutch it
+sits behind. The fix is either a notion of tiers, or dropping the clutch
+prerequisite and letting the physics enforce it — which it already does, since a
+big turbo behind a stock clutch slips and comes out slower than standard.
+
+Two of the Stage 3 garage tests asserted the old intake behaviour and were
+rewritten rather than deleted: one now checks the swap the Speedshop offers, the
+other moved to the exhaust ladder, which genuinely does stack.
+
 ## Boost is a pressure, not a percentage
 
 The boost gauge did not move because nothing was making any boost. Forced
