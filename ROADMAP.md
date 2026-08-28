@@ -168,6 +168,20 @@ fair game.
 
 ---
 
+## Stage 3 — Garage and Parts Shop
+
+- The garage now uses a layered workshop flow modelled on surviving footage:
+  department tabs, clickable modification families, a persistent car bay and a
+  component list rather than a flat utility page.
+- The Parts Shop uses the same workshop language and lets the player select a
+  component, inspect its requirements and price, buy it, then install it.
+- Tune and Dyno, Paint Shop and Maintenance are visible as locked departments so
+  the workshop feels like a larger game without implementing later stages early.
+- Garage stats update from the resolved build and fitted components can be
+  inspected and removed by modification family.
+
+---
+
 ## All sixteen stages
 
 The whole plan, so anyone can see what is coming and pick up the next piece

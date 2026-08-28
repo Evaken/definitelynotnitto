@@ -1,5 +1,16 @@
 # Changelog
 
+## Stage 3 workshop presentation pass
+
+- Rebuilt Garage and Parts Shop as a period game interface with two levels of
+  clickable menus, a persistent vehicle bay and category-specific inventories.
+- Added selectable product rows, a dedicated part detail panel, purchase and
+  installation feedback, fitted-part management and live build statistics.
+- Exposed later workshop departments as clearly locked roadmap features rather
+  than pretending they are already implemented.
+- Kept the existing deterministic garage and parts logic unchanged beneath the
+  new presentation.
+
 ## Stage 3 — Garage and Speedshop
 
 The first upgrade loop is playable. A session starts with $10,000; the
