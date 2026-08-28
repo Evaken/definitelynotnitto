@@ -94,6 +94,14 @@ and are there to catch a change that makes the car wildly fast or slow.
 `testing/drive.ts` is a scripted driver for tests only. It is not a CPU opponent
 — those are Stage 6, and building one early is explicitly out of scope.
 
+**`testing/drive.ts` is load-bearing for `BALANCE_NOTES.md`.** Every figure in
+that file is produced by this driver, so a change to how it drives silently
+changes what the file claims. It has already happened once: the driver
+chain-shifted a high-torque car into fifth at 29mph, and the short-shift row was
+seven seconds out with nothing failing. If you touch the driver, regenerate
+every table in `BALANCE_NOTES.md` — all of them, not the ones that look
+related. You cannot tell which moved by reading.
+
 ## Traps this codebase has already fallen into
 
 Worth knowing before touching the simulation. All three produced behaviour that
