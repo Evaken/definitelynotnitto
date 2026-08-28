@@ -1,5 +1,16 @@
 # Changelog
 
+## Stage 3.3 — Workshop graphics and motion pass
+
+- Replaced the schematic garage-car outline with an original transparent
+  three-quarter EK-style vehicle render and exposed engine hardware.
+- Replaced symbolic Speedshop category art with original rendered intake,
+  exhaust, ECU, turbo, clutch, wheel, suspension and weight-reduction artwork.
+- Added client-like car arrival, scanning beam, selected-system hotspot,
+  cascading submenu, product-card and detail-panel transitions.
+- All new graphics are clean-room generated replacements with no original game
+  binaries, artwork, logos or brands included.
+
 ## Stage 3.2 — Recovered 1.52 garage/store behaviour
 
 - Added a clean-room behaviour map from a verified Version 1.52 client; no

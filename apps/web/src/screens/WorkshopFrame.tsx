@@ -66,7 +66,13 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
 }
 
 export function CategoryArtwork({ groupId, label }: { groupId: WorkshopGroupId; label: string }) {
-  return <span className={`category-art category-art--${groupId}`} aria-label={`${label} illustration`}><i/><b/></span>;
+  const spritePosition: Partial<Record<WorkshopGroupId,string>> = {
+    intake:'0% 0%', exhaust:'33.333% 0%', engine:'66.667% 0%', boost:'100% 0%',
+    drivetrain:'0% 100%', tyres:'33.333% 100%', suspension:'66.667% 100%', weight:'100% 100%',
+  };
+  const position=spritePosition[groupId];
+  return <span className={`category-art category-art--${groupId}${position?' category-art--sprite':''}`} aria-label={`${label} illustration`}
+    {...(position?{style:{backgroundImage:`url(${import.meta.env.BASE_URL}assets/speedshop-parts-sheet.png)`,backgroundPosition:position}}:{})}><i/><b/></span>;
 }
 
 export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
@@ -93,15 +99,13 @@ export function CarBay({ title, subtitle, badge, highlight }: { title: string; s
   return (
     <div className={`car-bay${highlight ? ` car-bay--${highlight}` : ''}`} aria-label={`${title}, ${subtitle}`}>
       <div className="car-bay__scanlines" />
+      <div className="car-bay__sweep" />
       <div className="car-bay__badge">{badge}</div>
-      <div className="car-silhouette car-silhouette--xray">
-        <span className="car-silhouette__glass" />
-        <span className="car-silhouette__engine" />
-        <span className="car-silhouette__pipe" />
-        <span className="car-silhouette__lamp car-silhouette__lamp--left" />
-        <span className="car-silhouette__lamp car-silhouette__lamp--right" />
-        <span className="car-silhouette__wheel car-silhouette__wheel--left" />
-        <span className="car-silhouette__wheel car-silhouette__wheel--right" />
+      <div className="garage-car-art">
+        <img src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.png`} alt="" draggable={false}/>
+        <span className="garage-car-art__hotspot garage-car-art__hotspot--engine" />
+        <span className="garage-car-art__hotspot garage-car-art__hotspot--drivetrain" />
+        <span className="garage-car-art__hotspot garage-car-art__hotspot--rear" />
       </div>
       <div className="car-bay__identity"><strong>{title}</strong><span>{subtitle}</span></div>
     </div>

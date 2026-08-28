@@ -25,7 +25,7 @@ export function GarageScreen({state,car,history,message,onFit,onRemove}:{state:G
         <div className="garage-ride-card__title"><span>Honda</span><strong>Civic <i>Si</i></strong></div>
         <div className="garage-ride-card__body">
           <button type="button" className="vehicle-setup-button" onClick={()=>setView('setup')}>Vehicle Setup</button>
-          <CarBay title={`${car.year} ${car.displayName}`} subtitle={`${car.engine.code} · ${state.build.fittedPartIds.length} upgrades installed`} badge=""/>
+        <CarBay key="garage-overview-car" title={`${car.year} ${car.displayName}`} subtitle={`${car.engine.code} · ${state.build.fittedPartIds.length} upgrades installed`} badge=""/>
         </div>
         <dl className="garage-records">
           <div><dt>Average ET</dt><dd>{averageEt===null?'--.---':averageEt.toFixed(3)}</dd></div>
@@ -48,7 +48,7 @@ export function GarageScreen({state,car,history,message,onFit,onRemove}:{state:G
     </nav>
     <div className="workshop__stage">
       <div className="workshop__visual">
-        <CarBay title={`${car.year} ${car.manufacturer} ${car.displayName}`} subtitle={`${car.engine.code} · ${car.drivetrain} · ${state.build.fittedPartIds.length ? `${state.build.fittedPartIds.length} upgrade${state.build.fittedPartIds.length===1?'':'s'} fitted` : 'factory specification'}`} badge={WORKSHOP_GROUPS.find(item=>item.id===group)?.label.toUpperCase()??'MODIFICATIONS'} highlight={group}/>
+        <CarBay key={group} title={`${car.year} ${car.manufacturer} ${car.displayName}`} subtitle={`${car.engine.code} · ${car.drivetrain} · ${state.build.fittedPartIds.length ? `${state.build.fittedPartIds.length} upgrade${state.build.fittedPartIds.length===1?'':'s'} fitted` : 'factory specification'}`} badge={WORKSHOP_GROUPS.find(item=>item.id===group)?.label.toUpperCase()??'MODIFICATIONS'} highlight={group}/>
         <dl className="workshop-stats"><div><dt>Power</dt><dd>{Math.round(peakHp)}<small> hp</small></dd></div><div><dt>Torque</dt><dd>{Math.round(torque.torqueNm)}<small> Nm</small></dd></div><div><dt>Weight</dt><dd>{Math.round(car.chassis.massKg)}<small> kg</small></dd></div><div><dt>Grip</dt><dd>{car.tyres.peakGrip.toFixed(2)}<small> μ</small></dd></div></dl>
       </div>
       <section className="workshop__inventory garage-components">
@@ -60,7 +60,7 @@ export function GarageScreen({state,car,history,message,onFit,onRemove}:{state:G
               return <button key={part.id} type="button" role="option" aria-selected={selected?.id===part.id} className={selected?.id===part.id?'active':''} onClick={()=>setSelectedId(part.id)}><span><strong>{part.displayName}</strong><small>{partBrand(part)}</small></span><b className={fitted?'installed':'stored'}>{fitted?'Installed':'Stored'}</b></button>;
             })}
           </div>
-          {selected?<GaragePartDetail part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>:<div className="garage-part-detail garage-part-detail--empty"><span>Select owned hardware to inspect it.</span></div>}
+          {selected?<GaragePartDetail key={selected.id} part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>:<div className="garage-part-detail garage-part-detail--empty"><span>Select owned hardware to inspect it.</span></div>}
         </div>
         <p className={`workshop-message${message?' workshop-message--active':''}`} aria-live="polite">{message||'Owned parts remain in storage when removed and can be reinstalled later.'}</p>
       </section>
