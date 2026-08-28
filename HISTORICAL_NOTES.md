@@ -389,6 +389,19 @@ The present recreation follows that hierarchy. Category art remains schematic
 until Stage 8 supplies the real car-art pipeline; Tune, Maintenance, Paint and
 Nitrous functionality remain in their scheduled stages.
 
+### Race-car artwork — sourced composition, clean-room execution
+
+Source: [`docs/reference/race-view-two-civics.webp`](docs/reference/race-view-two-civics.webp),
+client Version 1.52.
+
+The screenshot confirms a low chase camera and rear three-quarter car renders.
+The Civic strip asset follows that composition but was generated specifically
+for this project from a written brief; no original pixels, logos, brands or
+client binaries are present. Its exact body treatment, reflections and wheel
+design are therefore artistic assumptions rather than recovered facts. The
+path-drawn hatchback remains as a load-safe fallback, while multi-car and
+separately tintable artwork stays scheduled for Stages 7–8.
+
 ### Garage and Speedshop state model — `sourced`
 
 Source: static analysis of the verified Version 1.52 client, recorded without

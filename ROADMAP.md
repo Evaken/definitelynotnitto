@@ -118,11 +118,12 @@ status-bar thumbnail, rear three-quarter for the strip. Ten cars makes twenty
 renders, each tintable in three separate zones because the paint shop is HSB
 sliders rather than preset colours.
 
-That is not solved, and deliberately so. What exists is the seam: `CarArtwork`
-in `renderer/carSprite.ts`, with `PLACEHOLDER_CAR` drawing a generic hatchback
-rear from paths behind it. Colours arrive as parameters rather than baked in, so
-the paint shop will work the day it is built, and real artwork drops in per car
-later without the race screen, showroom or paint shop having to know.
+That full pipeline is not solved, and deliberately so. What exists is the seam:
+`CarArtwork` in `renderer/carSprite.ts`, now backed on the strip by an original
+clean-room Civic rear render. `PLACEHOLDER_CAR` remains as the loading and test
+fallback. Colours still arrive as parameters, but the present single bitmap can
+only take a light tint glaze; separately tintable body, graphics and number
+layers remain Stage 8's work.
 
 Still to add: `drawThreeQuarter`, once there is a screen that needs it.
 
@@ -286,9 +287,10 @@ that asserts an exact ET now means rewriting it later.
 - **The throttle slider is pointer-only.** It carries ARIA roles for screen
   readers but no key bindings, because the obvious keys are taken by the gear
   selector and brake.
-- **The car art is a placeholder.** A generic hatchback rear drawn from paths
-  behind the `CarArtwork` seam. Real per-car artwork, and the three-quarter
-  front view the showroom and garage need, are still to come.
+- **Car artwork is only complete for the current Civic screens.** The strip now
+  uses an original clean-room rear three-quarter render and the workshop uses a
+  separate front three-quarter render. The other cars and true layered body,
+  graphics and number tinting still belong to Stages 7–8.
 - **No opponent.** Single car against the clock until Stage 6, so the right lane
   and the right-hand timing board stay empty. That is a solo pass, which is a
   real thing on a real strip — not a bug.

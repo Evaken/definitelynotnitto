@@ -97,6 +97,79 @@ export const PLACEHOLDER_CAR: CarArtwork = {
   },
 };
 
+/**
+ * Clean-room Civic artwork for the strip.
+ *
+ * The source image was created for this project from a written brief, using the
+ * surviving race screenshot only for camera angle and composition. It is not an
+ * extracted client asset. Loading stays lazy so importing the renderer in the
+ * Node test environment never requires a DOM global.
+ */
+let civicRearImage: HTMLImageElement | null = null;
+
+function loadedCivicRearImage(): HTMLImageElement | null {
+  if (typeof Image === 'undefined') return null;
+
+  if (civicRearImage === null) {
+    civicRearImage = new Image();
+    civicRearImage.decoding = 'async';
+    civicRearImage.src = `${import.meta.env.BASE_URL}assets/race-civic-ek-rear.webp`;
+  }
+
+  return civicRearImage.complete && civicRearImage.naturalWidth > 0 ? civicRearImage : null;
+}
+
+export const CIVIC_RACE_ART: CarArtwork = {
+  drawRear(ctx, options) {
+    const image = loadedCivicRearImage();
+    if (image === null) {
+      PLACEHOLDER_CAR.drawRear(ctx, options);
+      return;
+    }
+
+    const base = project(options.laneOffsetM, options.z);
+    const width = 2.55 * base.scale;
+    const height = width * (image.naturalHeight / image.naturalWidth);
+    const groundY = base.y - options.bounceM * base.scale;
+
+    if (options.wheelspin) smoke(ctx, base.x, groundY, width * 0.72);
+
+    ctx.save();
+    ctx.translate(base.x, groundY);
+    ctx.rotate(options.pitch);
+
+    // A tight road shadow belongs in the renderer rather than in the bitmap so
+    // it follows the road projection and body movement.
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+    ctx.beginPath();
+    ctx.ellipse(0, -height * 0.035, width * 0.42, height * 0.075, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.drawImage(image, -width * 0.5, -height, width, height);
+
+    // Keep the existing paint seam useful. The deliberately light source-atop
+    // glaze shifts body colour without flattening the rendered glass and metal.
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.globalAlpha = 0.13;
+    ctx.fillStyle = options.paint.body;
+    ctx.fillRect(-width * 0.5, -height, width, height);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+
+    if (options.braking) {
+      ctx.fillStyle = 'rgba(255, 42, 20, 0.5)';
+      ctx.shadowColor = '#ff321f';
+      ctx.shadowBlur = Math.max(4, width * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(-width * 0.42, -height * 0.53, width * 0.032, height * 0.09, -0.08, 0, Math.PI * 2);
+      ctx.ellipse(-width * 0.045, -height * 0.53, width * 0.04, height * 0.1, -0.08, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  },
+};
+
 function body(
   ctx: CanvasRenderingContext2D,
   cx: number,

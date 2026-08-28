@@ -1,5 +1,15 @@
 # Changelog
 
+## Race artwork fidelity pass
+
+- Replaced the strip's geometric placeholder hatchback with an original 43KB
+  transparent rear three-quarter Civic render.
+- Matched the surviving Version 1.52 screenshot's low chase-camera composition
+  while retaining live suspension movement, tyre smoke and brake lights.
+- Kept a path-drawn fallback for loading and tests, and preserved the existing
+  `CarArtwork` seam for the later multi-car and paint pipeline.
+- No artwork, logos, brands or binaries from the original client are included.
+
 ## Stage 3.4 — Complete workshop experience pass
 
 - Synced Evan's boost-pressure, clutch-capacity and conflict-replacement work

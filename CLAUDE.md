@@ -132,8 +132,10 @@ its own piece of work.
 - **`COMMUNITY` is missing from the navigation.** The original had eight tabs;
   the spec lists seven. Adding it is Stage 14's work, not a one-line patch, and
   nothing is known about what the screen contained.
-- **The car art is a placeholder.** A generic hatchback rear behind the
-  `CarArtwork` seam. Real per-car artwork is Stage 8.
+- **The car-art pipeline is incomplete.** The Civic now has an original
+  clean-room rear three-quarter strip render, with the generic path hatchback
+  retained only as its loading fallback. Multi-car artwork and separately
+  tintable paint layers remain Stage 8.
 
 The starter car being the wrong Civic *was* on this list. It is fixed —
 `data/cars/civic-si.ts` is now a B16A2. Correcting it moved every figure in

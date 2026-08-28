@@ -12,7 +12,7 @@ import {
 } from './layout.js';
 import { cameraPosition, isVisible, project, roadHalfWidth } from './projection.js';
 import { drawRoad, drawRoadside, drawSky } from './road.js';
-import { DEFAULT_PAINT, PLACEHOLDER_CAR, suspensionMotion } from './carSprite.js';
+import { CIVIC_RACE_ART, DEFAULT_PAINT, suspensionMotion } from './carSprite.js';
 import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
 import { drawCluster } from './cluster.js';
 import { drawBoards, drawStagingBar } from './boards.js';
@@ -74,7 +74,7 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
   ctx.clip();
 
-  PLACEHOLDER_CAR.drawRear(ctx, {
+  CIVIC_RACE_ART.drawRear(ctx, {
     laneOffsetM: -LANE_OFFSET_M,
     z: CAR_Z,
     paint: DEFAULT_PAINT,
