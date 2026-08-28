@@ -465,6 +465,19 @@ charged for parts, but it does not recover the historical prices used here.
 
 ---
 
+### CPU opponents and offline economy — `assumed`
+
+The specification establishes easy, medium and hard CPU drivers, prize money
+and their role as the early progression source. No historical opponent roster,
+behavior distribution or payout table has been recovered. The three names,
+builds, driver profiles and $450/$900/$1,800 prizes are original clean-room
+content intended to make the offline loop playable.
+
+CPU passes use the same fixed-step simulation and driver inputs as player
+replays. A race is decided by reaction time plus ET, with a foul or incomplete
+pass losing. This is coherent drag-racing adjudication but remains unconfirmed
+for the original client.
+
 ### Nitrous, damage and repairs — `assumed`
 
 The references and specification establish nitrous activation, multiple kit

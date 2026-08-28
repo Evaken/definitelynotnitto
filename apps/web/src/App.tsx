@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { applyPassStress, applyTune, fitPart, purchaseAndFitPart, removePart, repairCar, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
+import { CPU_OPPONENTS, applyPassStress, applyTune, fitPart, playerBeatCpu, purchaseAndFitPart, removePart, repairCar, resolveBuild, runCpuOpponent, settleCpuRace, type CpuDifficulty, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -7,6 +7,7 @@ import { RaceTrackScreen } from './screens/RaceTrackScreen.js';
 import { GarageScreen } from './screens/GarageScreen.js';
 import { PartsShopScreen } from './screens/PartsShopScreen.js';
 import { loadWorkshopState,saveWorkshopState } from './workshopSave.js';
+import { MainScreen } from './screens/MainScreen.js';
 
 /**
  * The game shell: a bounded canvas with the original's seven tabs.
@@ -27,23 +28,26 @@ const PLACEHOLDER_SUMMARIES: Partial<Record<ScreenId, string>> = {
 };
 
 export function App() {
-  const [screen, setScreen] = useState<ScreenId>('track');
+  const [screen, setScreen] = useState<ScreenId>('main');
   const [garage,setGarage]=useState<GarageState>(loadWorkshopState);
   const [raceHistory,setRaceHistory]=useState<readonly TimingSlip[]>([]);
   const [shopMessage,setShopMessage]=useState('');
   const pendingStress=useRef(0);
+  const [cpuRace,setCpuRace]=useState<{difficulty:CpuDifficulty;name:string;slip:TimingSlip;settled:boolean;won?:boolean}|null>(null);
   const car=useMemo(()=>resolveBuild(garage.build,garage.condition),[garage.build,garage.condition]);
   const apply=(result:GarageResult,success:string)=>{if(result.ok){setGarage(result.state);setRaceHistory([]);setShopMessage(success);}else setShopMessage(result.reason);};
   const updateRaceHistory=useCallback((history:readonly TimingSlip[])=>setRaceHistory(history),[]);
   const recordStress=useCallback((stress:number)=>{pendingStress.current+=Math.max(0,stress);},[]);
   const navigate=useCallback((next:ScreenId)=>{if(screen==='track'&&next!=='track'&&pendingStress.current>0){const stress=pendingStress.current;pendingStress.current=0;setGarage(previous=>applyPassStress(previous,stress));}setScreen(next);},[screen]);
+  const startCpuRace=useCallback((difficulty:CpuDifficulty)=>{const opponent=CPU_OPPONENTS[difficulty];setCpuRace({difficulty,name:opponent.name,slip:runCpuOpponent(difficulty,Math.floor(Math.random()*0x7fffffff)),settled:false});setRaceHistory([]);setScreen('track');},[]);
+  const completeCpuRace=useCallback((slip:TimingSlip)=>{setCpuRace(current=>{if(!current||current.settled)return current;const won=playerBeatCpu(slip,current.slip);setGarage(previous=>settleCpuRace(previous,current.difficulty,won));return{...current,settled:true,won};});},[]);
   useEffect(()=>saveWorkshopState(garage),[garage]);
 
   return (
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 5 &middot; Nitrous and Mechanical Damage</span>
+        <span className="shell__stage">Stage 6 &middot; Offline Racing</span>
       </header>
 
       <NavBar active={screen} onNavigate={navigate} />
@@ -51,10 +55,10 @@ export function App() {
       <div className="shell__brand" aria-label="Nitto 1320 Challenge">
         <span>NITTO<br/><small>EXTREME PERFORMANCE</small></span>
         <strong>1320 <i>CHALLENGE</i></strong>
-        <em>Version 0.5</em>
+        <em>Version 0.6</em>
       </div>
 
-      {screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')} onRepair={()=>apply(repairCar(garage),'Repairs complete. Vehicle condition restored.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
+      {screen==='main'?<MainScreen state={garage} onRace={startCpuRace}/>:screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress} {...(cpuRace?{opponent:cpuRace,onCompleted:completeCpuRace}:{})}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')} onRepair={()=>apply(repairCar(garage),'Repairs complete. Vehicle condition restored.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

@@ -19,7 +19,9 @@ export function parseWorkshopSave(raw:string|null):GarageState|null{
     const proposed=rawTune&&typeof rawTune==='object'&&Array.isArray((rawTune as Tune).gearRatios)&&typeof (rawTune as Tune).finalDrive==='number'?{gearRatios:[...(rawTune as Tune).gearRatios],finalDrive:(rawTune as Tune).finalDrive}:stockTune(car);
     const tune=validateTune(car,proposed)===null?proposed:stockTune(car);
     const condition=typeof candidate.condition==='number'&&Number.isFinite(candidate.condition)?Math.max(0,Math.min(100,candidate.condition)):100;
-    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted},tune,condition};
+    const rawRecord=(candidate as Partial<GarageState>).record;const record=rawRecord&&Number.isFinite(rawRecord.wins)&&Number.isFinite(rawRecord.losses)&&Number.isFinite(rawRecord.races)?{wins:Math.max(0,Math.floor(rawRecord.wins)),losses:Math.max(0,Math.floor(rawRecord.losses)),races:Math.max(0,Math.floor(rawRecord.races))}:{wins:0,losses:0,races:0};
+    const transactions=Array.isArray(candidate.transactions)?candidate.transactions.filter(item=>item&&typeof item.id==='string'&&typeof item.description==='string'&&typeof item.amount==='number').slice(-50):[];
+    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted},tune,condition,record,transactions};
   }catch{return null;}
 }
 

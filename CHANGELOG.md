@@ -1,5 +1,19 @@
 # Changelog
 
+## Stage 6 — CPU Racing and Economy
+
+- Replaced the Main placeholder with an offline race lobby, member summary and
+  account activity ledger.
+- Added easy, medium and hard CPU opponents with seeded reaction variance,
+  different launch/shift behavior, progressive builds and hard-tier nitrous.
+- Added on-track opponent state, hidden CPU results until finish, red-light and
+  total-time adjudication, difficulty-scaled prizes and persistent W/L record.
+- Logged prize winnings, part purchases and repairs in the saved garage state,
+  with backward-compatible migration of older saves.
+- Added tests for CPU determinism, difficulty progression, reaction variation,
+  foul handling, payouts and record keeping.
+
+
 ## Stage 5 — Nitrous and Mechanical Damage
 
 - Added street and race nitrous systems to the Speedshop, with distinct power

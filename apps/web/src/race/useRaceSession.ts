@@ -109,7 +109,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
   };
 }
 
-export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void) {
+export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void,onCompleted?:(slip:TimingSlip)=>void) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<PassState>(createPassState(car, tune, 1));
   const recorderRef = useRef<TimelineRecorder>(new TimelineRecorder(1));
@@ -121,7 +121,9 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
   const draggingRef = useRef(false);
   const nitrousRef=useRef(false);
   const stressCallbackRef=useRef(onPassStress);
+  const completedCallbackRef=useRef(onCompleted);
   useEffect(()=>{stressCallbackRef.current=onPassStress;},[onPassStress]);
+  useEffect(()=>{completedCallbackRef.current=onCompleted;},[onCompleted]);
   /** Last value pushed to React, so the spring-back only re-renders on change. */
   const throttleShownRef = useRef(0);
   const [throttle, setThrottleState] = useState(0);
@@ -302,8 +304,10 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
         // Recorded the moment the run is done rather than on the next reset, so
         // a player who coasts off into the shut-down area and closes the tab
         // still made the pass.
-        setHistory((previous) => [...previous, buildTimingSlip(state)]);
+        const completedSlip=buildTimingSlip(state);
+        setHistory((previous) => [...previous, completedSlip]);
         stressCallbackRef.current?.(state.mechanicalStress);
+        completedCallbackRef.current?.(completedSlip);
       }
 
       const phaseChanged = state.phase !== lastPhase;

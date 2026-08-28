@@ -31,6 +31,8 @@ export function RaceTrackScreen({
   initialHistory = [],
   onHistoryChange,
   onPassStress,
+  opponent,
+  onCompleted,
 }: {
   car: Car;
   tune: Tune;
@@ -38,6 +40,8 @@ export function RaceTrackScreen({
   initialHistory?: readonly TimingSlip[];
   onHistoryChange?: (history: readonly TimingSlip[]) => void;
   onPassStress?:(stress:number)=>void;
+  opponent?:{name:string;difficulty:string;slip:TimingSlip;settled:boolean;won?:boolean};
+  onCompleted?:(slip:TimingSlip)=>void;
 }) {
   /**
    * One source for the heading and for the slip.
@@ -62,7 +66,7 @@ export function RaceTrackScreen({
     setThrottle,
     releaseThrottle,
     setNitrous,
-  } = useRaceSession(car, tune, initialHistory,onPassStress);
+  } = useRaceSession(car, tune, initialHistory,onPassStress,onCompleted);
 
   useEffect(()=>{onHistoryChange?.(history);},[history,onHistoryChange]);
 
@@ -83,6 +87,7 @@ export function RaceTrackScreen({
         />
         <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />
         {car.nitrous&&<button className={`nitrous-trigger${snapshot.nitrousActive?' nitrous-trigger--active':''}`} type="button" onPointerDown={()=>setNitrous(true)} onPointerUp={()=>setNitrous(false)} onPointerLeave={()=>setNitrous(false)}><strong>N₂O</strong><span>{snapshot.nitrousRemainingSeconds.toFixed(1)} sec</span></button>}
+        {opponent&&<aside className={`cpu-race-strip${opponent.settled?(opponent.won?' cpu-race-strip--win':' cpu-race-strip--loss'):''}`}><span>{opponent.difficulty} CPU</span><strong>{opponent.name}</strong><b>{opponent.settled?opponent.won?'YOU WIN':'YOU LOSE':'OPPONENT STAGED'}</b><small>{opponent.settled?`${opponent.slip.quarterMileEt.toFixed(3)} @ ${opponent.slip.quarterMileMph.toFixed(1)} mph`:'Time hidden until finish'}</small></aside>}
       </div>
 
       <div className="race-status" aria-label="Selected car and account status">
@@ -107,7 +112,7 @@ export function RaceTrackScreen({
           {runComplete ? 'Run Again' : 'Reset Run'}
         </button>
         {newBest && <span className="tag tag--best">New best ET this session</span>}
-        <span className="tag">Single car &middot; No opponent until Stage 6</span>
+        <span className="tag">{opponent?`${opponent.name} · ${opponent.difficulty.toUpperCase()} CPU`:'Solo test pass'}</span>
       </div>
 
       <div className="race__below">

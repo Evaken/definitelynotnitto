@@ -6,15 +6,21 @@ import { chargeTorqueMultiplier } from './sim/boost.js';
 import type { InductionType, NitrousSpec } from './types/car.js';
 import { stockTune, validateTune, type Tune } from './types/tune.js';
 import { DAMAGE } from './config/historical.js';
-export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; readonly tune:Tune; readonly condition:number; }
+export interface Transaction { readonly id:string; readonly kind:'cpu-prize'|'repair'|'part'; readonly amount:number; readonly description:string; }
+export interface PlayerRecord { readonly wins:number; readonly losses:number; readonly races:number; }
+export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; readonly tune:Tune; readonly condition:number; readonly record:PlayerRecord; readonly transactions:readonly Transaction[]; }
 export type GarageResult={readonly ok:true;readonly state:GarageState}|{readonly ok:false;readonly reason:string};
 export interface PurchaseInstallPlan { readonly part:Part; readonly price:number; readonly replacedPartIds:readonly string[]; }
 export type PurchaseInstallPreview={readonly ok:true;readonly plan:PurchaseInstallPlan}|{readonly ok:false;readonly reason:string};
-export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[],tune:stockTune(getCar(carId)),condition:100};}
+export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[],tune:stockTune(getCar(carId)),condition:100,record:{wins:0,losses:0,races:0},transactions:[]};}
+const transaction=(state:GarageState,kind:Transaction['kind'],amount:number,description:string):readonly Transaction[]=>[...state.transactions,{id:`${state.record.races}-${state.transactions.length}-${kind}`,kind,amount,description}].slice(-50);
 export function applyTune(state:GarageState,tune:Tune):GarageResult{const reason=validateTune(getCar(state.build.carId),tune);return reason?{ok:false,reason}:{ok:true,state:{...state,tune:{gearRatios:[...tune.gearRatios],finalDrive:tune.finalDrive}}};}
 export function repairCost(state:GarageState):number{return Math.ceil(Math.max(0,100-state.condition)*DAMAGE.repairDollarsPerPoint.value);}
-export function repairCar(state:GarageState):GarageResult{const cost=repairCost(state);if(cost===0)return{ok:false,reason:'No repairs required.'};if(state.cash<cost)return{ok:false,reason:'Not enough cash for repairs.'};return{ok:true,state:{...state,cash:state.cash-cost,condition:100}};}
+export function repairCar(state:GarageState):GarageResult{const cost=repairCost(state);if(cost===0)return{ok:false,reason:'No repairs required.'};if(state.cash<cost)return{ok:false,reason:'Not enough cash for repairs.'};return{ok:true,state:{...state,cash:state.cash-cost,condition:100,transactions:transaction(state,'repair',-cost,'Vehicle repairs')}};}
 export function applyPassStress(state:GarageState,stress:number):GarageState{return{...state,condition:Math.max(0,state.condition-Math.max(0,stress))};}
+export type CpuDifficulty='easy'|'medium'|'hard';
+export const CPU_PRIZES:Readonly<Record<CpuDifficulty,number>>={easy:450,medium:900,hard:1800};
+export function settleCpuRace(state:GarageState,difficulty:CpuDifficulty,won:boolean):GarageState{const prize=won?CPU_PRIZES[difficulty]:0;const label=difficulty[0]!.toUpperCase()+difficulty.slice(1);return{...state,cash:state.cash+prize,record:{wins:state.record.wins+(won?1:0),losses:state.record.losses+(won?0:1),races:state.record.races+1},transactions:prize?transaction(state,'cpu-prize',prize,`${label} CPU race win`):state.transactions};}
 export function canFit(build:Build,part:Part):string|null{
   if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(build.carId))return'Not compatible with this car.';
   if(build.fittedPartIds.includes(part.id))return'Already installed.';
@@ -23,7 +29,7 @@ export function canFit(build:Build,part:Part):string|null{
   const conflict=build.fittedPartIds.map(getPart).find(f=>f.exclusionGroups.some(g=>part.exclusionGroups.includes(g)));
   return conflict?`Conflicts with ${conflict.displayName}.`:null;
 }
-export function buyPart(state:GarageState,id:string):GarageResult{const part=getPart(id);if(state.ownedPartIds.includes(id))return{ok:false,reason:'Already owned.'};if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(state.build.carId))return{ok:false,reason:'Not compatible with this car.'};if(state.cash<part.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-part.price,ownedPartIds:[...state.ownedPartIds,id]}};}
+export function buyPart(state:GarageState,id:string):GarageResult{const part=getPart(id);if(state.ownedPartIds.includes(id))return{ok:false,reason:'Already owned.'};if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(state.build.carId))return{ok:false,reason:'Not compatible with this car.'};if(state.cash<part.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-part.price,ownedPartIds:[...state.ownedPartIds,id],transactions:transaction(state,'part',-part.price,part.displayName)}};}
 export function fitPart(state:GarageState,id:string):GarageResult{if(!state.ownedPartIds.includes(id))return{ok:false,reason:'Buy this part first.'};const reason=canFit(state.build,getPart(id));if(reason)return{ok:false,reason};return{ok:true,state:{...state,build:{...state.build,fittedPartIds:[...state.build.fittedPartIds,id]}}};}
 export function removePart(state:GarageState,id:string):GarageResult{if(!state.build.fittedPartIds.includes(id))return{ok:false,reason:'Not installed.'};const dependent=state.build.fittedPartIds.map(getPart).find(p=>p.requires.includes(id));if(dependent)return{ok:false,reason:`${dependent.displayName} requires this part.`};return{ok:true,state:{...state,build:{...state.build,fittedPartIds:state.build.fittedPartIds.filter(x=>x!==id)}}};}
 
@@ -65,6 +71,7 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
     ...state,
     cash:state.cash-price,
     ownedPartIds:state.ownedPartIds.includes(id)?state.ownedPartIds:[...state.ownedPartIds,id],
+    transactions:price?transaction(state,'part',-price,part.displayName):state.transactions,
     build:{...state.build,fittedPartIds:[...state.build.fittedPartIds.filter(fittedId=>!removed.has(fittedId)),part.id]},
   }};
 }

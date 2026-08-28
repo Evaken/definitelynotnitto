@@ -56,8 +56,8 @@ export {
 // Data
 export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
-export type { GarageResult, GarageState, PurchaseInstallPlan, PurchaseInstallPreview } from './garage.js';
-export { applyPassStress, applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild } from './garage.js';
+export type { CpuDifficulty, GarageResult, GarageState, PlayerRecord, PurchaseInstallPlan, PurchaseInstallPreview, Transaction } from './garage.js';
+export { CPU_PRIZES, applyPassStress, applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, settleCpuRace } from './garage.js';
 
 // Simulation
 export {
@@ -80,6 +80,8 @@ export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';
 export type { DynoPoint, DynoResult } from './sim/dyno.js';
 export { runDyno } from './sim/dyno.js';
+export type { CpuOpponent } from './sim/cpu.js';
+export { CPU_OPPONENTS, playerBeatCpu, raceTotal, runCpuOpponent } from './sim/cpu.js';
 export { ATMOSPHERIC_BAR, barToPsi, boostBar, chargeTorqueMultiplier, wotBoostBar } from './sim/boost.js';
 export {
   forwardGearCount,

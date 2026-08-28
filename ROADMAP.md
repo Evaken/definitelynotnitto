@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 5 complete. Stage 6 is next.**
+**Current stage: Stage 6 complete. Stage 7 is next. The Offline Alpha milestone is playable.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -261,6 +261,29 @@ Completion criteria met:
 - [x] Aggressive use produces more mechanical stress than a dry pass.
 - [x] Damaged cars lose performance and require a paid repair.
 
+### Stage 6 — CPU Racing and Economy
+
+- Main is now the offline race lobby and player overview, with cash, win/loss
+  record, condition, fitted-upgrade count and a persistent account ledger.
+- Easy, medium and hard CPU opponents use deterministic reaction, staging,
+  launch, shift and (on hard) nitrous profiles. Their builds and behavior make
+  each tier measurably faster without result-screen cheating.
+- Starting a challenge prepares the opponent's verified pass and moves to the
+  Race Track. The opponent is staged in the other lane's presentation; its slip
+  stays hidden until the player's run is adjudicated.
+- Red lights and incomplete passes lose. Otherwise reaction time plus elapsed
+  time decides the winner. Wins pay difficulty-scaled prize money; losses still
+  update the persistent record.
+- Part purchases, repair bills and prize winnings feed a bounded transaction
+  log in the same saved garage profile.
+
+Completion criteria met:
+
+- [x] A new player can race three levels of CPU opponent.
+- [x] Wins earn money that can buy upgrades and repairs.
+- [x] Parts, tuning, dyno, nitrous, damage and repair form one progression loop.
+- [x] Race record and account activity persist with the offline profile.
+
 ---
 
 ## All sixteen stages
@@ -283,8 +306,8 @@ Stage 3 is yours.
 | ✅ | 3 — Garage and Parts Shop | 30 Civic parts, install/remove, the first progression loop |
 | ✅ | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
 | ✅ | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
-| ▶️ | **6 — CPU Racing and Economy** | **Easy/medium/hard opponents, prize money — the first offline alpha** |
-| | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
+| ✅ | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
+| ▶️ | **7 — Car Showroom and Roster** | **The other nine cars, proving the sim is truly data-driven** |
 | | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
 | | 9 — Accounts and Persistent Profiles | Login, persistent garage, server-authoritative economy |
 | | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
