@@ -52,6 +52,8 @@ export interface PartEffects {
   readonly massDeltaKg?: number;
   readonly tyreGripMultiplier?: number;
   readonly drivelineEfficiencyDelta?: number;
+  readonly nitrousPowerKw?: number;
+  readonly nitrousCapacitySeconds?: number;
 }
 
 export interface Part {

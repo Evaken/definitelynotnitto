@@ -60,6 +60,8 @@ export interface DrivePlan {
   readonly reactionSeconds: number;
   /** Engine speed the driver upshifts at. */
   readonly shiftRpm: number;
+  /** Spray from this forward gear onward when the car has nitrous fitted. */
+  readonly nitrousFromGear?:number;
 }
 
 export interface DriveResult {
@@ -230,6 +232,7 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
       brake,
       shiftUp: state.tick <= shiftUpUntil,
       shiftDown: state.tick <= shiftDownUntil,
+      nitrous:launched&&plan.nitrousFromGear!==undefined&&state.gear>=plan.nitrousFromGear,
     };
 
     recorder.record(state.tick, input);

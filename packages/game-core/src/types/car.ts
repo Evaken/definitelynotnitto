@@ -64,6 +64,13 @@ export interface EngineSpec {
   readonly forcedInduction?: ForcedInductionSpec;
 }
 
+export interface NitrousSpec {
+  /** Additional engine power while armed at wide-open throttle. */
+  readonly powerKw: number;
+  /** Usable spray time in one bottle. */
+  readonly capacitySeconds: number;
+}
+
 export interface GearboxSpec {
   /**
    * Torque the clutch can hold before it slips, Nm.
@@ -143,4 +150,5 @@ export interface Car {
   readonly gearbox: GearboxSpec;
   readonly tyres: TyreSpec;
   readonly chassis: ChassisSpec;
+  readonly nitrous?: NitrousSpec;
 }

@@ -29,7 +29,8 @@ function sameInput(a: RaceInput, b: RaceInput): boolean {
     a.throttle === b.throttle &&
     a.brake === b.brake &&
     a.shiftUp === b.shiftUp &&
-    a.shiftDown === b.shiftDown
+    a.shiftDown === b.shiftDown &&
+    Boolean(a.nitrous)===Boolean(b.nitrous)
   );
 }
 

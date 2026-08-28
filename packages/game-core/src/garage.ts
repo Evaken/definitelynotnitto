@@ -3,14 +3,18 @@ import type { Build, Part } from './types/part.js';
 import { getCar } from './data/cars/index.js';
 import { getPart, PARTS } from './data/parts/index.js';
 import { chargeTorqueMultiplier } from './sim/boost.js';
-import type { InductionType } from './types/car.js';
+import type { InductionType, NitrousSpec } from './types/car.js';
 import { stockTune, validateTune, type Tune } from './types/tune.js';
-export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; readonly tune:Tune; }
+import { DAMAGE } from './config/historical.js';
+export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; readonly tune:Tune; readonly condition:number; }
 export type GarageResult={readonly ok:true;readonly state:GarageState}|{readonly ok:false;readonly reason:string};
 export interface PurchaseInstallPlan { readonly part:Part; readonly price:number; readonly replacedPartIds:readonly string[]; }
 export type PurchaseInstallPreview={readonly ok:true;readonly plan:PurchaseInstallPlan}|{readonly ok:false;readonly reason:string};
-export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[],tune:stockTune(getCar(carId))};}
+export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[],tune:stockTune(getCar(carId)),condition:100};}
 export function applyTune(state:GarageState,tune:Tune):GarageResult{const reason=validateTune(getCar(state.build.carId),tune);return reason?{ok:false,reason}:{ok:true,state:{...state,tune:{gearRatios:[...tune.gearRatios],finalDrive:tune.finalDrive}}};}
+export function repairCost(state:GarageState):number{return Math.ceil(Math.max(0,100-state.condition)*DAMAGE.repairDollarsPerPoint.value);}
+export function repairCar(state:GarageState):GarageResult{const cost=repairCost(state);if(cost===0)return{ok:false,reason:'No repairs required.'};if(state.cash<cost)return{ok:false,reason:'Not enough cash for repairs.'};return{ok:true,state:{...state,cash:state.cash-cost,condition:100}};}
+export function applyPassStress(state:GarageState,stress:number):GarageState{return{...state,condition:Math.max(0,state.condition-Math.max(0,stress))};}
 export function canFit(build:Build,part:Part):string|null{
   if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(build.carId))return'Not compatible with this car.';
   if(build.fittedPartIds.includes(part.id))return'Already installed.';
@@ -71,11 +75,12 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
  * by point. The boosted curve is just a curve, so nothing downstream -- the
  * shift point, the dyno, the simulator -- needs to know a turbo exists.
  */
-export function resolveBuild(build:Build):Car{
+export function resolveBuild(build:Build,condition=100):Car{
   const base=getCar(build.carId);
   let tm=1,kg=0,grip=1,eff=0;
   let boostBar=0,spoolRpm=0,clutchNm=0;
   let induction:InductionType|null=null;
+  let nitrous:NitrousSpec|undefined;
 
   for(const id of build.fittedPartIds){
     const e=getPart(id).effects;
@@ -91,23 +96,26 @@ export function resolveBuild(build:Build):Car{
       spoolRpm=Math.max(spoolRpm,e.spoolRpm??0);
       induction=e.inductionType??induction??'turbo';
     }
+    if(e.nitrousPowerKw&&e.nitrousCapacitySeconds)nitrous={powerKw:e.nitrousPowerKw,capacitySeconds:e.nitrousCapacitySeconds};
   }
 
   const forcedInduction=induction?{type:induction,peakBoostBar:boostBar,spoolRpm}:undefined;
   const redline=base.engine.redlineRpm;
 
+  const health=Math.max(0,Math.min(100,condition));const damageMultiplier=1-DAMAGE.maximumPowerLoss.value*(1-health/100);
   return{...base,
     engine:{...base.engine,
       // Spread conditionally: exactOptionalPropertyTypes will not take an
       // explicit undefined for an optional property.
       ...(forcedInduction?{forcedInduction}:{}),
       curve:base.engine.curve.map(point=>({...point,
-        torqueNm:point.torqueNm*tm*chargeTorqueMultiplier(forcedInduction,point.rpm,redline)})),
+        torqueNm:point.torqueNm*tm*chargeTorqueMultiplier(forcedInduction,point.rpm,redline)*damageMultiplier})),
     },
     chassis:{...base.chassis,massKg:Math.max(500,base.chassis.massKg+kg)},
     tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip},
     gearbox:{...base.gearbox,
       ...(clutchNm?{clutchCapacityNm:clutchNm}:{}),
-      driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)}};
+      driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)},
+    ...(nitrous?{nitrous}:{})};
 }
 export function partList():readonly Part[]{return[...PARTS.values()];}

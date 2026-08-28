@@ -2,7 +2,7 @@ import type { Car } from '../types/car.js';
 import type { Tune } from '../types/tune.js';
 import type { PassState, RaceInput, SplitName } from '../types/sim.js';
 import { NEUTRAL_GEAR, NEUTRAL_INPUT, SIM_DT, SIM_HZ } from '../types/sim.js';
-import { DRIVELINE, STAGING, TRACK_MARKS } from '../config/historical.js';
+import { DAMAGE, DRIVELINE, STAGING, TRACK_MARKS } from '../config/historical.js';
 import { netEngineTorque } from './engine.js';
 import { boostBar } from './boost.js';
 import { gearRange, lockedDrivelineInertia, totalRatio } from './drivetrain.js';
@@ -84,6 +84,9 @@ export function createPassState(car: Car, tune: Tune, seed: number): PassState {
     clutchLocked: false,
     limiterActive: false,
     boostBar: 0,
+    nitrousActive:false,
+    nitrousRemainingSeconds:car.nitrous?.capacitySeconds??0,
+    mechanicalStress:0,
 
     engineTorqueNm: 0,
     wheelTorqueNm: 0,
@@ -220,13 +223,21 @@ function driveOneTick(state: PassState, input: RaceInput): void {
   const engineRpmNow = radPerSecToRpm(state.engineOmega);
   const engineResult = netEngineTorque(car.engine, engineRpmNow, throttle, state.limiterActive);
   state.limiterActive = engineResult.limiterActive;
-  state.engineTorqueNm = engineResult.torqueNm;
+  const spraying=Boolean(input.nitrous&&car.nitrous&&state.nitrousRemainingSeconds>0&&state.phase==='running'&&throttle>.8&&!state.limiterActive);
+  state.nitrousActive=spraying;
+  if(spraying)state.nitrousRemainingSeconds=Math.max(0,state.nitrousRemainingSeconds-SIM_DT);
+  const nitrousTorque=spraying&&car.nitrous?car.nitrous.powerKw*1000/Math.max(state.engineOmega,1):0;
+  const engineTorque=engineResult.torqueNm+nitrousTorque;
+  state.engineTorqueNm=engineTorque;
   // Boost follows the same throttle the torque does, so the needle and the
   // shove arrive together. Zero under fuel cut: the limiter is not making
   // pressure either.
   state.boostBar = state.limiterActive
     ? 0
     : boostBar(car.engine.forcedInduction, engineRpmNow, car.engine.redlineRpm, throttle);
+  if(engineRpmNow>car.engine.redlineRpm*.98)state.mechanicalStress+=(engineRpmNow/car.engine.redlineRpm-.98)*DAMAGE.overRevPerSecond.value*SIM_DT;
+  if(spraying&&car.nitrous)state.mechanicalStress+=car.nitrous.powerKw*DAMAGE.nitrousPerKwSecond.value*SIM_DT;
+  if(state.boostBar>0)state.mechanicalStress+=state.boostBar*DAMAGE.boostPerBarSecond.value*SIM_DT;
 
   // --- Clutch ------------------------------------------------------------
   // There is no clutch pedal, so the clutch follows the throttle: easing the
@@ -276,7 +287,7 @@ function driveOneTick(state: PassState, input: RaceInput): void {
     // the wheels are free.
     state.engineOmega = Math.max(
       rpmToRadPerSec(car.engine.idleRpm),
-      state.engineOmega + (engineResult.torqueNm / car.engine.inertiaKgM2) * SIM_DT,
+      state.engineOmega + (engineTorque / car.engine.inertiaKgM2) * SIM_DT,
     );
     state.clutchLocked = false;
     wheelDriveTorque = 0;
@@ -284,7 +295,7 @@ function driveOneTick(state: PassState, input: RaceInput): void {
   } else if (state.clutchLocked) {
     // Rigid driveline: the engine is carried by the wheels.
     state.engineOmega = state.wheelOmega * ratio;
-    wheelDriveTorque = engineResult.torqueNm * ratio * car.gearbox.driveEfficiency;
+    wheelDriveTorque = engineTorque * ratio * car.gearbox.driveEfficiency;
     wheelInertia = lockedDrivelineInertia(car, tune, state.gear);
   } else {
     const efficiency = car.gearbox.driveEfficiency;
@@ -300,7 +311,7 @@ function driveOneTick(state: PassState, input: RaceInput): void {
     // tolerance to be guessed at.
     const numerator =
       (state.engineOmega - drivelineOmega) / SIM_DT +
-      engineResult.torqueNm / engineInertia +
+      engineTorque / engineInertia +
       (ratio * force * radius) / wheelSideInertia;
     const denominator = 1 / engineInertia + (ratio * ratio * efficiency) / wheelSideInertia;
     const equalisingTorque = numerator / denominator;
@@ -308,7 +319,7 @@ function driveOneTick(state: PassState, input: RaceInput): void {
 
     state.engineOmega = Math.max(
       rpmToRadPerSec(car.engine.idleRpm),
-      state.engineOmega + ((engineResult.torqueNm - clutchTorque) / engineInertia) * SIM_DT,
+      state.engineOmega + ((engineTorque - clutchTorque) / engineInertia) * SIM_DT,
     );
 
     wheelDriveTorque = clutchTorque * ratio * efficiency;

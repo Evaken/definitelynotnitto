@@ -465,6 +465,19 @@ charged for parts, but it does not recover the historical prices used here.
 
 ---
 
+### Nitrous, damage and repairs — `assumed`
+
+The references and specification establish nitrous activation, multiple kit
+strengths, mechanical damage and paid repair as features. No recovered table
+settles shot size, bottle duration, wear thresholds or prices. The Stage 5
+values are therefore progression tuning, isolated under `DAMAGE` and part data
+so calibration can replace them without rewriting the simulator.
+
+Nitrous is expressed as extra crankshaft power and converted to torque at the
+current engine speed. That torque still has to pass through the clutch and tyre
+contact patch. Persistent damage reduces the resolved torque curve by up to
+30%; this is internally consistent clean-room behaviour, not recovered code.
+
 ### Gear tuning and dyno ranges — `assumed`
 
 The surviving material confirms that Tune & Dyno was a garage department and

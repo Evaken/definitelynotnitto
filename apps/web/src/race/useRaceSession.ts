@@ -53,6 +53,9 @@ export interface RaceSnapshot {
   readonly clutchLocked: boolean;
   readonly limiterActive: boolean;
   readonly shifting: boolean;
+  readonly nitrousActive:boolean;
+  readonly nitrousRemainingSeconds:number;
+  readonly mechanicalStress:number;
   readonly foul: boolean;
   readonly stagedDepthM: number | null;
   /** True once the nose is past the stage line without having staged. */
@@ -95,6 +98,9 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
     clutchLocked: state.clutchLocked,
     limiterActive: state.limiterActive,
     shifting: state.shiftTicksRemaining > 0,
+    nitrousActive:state.nitrousActive,
+    nitrousRemainingSeconds:state.nitrousRemainingSeconds,
+    mechanicalStress:state.mechanicalStress,
     foul: state.foul,
     stagedDepthM: state.stagedPositionM,
     rolledThrough: state.positionM > 0 && state.clockStartTick === null,
@@ -103,7 +109,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
   };
 }
 
-export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = []) {
+export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<PassState>(createPassState(car, tune, 1));
   const recorderRef = useRef<TimelineRecorder>(new TimelineRecorder(1));
@@ -113,6 +119,9 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
   // which keeps a 60Hz drag from having to re-render the component tree.
   const throttleRef = useRef(0);
   const draggingRef = useRef(false);
+  const nitrousRef=useRef(false);
+  const stressCallbackRef=useRef(onPassStress);
+  useEffect(()=>{stressCallbackRef.current=onPassStress;},[onPassStress]);
   /** Last value pushed to React, so the spring-back only re-renders on change. */
   const throttleShownRef = useRef(0);
   const [throttle, setThrottleState] = useState(0);
@@ -152,6 +161,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
   const releaseThrottle = useCallback(() => {
     draggingRef.current = false;
   }, []);
+  const setNitrous=useCallback((active:boolean)=>{nitrousRef.current=active;},[]);
 
   const startPass = useCallback(() => {
     // The seed only decides how long the tree holds before the ambers. Drawn
@@ -164,6 +174,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
     throttleRef.current = 0;
     throttleShownRef.current = 0;
     draggingRef.current = false;
+    nitrousRef.current=false;
     generationRef.current++;
     setThrottleState(0);
     setSnapshot(snapshotOf(stateRef.current, null));
@@ -266,6 +277,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
           brake: keys.brake,
           shiftUp: keys.shiftUp,
           shiftDown: keys.shiftDown,
+          nitrous:keys.nitrous||nitrousRef.current,
         };
 
         recorderRef.current.record(state.tick, input);
@@ -291,6 +303,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
         // a player who coasts off into the shut-down area and closes the tab
         // still made the pass.
         setHistory((previous) => [...previous, buildTimingSlip(state)]);
+        stressCallbackRef.current?.(state.mechanicalStress);
       }
 
       const phaseChanged = state.phase !== lastPhase;
@@ -340,6 +353,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
     throttle,
     setThrottle,
     releaseThrottle,
+    setNitrous,
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
   };

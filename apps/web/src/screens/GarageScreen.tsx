@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { averageQuarterMileEt, fitPart, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, removePart, resolveBuild, type GarageState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
+import { averageQuarterMileEt, fitPart, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, removePart, repairCost, resolveBuild, type GarageState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { PerformancePreview } from './PerformancePreview.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
 
-export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemove,onTune}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void}){
-  const [view,setView]=useState<'overview'|'setup'|'tune'>('overview');
+export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemove,onTune,onRepair}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void}){
+  const [view,setView]=useState<'overview'|'setup'|'tune'|'maintenance'>('overview');
   const [group,setGroup]=useState<WorkshopGroupId>('intake');
   const [category,setCategory]=useState<PartCategory>('intake');
   const [selectedId,setSelectedId]=useState('');
@@ -57,9 +57,11 @@ export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemo
 
   const chooseGroup=(next:WorkshopGroupId)=>{setGroup(next);const firstCategory=categoriesForGroup(next)[0]??'intake';setCategory(firstCategory);setSelectedId('');};
 
-  if(view==='tune')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="tune" onDepartmentChange={department=>setView(department==='tune'?'tune':'setup')} onBack={()=>setView('overview')}><TuneDynoPanel car={car} tune={state.tune} message={message} onApply={onTune}/></WorkshopFrame></div>;
+  const changeDepartment=(department:'modifications'|'tune'|'maintenance')=>setView(department==='modifications'?'setup':department);
+  if(view==='tune')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="tune" onDepartmentChange={changeDepartment} onBack={()=>setView('overview')}><TuneDynoPanel car={car} tune={state.tune} message={message} onApply={onTune}/></WorkshopFrame></div>;
+  if(view==='maintenance')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="maintenance" onDepartmentChange={changeDepartment} onBack={()=>setView('overview')}><section className="maintenance-bay"><header><span>Vehicle Maintenance</span><h2>Workshop Inspection</h2></header><CarBay title={`${car.year} ${car.displayName}`} subtitle="Mechanical inspection" badge="MAINTENANCE" fittedParts={fittedParts}/><div className="condition-card"><div className="condition-dial" style={{'--condition':`${state.condition*3.6}deg`} as React.CSSProperties}><strong>{state.condition.toFixed(1)}%</strong><span>Condition</span></div><div><h3>{state.condition>85?'Race ready':state.condition>55?'Service recommended':'Critical wear'}</h3><p>Over-revving, sustained boost and nitrous use add stress. Damage reduces engine output until repaired.</p><dl><div><dt>Power retained</dt><dd>{Math.round(70+state.condition*.3)}%</dd></div><div><dt>Repair estimate</dt><dd>${repairCost(state).toLocaleString()}</dd></div></dl><button type="button" className="workshop-action" disabled={repairCost(state)===0||state.cash<repairCost(state)} onClick={onRepair}>Authorise Repairs</button></div></div><p className={`workshop-message${message?' workshop-message--active':''}`}>{message||'Inspection results update after every completed pass.'}</p></section></WorkshopFrame></div>;
 
-  return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="modifications" onDepartmentChange={department=>setView(department==='tune'?'tune':'setup')} onBack={()=>setView('overview')}>
+  return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="modifications" onDepartmentChange={changeDepartment} onBack={()=>setView('overview')}>
     <nav className="setup-category-strip" aria-label="Installed-part categories">
       {WORKSHOP_GROUPS.filter(item=>!('lockedStage' in item)).map(item=><button key={item.id} data-sound="select" type="button" aria-pressed={group===item.id} className={group===item.id?'active':''} onClick={()=>chooseGroup(item.id)}>{item.label}</button>)}
     </nav>
@@ -112,5 +114,6 @@ function effectSummary(part:Part):string{
   if(effects.massDeltaKg)lines.push(`Weight ${effects.massDeltaKg>0?'+':''}${effects.massDeltaKg} kg`);
   if(effects.tyreGripMultiplier)lines.push(`Grip +${Math.round((effects.tyreGripMultiplier-1)*100)}%`);
   if(effects.drivelineEfficiencyDelta)lines.push(`Driveline +${Math.round(effects.drivelineEfficiencyDelta*100)}%`);
+  if(effects.nitrousPowerKw)lines.push(`Nitrous +${Math.round(effects.nitrousPowerKw*1.341)} hp`);
   return lines.join(' · ')||'Supporting hardware';
 }

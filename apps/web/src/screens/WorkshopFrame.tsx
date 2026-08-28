@@ -11,7 +11,7 @@ export const WORKSHOP_GROUPS = [
   { id: 'tyres', label: 'Tyres', shortLabel: 'TY', categories: ['tyres', 'wheels'] },
   { id: 'suspension', label: 'Suspension', shortLabel: 'SU', categories: ['suspension'] },
   { id: 'weight', label: 'Weight Reduction', shortLabel: 'WR', categories: ['weight-reduction'] },
-  { id: 'nitrous', label: 'Nitrous Oxide', shortLabel: 'N₂', categories: ['nitrous'], lockedStage: 'Stage 5' },
+  { id: 'nitrous', label: 'Nitrous Oxide', shortLabel: 'N₂', categories: ['nitrous'] },
 ] as const satisfies readonly { id: string; label: string; shortLabel: string; categories: readonly PartCategory[]; lockedStage?: string }[];
 
 export type WorkshopGroupId = (typeof WORKSHOP_GROUPS)[number]['id'];
@@ -47,8 +47,8 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
   showDepartments?: boolean;
   onBack?: () => void;
   shop?: boolean;
-  activeDepartment?:'modifications'|'tune';
-  onDepartmentChange?:(department:'modifications'|'tune')=>void;
+  activeDepartment?:'modifications'|'tune'|'maintenance';
+  onDepartmentChange?:(department:'modifications'|'tune'|'maintenance')=>void;
 }) {
   const audio=useWorkshopAudio();
   const playButton=(event:ReactPointerEvent<HTMLDivElement>)=>{
@@ -68,7 +68,7 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
           <button className={`workshop-tab${activeDepartment==='modifications'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('modifications')}>Modifications</button>
           <button className={`workshop-tab${activeDepartment==='tune'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('tune')}>Tune &amp; Dyno</button>
           <button className="workshop-tab" type="button" disabled title="Stage 8">Paint Shop <small>Stage 8</small></button>
-          <button className="workshop-tab" type="button" disabled title="Stage 5">Maintenance <small>Stage 5</small></button>
+          <button className={`workshop-tab${activeDepartment==='maintenance'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('maintenance')}>Maintenance</button>
         </nav>}
       </div>}
       {children}
@@ -98,16 +98,14 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   onSelect: (group: WorkshopGroupId) => void;
   showAll?: boolean;
 }) {
-  const groups = showAll ? WORKSHOP_GROUPS : WORKSHOP_GROUPS.filter(group => !('lockedStage' in group));
+  const groups = showAll ? WORKSHOP_GROUPS : WORKSHOP_GROUPS;
   return <div className="category-carousel" aria-label="Modification categories" onPointerMove={edgeScroll}>
     {groups.map(group => {
-      const locked = 'lockedStage' in group;
       return <button key={group.id} type="button"
         className={`category-card${activeGroup===group.id?' category-card--active':''}`}
-        aria-pressed={activeGroup===group.id} data-sound="select" disabled={locked} onClick={()=>onSelect(group.id)}>
+        aria-pressed={activeGroup===group.id} data-sound="select" onClick={()=>onSelect(group.id)}>
         <span className="category-card__name">{group.label}</span>
         <CategoryArtwork groupId={group.id} label={group.label}/>
-        {locked && <span className="category-card__lock">Locked · {group.lockedStage}</span>}
       </button>;
     })}
   </div>;

@@ -1,5 +1,19 @@
 # Changelog
 
+## Stage 5 — Nitrous and Mechanical Damage
+
+- Added street and race nitrous systems to the Speedshop, with distinct power
+  and bottle duration plus an on-track hold control and replayable N binding.
+- Routed nitrous torque through the existing clutch, gearing and tyre physics,
+  making spray timing matter instead of applying a result-screen bonus.
+- Added deterministic stress from nitrous, boost and over-rev operation, a
+  persistent condition percentage and a performance penalty from damage.
+- Enabled the Maintenance department with inspection state, retained-power
+  readout, repair estimate and an atomic paid repair action.
+- Added regression tests for nitrous ET, spray timing, unsafe-use stress,
+  damaged performance and repairs.
+
+
 ## Stage 4 — Tuning and Dyno
 
 - Enabled the workshop Tune & Dyno department with editable ratios for the

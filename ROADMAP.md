@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 4 complete. Stage 5 is next.**
+**Current stage: Stage 5 complete. Stage 6 is next.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -238,6 +238,29 @@ Completion criteria met:
 - [x] Installed performance parts change dyno power and torque.
 - [x] Dyno and race use the same resolved vehicle and engine model.
 
+### Stage 5 — Nitrous and Mechanical Damage
+
+- Street and race nitrous systems are real purchasable parts with different
+  output and bottle duration. A fitted system adds a hold-to-spray N₂O control
+  on the strip and a keyboard binding, and its state is recorded in replays.
+- Nitrous adds power at the crank through the same driveline and tyre model as
+  ordinary engine torque, so an early hit can overwhelm available traction.
+- Each pass accumulates deterministic mechanical stress from nitrous, boost and
+  operation near the limiter. Completed-pass wear becomes persistent vehicle
+  condition when the player leaves the track.
+- Condition directly derates the resolved engine curve, affecting both racing
+  and dyno output. Maintenance shows retained power and repair cost, then
+  restores condition through a validated cash transaction.
+- All thresholds, wear rates and repair prices are isolated in historical
+  configuration and labelled assumed pending Stage 15 calibration.
+
+Completion criteria met:
+
+- [x] Nitrous materially improves elapsed time.
+- [x] Spraying in different gears produces different results.
+- [x] Aggressive use produces more mechanical stress than a dry pass.
+- [x] Damaged cars lose performance and require a paid repair.
+
 ---
 
 ## All sixteen stages
@@ -259,8 +282,8 @@ Stage 3 is yours.
 | ✅ | 2 — Nitto Driving Feel | Launch and shift feel, run history and best-ET tracking |
 | ✅ | 3 — Garage and Parts Shop | 30 Civic parts, install/remove, the first progression loop |
 | ✅ | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
-| ▶️ | **5 — Nitrous and Mechanical Damage** | **Nitrous timing, mechanical stress, repair costs** |
-| | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
+| ✅ | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
+| ▶️ | **6 — CPU Racing and Economy** | **Easy/medium/hard opponents, prize money — the first offline alpha** |
 | | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
 | | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
 | | 9 — Accounts and Persistent Profiles | Login, persistent garage, server-authoritative economy |

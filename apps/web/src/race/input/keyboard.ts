@@ -16,6 +16,7 @@ export interface KeyboardState {
   readonly shiftDown: boolean;
   readonly brake: boolean;
   readonly reset: boolean;
+  readonly nitrous:boolean;
 }
 
 const bindingSets = {
@@ -23,6 +24,7 @@ const bindingSets = {
   shiftDown: new Set<string>(DEFAULT_BINDINGS.shiftDown),
   brake: new Set<string>(DEFAULT_BINDINGS.brake),
   reset: new Set<string>(DEFAULT_BINDINGS.reset),
+  nitrous:new Set<string>(DEFAULT_BINDINGS.nitrous),
 };
 
 /** Keys the browser would otherwise use to scroll the page. */
@@ -62,6 +64,7 @@ export class KeyboardReader {
       shiftDown: this.anyHeld(bindingSets.shiftDown),
       brake: this.anyHeld(bindingSets.brake),
       reset: this.anyHeld(bindingSets.reset),
+      nitrous:this.anyHeld(bindingSets.nitrous),
     };
   }
 

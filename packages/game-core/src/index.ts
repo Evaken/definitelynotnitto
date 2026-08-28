@@ -15,6 +15,7 @@ export type {
   ChassisSpec,
   DrivetrainType,
   EngineSpec,
+  NitrousSpec,
   GearboxSpec,
   TorqueCurve,
   TorquePoint,
@@ -42,6 +43,7 @@ export {
   CONTROLS_CONFIDENCE,
   DEFAULT_BINDINGS,
   DRIVELINE,
+  DAMAGE,
   ENVIRONMENT,
   STAGING,
   THROTTLE_RELEASE_MS,
@@ -55,7 +57,7 @@ export {
 export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
 export type { GarageResult, GarageState, PurchaseInstallPlan, PurchaseInstallPreview } from './garage.js';
-export { applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
+export { applyPassStress, applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild } from './garage.js';
 
 // Simulation
 export {

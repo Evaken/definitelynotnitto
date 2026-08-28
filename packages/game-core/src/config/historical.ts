@@ -127,6 +127,14 @@ export const TUNING = {
   ratioStep: uncertain(0.001, 'assumed', 'Preserves factory ratios while allowing fine setup changes.'),
 } as const;
 
+export const DAMAGE = {
+  overRevPerSecond: uncertain(4.5, 'assumed', 'Original failure thresholds and wear rates are unknown.'),
+  nitrousPerKwSecond: uncertain(0.0009, 'assumed', 'Balances spray duration against persistent wear.'),
+  boostPerBarSecond: uncertain(0.018, 'assumed', 'High boost adds gradual stress at wide-open throttle.'),
+  repairDollarsPerPoint: uncertain(42, 'assumed', 'Provisional offline-alpha economy value.'),
+  maximumPowerLoss: uncertain(0.3, 'assumed', 'A fully damaged car retains enough output to reach maintenance.'),
+} as const;
+
 // ---------------------------------------------------------------------------
 // Driveline behaviour
 // ---------------------------------------------------------------------------
@@ -221,6 +229,7 @@ export const DEFAULT_BINDINGS = {
   /** Back down the same list. */
   shiftDown: ['a', 'A', 'ArrowDown'],
   brake: ['s', 'S', ' '],
+  nitrous: ['n', 'N'],
   reset: ['r', 'R'],
 } as const;
 

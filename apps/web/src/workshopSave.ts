@@ -18,7 +18,8 @@ export function parseWorkshopSave(raw:string|null):GarageState|null{
     const rawTune=(candidate as {tune?:unknown}).tune;
     const proposed=rawTune&&typeof rawTune==='object'&&Array.isArray((rawTune as Tune).gearRatios)&&typeof (rawTune as Tune).finalDrive==='number'?{gearRatios:[...(rawTune as Tune).gearRatios],finalDrive:(rawTune as Tune).finalDrive}:stockTune(car);
     const tune=validateTune(car,proposed)===null?proposed:stockTune(car);
-    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted},tune};
+    const condition=typeof candidate.condition==='number'&&Number.isFinite(candidate.condition)?Math.max(0,Math.min(100,candidate.condition)):100;
+    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted},tune,condition};
   }catch{return null;}
 }
 

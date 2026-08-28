@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { applyTune, fitPart, purchaseAndFitPart, removePart, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { applyPassStress, applyTune, fitPart, purchaseAndFitPart, removePart, repairCar, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -31,27 +31,30 @@ export function App() {
   const [garage,setGarage]=useState<GarageState>(loadWorkshopState);
   const [raceHistory,setRaceHistory]=useState<readonly TimingSlip[]>([]);
   const [shopMessage,setShopMessage]=useState('');
-  const car=useMemo(()=>resolveBuild(garage.build),[garage.build]);
+  const pendingStress=useRef(0);
+  const car=useMemo(()=>resolveBuild(garage.build,garage.condition),[garage.build,garage.condition]);
   const apply=(result:GarageResult,success:string)=>{if(result.ok){setGarage(result.state);setRaceHistory([]);setShopMessage(success);}else setShopMessage(result.reason);};
   const updateRaceHistory=useCallback((history:readonly TimingSlip[])=>setRaceHistory(history),[]);
+  const recordStress=useCallback((stress:number)=>{pendingStress.current+=Math.max(0,stress);},[]);
+  const navigate=useCallback((next:ScreenId)=>{if(screen==='track'&&next!=='track'&&pendingStress.current>0){const stress=pendingStress.current;pendingStress.current=0;setGarage(previous=>applyPassStress(previous,stress));}setScreen(next);},[screen]);
   useEffect(()=>saveWorkshopState(garage),[garage]);
 
   return (
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 4 &middot; Tune and Dyno</span>
+        <span className="shell__stage">Stage 5 &middot; Nitrous and Mechanical Damage</span>
       </header>
 
-      <NavBar active={screen} onNavigate={setScreen} />
+      <NavBar active={screen} onNavigate={navigate} />
 
       <div className="shell__brand" aria-label="Nitto 1320 Challenge">
         <span>NITTO<br/><small>EXTREME PERFORMANCE</small></span>
         <strong>1320 <i>CHALLENGE</i></strong>
-        <em>Version 0.4</em>
+        <em>Version 0.5</em>
       </div>
 
-      {screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
+      {screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')} onRepair={()=>apply(repairCar(garage),'Repairs complete. Vehicle condition restored.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

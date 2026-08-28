@@ -45,6 +45,8 @@ export function DebugPanel({ snapshot }: DebugPanelProps) {
           }
         />
         <Row label="Limiter" value={snapshot.limiterActive ? 'CUT' : 'off'} alert={snapshot.limiterActive} />
+        <Row label="Nitrous" value={snapshot.nitrousActive?`${snapshot.nitrousRemainingSeconds.toFixed(1)}s`:'off'} alert={snapshot.nitrousActive}/>
+        <Row label="Stress" value={snapshot.mechanicalStress.toFixed(2)} alert={snapshot.mechanicalStress>1}/>
         <Row
           label="Stage depth"
           value={snapshot.stagedDepthM === null ? '--' : `${(snapshot.stagedDepthM * 100).toFixed(1)} cm`}

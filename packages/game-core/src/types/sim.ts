@@ -34,6 +34,8 @@ export interface RaceInput {
   readonly shiftUp: boolean;
   /** Selects the next gear down the same list. */
   readonly shiftDown: boolean;
+  /** Hold to spray a fitted nitrous kit. Optional keeps old replays valid. */
+  readonly nitrous?: boolean;
 }
 
 export const NEUTRAL_INPUT: RaceInput = {
@@ -140,6 +142,10 @@ export interface PassState {
    * because nothing is making any -- not because the gauge is stubbed out.
    */
   boostBar: number;
+  nitrousActive: boolean;
+  nitrousRemainingSeconds: number;
+  /** Deterministic stress score accumulated during this pass. */
+  mechanicalStress: number;
 
   // --- Derived, exposed for telemetry -------------------------------------
   /** Flywheel torque produced this step, Nm. */

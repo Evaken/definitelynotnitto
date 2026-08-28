@@ -30,12 +30,14 @@ export function RaceTrackScreen({
   fittedPartCount = 0,
   initialHistory = [],
   onHistoryChange,
+  onPassStress,
 }: {
   car: Car;
   tune: Tune;
   fittedPartCount?: number;
   initialHistory?: readonly TimingSlip[];
   onHistoryChange?: (history: readonly TimingSlip[]) => void;
+  onPassStress?:(stress:number)=>void;
 }) {
   /**
    * One source for the heading and for the slip.
@@ -59,7 +61,8 @@ export function RaceTrackScreen({
     throttle,
     setThrottle,
     releaseThrottle,
-  } = useRaceSession(car, tune, initialHistory);
+    setNitrous,
+  } = useRaceSession(car, tune, initialHistory,onPassStress);
 
   useEffect(()=>{onHistoryChange?.(history);},[history,onHistoryChange]);
 
@@ -79,6 +82,7 @@ export function RaceTrackScreen({
           aria-label="Drag strip, viewed from behind the car"
         />
         <ThrottleSlider value={throttle} onChange={setThrottle} onRelease={releaseThrottle} />
+        {car.nitrous&&<button className={`nitrous-trigger${snapshot.nitrousActive?' nitrous-trigger--active':''}`} type="button" onPointerDown={()=>setNitrous(true)} onPointerUp={()=>setNitrous(false)} onPointerLeave={()=>setNitrous(false)}><strong>N₂O</strong><span>{snapshot.nitrousRemainingSeconds.toFixed(1)} sec</span></button>}
       </div>
 
       <div className="race-status" aria-label="Selected car and account status">
@@ -124,6 +128,7 @@ export function RaceTrackScreen({
             </div>
             <div>
               <kbd>R</kbd> Reset run
+              {car.nitrous&&<><br/><kbd>N</kbd> Hold nitrous spray</>}
             </div>
             <p className="placeholder" style={{ marginBottom: 0, marginTop: 8 }}>
               The car starts in <strong>N</strong>. Select a gear <em>and</em> open the throttle to
