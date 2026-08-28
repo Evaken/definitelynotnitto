@@ -29,6 +29,12 @@ export type PartCategory =
  * a turbo and a supercharger, or two nitrous kits.  Stage 3 enforces this.
  */
 export type ExclusionGroup = string;
+export interface PartEffects {
+  readonly torqueMultiplier?: number;
+  readonly massDeltaKg?: number;
+  readonly tyreGripMultiplier?: number;
+  readonly drivelineEfficiencyDelta?: number;
+}
 
 export interface Part {
   readonly id: string;
@@ -40,6 +46,8 @@ export interface Part {
   /** Part ids that must already be fitted before this one can be. */
   readonly requires: readonly string[];
   readonly exclusionGroups: readonly ExclusionGroup[];
+  readonly effects: PartEffects;
+  readonly calibrationNote: string;
 }
 
 /**

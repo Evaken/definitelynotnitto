@@ -1,5 +1,17 @@
 # Changelog
 
+## Stage 3 — Garage and Speedshop
+
+The first upgrade loop is playable. A session starts with $10,000; the
+Speedshop offers 30 Civic parts, and purchased parts can be installed or
+removed in the Garage. Requirements, funds, compatibility and mutually
+exclusive intake and forced-induction paths are enforced in game-core.
+
+Parts resolve into an effective car whose torque, mass, grip and driveline
+changes feed the deterministic simulator. Prices and effects are provisional
+assumptions until Stage 15. Persistence remains Stage 9, CPU winnings Stage 6,
+gear tuning and dyno Stage 4, and nitrous and damage Stage 5.
+
 ## Two artefacts down the left edge, and square tyres
 
 A dark stripe between the timing panel and the grass, and a thin grey line just

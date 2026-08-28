@@ -1,0 +1,6 @@
+import { getPart, kwToHp, peakTorque, powerKwAtRpm, type GarageState, type Car } from '@nitto/game-core';
+export function GarageScreen({state,car,onRemove}:{state:GarageState;car:Car;onRemove:(id:string)=>void}){
+  let peakHp=0;for(let rpm=car.engine.idleRpm;rpm<=car.engine.redlineRpm;rpm+=100)peakHp=Math.max(peakHp,kwToHp(powerKwAtRpm(car.engine.curve,rpm)));
+  const torque=peakTorque(car.engine.curve);
+  return <div className="screen"><section className="panel"><h2 className="panel__heading">Garage - {car.manufacturer} {car.displayName}</h2><div className="panel__body garage-grid"><div className="garage-car"><div className="garage-car__art">CIVIC Si<br/><span>EK hatchback</span></div><dl className="stats"><div><dt>Power</dt><dd>{Math.round(peakHp)} hp</dd></div><div><dt>Torque</dt><dd>{Math.round(torque.torqueNm)} Nm</dd></div><div><dt>Mass</dt><dd>{Math.round(car.chassis.massKg)} kg</dd></div><div><dt>Cash</dt><dd>${state.cash.toLocaleString()}</dd></div></dl></div><div><h3>Installed parts</h3>{state.build.fittedPartIds.length===0?<p className="placeholder">Stock - no parts fitted.</p>:<ul className="parts-list">{state.build.fittedPartIds.map(id=><li key={id}><span>{getPart(id).displayName}</span><button className="button button--secondary" onClick={()=>onRemove(id)}>Remove</button></li>)}</ul>}</div></div></section></div>;
+}

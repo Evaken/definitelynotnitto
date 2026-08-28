@@ -1,5 +1,14 @@
 # Historical Notes
 
+## Stage 3 parts and prices are assumptions
+
+The surviving gameplay video confirms the Speedshop layout, Garage subsections
+and the presence of branded parts and prices, but not a complete catalogue or
+performance model. Stage 3 therefore uses 30 neutral part names with
+provisional prices and conservative effects. They are not claims about the
+original and are tagged for Stage 15 calibration. No product photographs were
+copied.
+
 What is actually known about the original pre-2007 Nitto 1320 Challenge, and
 what has been invented to get the game running.
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CIVIC_SI, lastRunWasBestEt, stockTune, type RacePhase } from '@nitto/game-core';
+import { lastRunWasBestEt, stockTune, type Car, type RacePhase } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
@@ -24,8 +24,7 @@ const PROMPTS: Record<RacePhase, string> = {
   finished: 'Run complete. Press R, or Run Again, to go back to the line.',
 };
 
-export function RaceTrackScreen() {
-  const car = CIVIC_SI;
+export function RaceTrackScreen({ car, modified = false }: { car: Car; modified?: boolean }) {
   // Memoised so the session is not torn down and restarted on every render.
   const tune = useMemo(() => stockTune(car), [car]);
 
@@ -51,7 +50,7 @@ export function RaceTrackScreen() {
     <div className="screen">
       <section className="panel" style={{ marginBottom: 0 }}>
         <h2 className="panel__heading">
-          Race Track - {car.manufacturer} {car.displayName} - Stock
+          Race Track - {car.manufacturer} {car.displayName} - {modified ? 'Modified' : 'Stock'}
         </h2>
       </section>
 

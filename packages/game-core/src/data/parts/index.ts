@@ -1,16 +1,14 @@
-import type { Part } from '../../types/part.js';
-
-/**
- * Part registry.
- *
- * Deliberately empty: the parts shop is Stage 3 work and PROJECT_SPEC 11.4
- * forbids scaffolding later stages.  This exists only so the simulation can
- * already take a `Build` rather than a bare car.
- */
-export const PARTS: ReadonlyMap<string, Part> = new Map();
-
-export function getPart(id: string): Part {
-  const part = PARTS.get(id);
-  if (!part) throw new Error(`Unknown part id: ${id}`);
-  return part;
-}
+import type { Part, PartCategory, PartEffects } from '../../types/part.js';
+const note='Assumed progression value; historical calibration is Stage 15.';const civic=['civic-si'] as const;
+const p=(id:string,displayName:string,category:PartCategory,price:number,effects:PartEffects,requires:readonly string[]=[],exclusionGroups:readonly string[]=[]):Part=>({id,displayName,category,price,compatibleCarIds:civic,requires,exclusionGroups,effects,calibrationNote:note});
+const catalog:readonly Part[]=[
+p('panel-filter','High-Flow Panel Filter','intake',180,{torqueMultiplier:1.008}),p('cold-air-intake','Cold-Air Intake','intake',520,{torqueMultiplier:1.022},['panel-filter'],['intake-path']),p('short-ram-intake','Short-Ram Intake','intake',390,{torqueMultiplier:1.016},[],['intake-path']),
+p('sports-muffler','Sports Muffler','exhaust',360,{torqueMultiplier:1.012}),p('cat-back','Cat-Back Exhaust','exhaust',780,{torqueMultiplier:1.025},['sports-muffler']),p('race-header','4-2-1 Race Header','exhaust',950,{torqueMultiplier:1.032},['cat-back']),
+p('ecu-reflash','ECU Reflash','ecu',650,{torqueMultiplier:1.018}),p('standalone-ecu','Standalone ECU','ecu',1750,{torqueMultiplier:1.045},['ecu-reflash']),p('performance-cams','Performance Camshafts','engine',1450,{torqueMultiplier:1.05},['race-header']),p('high-compression-pistons','High-Compression Pistons','engine',2200,{torqueMultiplier:1.065},['performance-cams']),p('ported-head','Ported Cylinder Head','engine',2600,{torqueMultiplier:1.075},['performance-cams']),
+p('light-flywheel','Lightweight Flywheel','clutch',680,{drivelineEfficiencyDelta:.006}),p('sports-clutch','Sports Clutch','clutch',900,{drivelineEfficiencyDelta:.008},[],['clutch']),p('race-clutch','Race Clutch','clutch',1650,{drivelineEfficiencyDelta:.015},['sports-clutch']),p('short-shifter','Short Shifter','transmission',420,{drivelineEfficiencyDelta:.004}),p('lsd','Limited-Slip Differential','transmission',1800,{tyreGripMultiplier:1.04}),
+p('street-tyres','Performance Street Tyres','tyres',600,{tyreGripMultiplier:1.04},[],['tyres']),p('drag-radials','Drag Radials','tyres',1350,{tyreGripMultiplier:1.13},['street-tyres']),p('sport-springs','Sport Springs','suspension',550,{tyreGripMultiplier:1.018}),p('adjustable-dampers','Adjustable Dampers','suspension',1150,{tyreGripMultiplier:1.035},['sport-springs']),
+p('rear-seat-delete','Rear Seat Delete','weight-reduction',250,{massDeltaKg:-18}),p('lightweight-battery','Lightweight Battery','weight-reduction',480,{massDeltaKg:-10}),p('stage-one-lightening','Stage 1 Weight Reduction','weight-reduction',1100,{massDeltaKg:-42},['rear-seat-delete']),
+p('turbo-manifold','Turbo Manifold','turbo-accessory',900,{},[],['induction-hardware']),p('intercooler','Front-Mount Intercooler','turbo-accessory',1250,{torqueMultiplier:1.025},['turbo-manifold']),p('street-turbo','Street Turbo Kit','turbo',3800,{torqueMultiplier:1.32},['turbo-manifold','intercooler','sports-clutch'],['forced-induction']),p('race-turbo','Race Turbo Kit','turbo',6200,{torqueMultiplier:1.2},['street-turbo','race-clutch'],['forced-induction-upgrade']),
+p('supercharger-bracket','Supercharger Bracket Kit','supercharger',850,{},[],['induction-hardware']),p('street-supercharger','Street Supercharger','supercharger',4200,{torqueMultiplier:1.27},['supercharger-bracket','sports-clutch'],['forced-induction']),p('race-supercharger','Race Supercharger','supercharger',6500,{torqueMultiplier:1.17},['street-supercharger','race-clutch'],['forced-induction-upgrade'])];
+export const PARTS:ReadonlyMap<string,Part>=new Map(catalog.map(part=>[part.id,part]));
+export function getPart(id:string):Part{const part=PARTS.get(id);if(!part)throw new Error(`Unknown part id: ${id}`);return part;}

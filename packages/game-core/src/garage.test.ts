@@ -1,0 +1,14 @@
+import { describe, expect, it } from 'vitest';
+import { buyPart, createGarageState, fitPart, partList, removePart, resolveBuild } from './garage.js';
+import { stockTune } from './types/tune.js';
+import { drive, goodDrivePlan } from './testing/drive.js';
+
+function succeed<T extends { ok:boolean }>(result:T):Extract<T,{ok:true}>{expect(result.ok).toBe(true);return result as Extract<T,{ok:true}>;}
+describe('Stage 3 garage',()=>{
+  it('contains 25-40 unique Civic parts',()=>{const parts=partList();expect(parts.length).toBeGreaterThanOrEqual(25);expect(parts.length).toBeLessThanOrEqual(40);expect(new Set(parts.map(p=>p.id)).size).toBe(parts.length);expect(parts.every(p=>p.compatibleCarIds.includes('civic-si'))).toBe(true);});
+  it('charges for, fits, and removes a part',()=>{let state=createGarageState();state=succeed(buyPart(state,'panel-filter')).state;expect(state.cash).toBe(9820);state=succeed(fitPart(state,'panel-filter')).state;expect(state.build.fittedPartIds).toContain('panel-filter');state=succeed(removePart(state,'panel-filter')).state;expect(state.build.fittedPartIds).not.toContain('panel-filter');});
+  it('enforces ownership, requirements, and exclusions',()=>{let state=createGarageState('civic-si',20_000);expect(fitPart(state,'cold-air-intake').ok).toBe(false);state=succeed(buyPart(state,'cold-air-intake')).state;expect(fitPart(state,'cold-air-intake').ok).toBe(false);for(const id of ['panel-filter','short-ram-intake']){state=succeed(buyPart(state,id)).state;state=succeed(fitPart(state,id)).state;}expect(fitPart(state,'cold-air-intake').ok).toBe(false);});
+  it('protects fitted prerequisites',()=>{let state=createGarageState();for(const id of ['panel-filter','cold-air-intake']){state=succeed(buyPart(state,id)).state;state=succeed(fitPart(state,id)).state;}expect(removePart(state,'panel-filter')).toMatchObject({ok:false});});
+  it('resolves effects without mutating the stock car',()=>{let state=createGarageState('civic-si',20_000);for(const id of ['rear-seat-delete','panel-filter']){state=succeed(buyPart(state,id)).state;state=succeed(fitPart(state,id)).state;}const modified=resolveBuild(state.build),stock=resolveBuild(createGarageState().build);expect(modified.chassis.massKg).toBe(stock.chassis.massKg-18);expect(modified.engine.curve[3]!.torqueNm).toBeGreaterThan(stock.engine.curve[3]!.torqueNm);});
+  it('makes a modified Civic quicker under identical inputs',()=>{const stock=resolveBuild(createGarageState().build);const modified=resolveBuild({carId:'civic-si',fittedPartIds:['panel-filter','sports-muffler','ecu-reflash','rear-seat-delete','street-tyres']});const a=drive(stock,stockTune(stock),goodDrivePlan(7)).slip;const b=drive(modified,stockTune(modified),goodDrivePlan(7)).slip;expect(a.quarterMileEt).not.toBeNull();expect(b.quarterMileEt).not.toBeNull();expect(b.quarterMileEt!).toBeLessThan(a.quarterMileEt!);});
+});

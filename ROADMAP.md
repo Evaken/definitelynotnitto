@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 2 is as complete as the evidence allows. Stage 3 is next.**
+**Current stage: Stage 3 complete. Stage 4 is next.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -185,8 +185,8 @@ Stage 3 is yours.
 | ✅ | *(view rebuild)* | *Chase camera and instrument cluster — the spec had the view wrong* |
 | ✅ | *(chrome pass)* | *Oval dashboard, curved side panels, inset timing boards — shape only* |
 | ✅ | 2 — Nitto Driving Feel | Launch and shift feel, run history and best-ET tracking |
-| ▶️ | **3 — Garage and Parts Shop** | **25–40 Civic parts, install/remove, the first progression loop** |
-| | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
+| ✅ | 3 — Garage and Parts Shop | 30 Civic parts, install/remove, the first progression loop |
+| ▶️ | **4 — Tuning and Dyno** | **Gear ratios, final drive, horsepower and torque curves** |
 | | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
 | | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
 | | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |

@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { buyPart, createGarageState, fitPart, removePart, resolveBuild, type GarageState } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
 import { RaceTrackScreen } from './screens/RaceTrackScreen.js';
+import { GarageScreen } from './screens/GarageScreen.js';
+import { PartsShopScreen } from './screens/PartsShopScreen.js';
 
 /**
  * The game shell: a bounded canvas with the original's seven tabs.
@@ -23,19 +26,21 @@ const PLACEHOLDER_SUMMARIES: Partial<Record<ScreenId, string>> = {
 
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('track');
+  const [garage,setGarage]=useState<GarageState>(()=>createGarageState());
+  const [shopMessage,setShopMessage]=useState('');
+  const car=useMemo(()=>resolveBuild(garage.build),[garage.build]);
+  const apply=(result:ReturnType<typeof buyPart>,success:string)=>{if(result.ok){setGarage(result.state);setShopMessage(success);}else setShopMessage(result.reason);};
 
   return (
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 2 &middot; Nitto Driving Feel</span>
+        <span className="shell__stage">Stage 3 &middot; Garage and Parts Shop</span>
       </header>
 
       <NavBar active={screen} onNavigate={setScreen} />
 
-      {screen === 'track' ? (
-        <RaceTrackScreen />
-      ) : (
+      {screen === 'track' ? <RaceTrackScreen car={car} modified={garage.build.fittedPartIds.length>0}/>:screen==='garage'?<GarageScreen state={garage} car={car} onRemove={id=>apply(removePart(garage,id),'Part removed.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onBuy={id=>apply(buyPart(garage,id),'Part purchased.')} onFit={id=>apply(fitPart(garage,id),'Part installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

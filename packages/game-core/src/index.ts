@@ -18,7 +18,7 @@ export type {
   TorquePoint,
   TyreSpec,
 } from './types/car.js';
-export type { Build, ExclusionGroup, Part, PartCategory } from './types/part.js';
+export type { Build, ExclusionGroup, Part, PartCategory, PartEffects } from './types/part.js';
 export type { Tune } from './types/tune.js';
 export { stockTune } from './types/tune.js';
 export type {
@@ -51,6 +51,8 @@ export {
 // Data
 export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
+export type { GarageResult, GarageState } from './garage.js';
+export { buyPart, canFit, createGarageState, fitPart, partList, removePart, resolveBuild } from './garage.js';
 
 // Simulation
 export {
