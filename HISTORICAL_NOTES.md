@@ -95,6 +95,35 @@ Three-quarter front for the showroom, garage and the status-bar thumbnail;
 rear three-quarter for the strip. The status-bar thumbnail carries the player's
 actual paint — yellow in the paint shop, dark in the showroom.
 
+
+### The race view sits in a moulded dashboard, `sourced`
+
+Source: `race-view-two-civics.webp`, marked up by someone who played it.
+
+Not rectangular panels. An oval cowl sweeps across the bottom with the gauges
+set into it, and a curved surround frames the road view: one continuous sweep
+that starts inside the picture at the top, opens outward past the view's own
+edge around the middle, and flares into the top of the dash. The timing boards
+are inset panels sitting on that surround.
+
+The offsets in `renderer/chrome.ts` were measured off the marked-up screenshot
+rather than chosen. **The curve was drawn backwards twice before it was right** --
+convex when it should be concave, then pinched in the middle when it should be
+pinched at the top -- which is why `chrome.test.ts` asserts the direction
+explicitly rather than trusting the control points to stay put.
+
+What is *not* reproduced is the finish. The original's dash is a rendered
+metallic casting with photographic gauge faces; ours is canvas paths and
+gradients, which gets the silhouette and only approximates the material.
+Matching it properly wants a background image asset, and that belongs with
+Stage 14 and the art pipeline Stage 8 needs anyway.
+
+Two details visible in the screenshot and still not built: a `GRAPHIC SETTINGS`
+button in the bottom-left corner, and a header band above the view carrying the
+Nitto logo, a `1320 CHALLENGE` wordmark and `Version 1.52`. The `PRE-STAGED` /
+`STAGED` plates are also **per lane** -- two sets, not one -- which matters when
+Stage 6 fills the second lane.
+
 ### The left-hand bar is a staging gauge
 
 Source: `race-view-two-civics.webp`, read by someone who played the original.

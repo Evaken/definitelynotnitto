@@ -1,5 +1,40 @@
 # Changelog
 
+## The dashboard
+
+The race view was rectangles: a slab of cluster along the bottom, boards either
+side, a box for the road. The original is a moulded casting, and it now looks
+like one.
+
+- **An oval cowl** sweeps across the bottom with the gauges set into it, drawn
+  as the top of a large ellipse most of which is off-canvas. Being an ellipse
+  rather than a hand-drawn bezier is what makes it queryable: `dashTopY(x)` is
+  how the tests check that every instrument is actually sitting on the dash and
+  that the cowl never rises into the road.
+- **Curved side panels** frame the view — not a border inside the viewport but
+  two blocks of dashboard the road is a hole in, running the full height and
+  finishing against the cowl. Their inner edge starts inside the picture at the
+  top, opens outward past the view's own edge around the middle, and flares into
+  the dash.
+- **The timing boards** are inset panels with raised bezels, sitting on the side
+  panels rather than floating beside them.
+
+All of it is overlay: the chrome is painted over the finished scene rather than
+the scene being fitted around it. **`projection.ts` is untouched and so is
+`game-core`** — the cowl can move without the road moving with it, which is the
+same seam that made swapping the camera cost nothing in the simulator.
+
+The panel curve was drawn backwards twice — convex, then pinched at the waist
+instead of at the top — before a marked-up screenshot settled it. The offsets in
+`chrome.ts` are measured off that markup, and `chrome.test.ts` now asserts the
+sweep direction outright rather than leaving it to four control points nobody
+will re-derive.
+
+This is the shape, not the finish. The original's casting is rendered metal with
+photographic gauge faces; canvas paths get the silhouette and approximate the
+material. Matching it wants a background image asset, which belongs with Stage
+14 and the art pipeline Stage 8 needs regardless.
+
 ## Run history
 
 A drag strip is a place you go again, and a single time on its own says almost

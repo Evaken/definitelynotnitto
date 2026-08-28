@@ -46,19 +46,8 @@ const START_ANGLE = Math.PI * 0.75;
 const SWEEP = Math.PI * 1.5;
 
 export function drawCluster(ctx: CanvasRenderingContext2D, state: PassState, throttle: number): void {
-  const panel = ctx.createLinearGradient(0, CLUSTER.y, 0, CLUSTER.y + CLUSTER.h);
-  panel.addColorStop(0, '#2b3038');
-  panel.addColorStop(1, '#12151b');
-  ctx.fillStyle = panel;
-  ctx.fillRect(CLUSTER.x, CLUSTER.y, CLUSTER.w, CLUSTER.h);
-
-  ctx.strokeStyle = COLORS.panelEdge;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, CLUSTER.y + 0.5);
-  ctx.lineTo(CANVAS_RIGHT, CLUSTER.y + 0.5);
-  ctx.stroke();
-
+  // The dashboard casting itself is drawn by chrome.ts before this runs.
+  // Everything here goes on top of it.
   drawBoost(ctx);
   drawTacho(ctx, state);
   drawSpeedo(ctx, state);

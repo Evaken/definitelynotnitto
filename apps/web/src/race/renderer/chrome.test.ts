@@ -1,0 +1,124 @@
+import { describe, expect, it } from 'vitest';
+import { COWL_CROWN_Y, dashTopY, panelEdgeXAt } from './chrome.js';
+import { CANVAS_WIDTH, VIEW } from './layout.js';
+import { CLUTCH_SLIDER, DIALS, GAS_SLIDER, SHIFT_LIGHT } from './cluster.js';
+
+const CENTRE = CANVAS_WIDTH / 2;
+
+/**
+ * The cowl is an overlay: it is painted over the finished scene rather than the
+ * scene being fitted around it. That is only safe while it stays out of the road
+ * view and every instrument stays on it, which is what these assert -- the
+ * Browser pane cannot be screenshotted from here, so the shape is checked by
+ * arithmetic rather than by eye.
+ */
+describe('the dashboard cowl', () => {
+  it('is highest in the middle', () => {
+    // Lower y is higher on screen.
+    expect(dashTopY(CENTRE)).toBeLessThan(dashTopY(0));
+    expect(dashTopY(CENTRE)).toBeLessThan(dashTopY(CANVAS_WIDTH));
+    expect(dashTopY(CENTRE)).toBeCloseTo(COWL_CROWN_Y, 6);
+  });
+
+  it('is symmetric about the centre', () => {
+    for (const offset of [40, 160, 320, 470]) {
+      expect(dashTopY(CENTRE - offset)).toBeCloseTo(dashTopY(CENTRE + offset), 6);
+    }
+  });
+
+  it('falls away steadily from the crown', () => {
+    let previous = dashTopY(CENTRE);
+    for (let x = CENTRE; x <= CANVAS_WIDTH; x += 40) {
+      const y = dashTopY(x);
+      expect(y).toBeGreaterThanOrEqual(previous - 1e-9);
+      previous = y;
+    }
+  });
+
+  it('never rises into the road view', () => {
+    // The whole point of the overlay approach: the projection knows nothing
+    // about the cowl, so the cowl must not cover anything the projection drew.
+    for (let x = 0; x <= CANVAS_WIDTH; x += 10) {
+      expect(dashTopY(x), `x=${x}`).toBeGreaterThanOrEqual(VIEW.y + VIEW.h);
+    }
+  });
+
+  it('leaves the corners of the canvas clear', () => {
+    // Where the original put the things that are not instruments.
+    expect(dashTopY(0)).toBeGreaterThan(COWL_CROWN_Y + 60);
+    expect(dashTopY(CANVAS_WIDTH)).toBeGreaterThan(COWL_CROWN_Y + 60);
+  });
+});
+
+describe('the instruments sit on the dashboard', () => {
+  it('holds every dial', () => {
+    for (const [name, dial] of Object.entries(DIALS)) {
+      // The dial's highest point has to clear the cowl edge beneath it, or it
+      // would be drawn hanging off the front of the dash.
+      expect(dial.cy - dial.r, `${name} dial`).toBeGreaterThan(dashTopY(dial.cx));
+    }
+  });
+
+  it('holds the shift light', () => {
+    expect(SHIFT_LIGHT.cy - SHIFT_LIGHT.r).toBeGreaterThan(dashTopY(SHIFT_LIGHT.cx));
+  });
+
+  it('holds both sliders across their full width', () => {
+    for (const [name, slider] of [
+      ['gas', GAS_SLIDER],
+      ['clutch', CLUTCH_SLIDER],
+    ] as const) {
+      // Checked at the outer corner, which is the one nearest the falling edge.
+      expect(slider.y, `${name} slider`).toBeGreaterThan(dashTopY(slider.x + slider.w));
+    }
+  });
+});
+
+describe('the side panels', () => {
+  // Offsets measured off a marked-up screenshot of the original, so the shape
+  // is a source rather than a preference. It was drawn backwards twice before
+  // this: the opening pinches at the TOP and opens out toward the dash.
+  const WAIST_Y = 300;
+
+  it('reaches into the view at the top', () => {
+    expect(panelEdgeXAt(0, 'left')).toBeGreaterThan(VIEW.x + 30);
+    expect(panelEdgeXAt(0, 'right')).toBeLessThan(VIEW.x + VIEW.w - 30);
+  });
+
+  it('sweeps outward going down, not inward', () => {
+    // The direction that was wrong twice. Lower on the panel means further out.
+    expect(panelEdgeXAt(WAIST_Y, 'left')).toBeLessThan(panelEdgeXAt(0, 'left'));
+    expect(panelEdgeXAt(WAIST_Y, 'right')).toBeGreaterThan(panelEdgeXAt(0, 'right'));
+  });
+
+  it('opens past the view entirely by the time it reaches the dash', () => {
+    // Around the middle the panel is clear of the picture altogether, which is
+    // what makes the opening widest where the eye actually is.
+    expect(panelEdgeXAt(WAIST_Y, 'left')).toBeLessThan(VIEW.x);
+    expect(panelEdgeXAt(WAIST_Y, 'right')).toBeGreaterThan(VIEW.x + VIEW.w);
+  });
+
+  it('sweeps monotonically outward down the picture', () => {
+    let previous = panelEdgeXAt(0, 'left');
+    for (let y = 0; y <= VIEW.y + VIEW.h; y += 10) {
+      const x = panelEdgeXAt(y, 'left');
+      expect(x, `y=${y}`).toBeLessThanOrEqual(previous + 0.01);
+      previous = x;
+    }
+  });
+
+  it('is symmetric about the view', () => {
+    for (const y of [0, 120, 255, 330]) {
+      const fromLeft = panelEdgeXAt(y, 'left') - VIEW.x;
+      const fromRight = VIEW.x + VIEW.w - panelEdgeXAt(y, 'right');
+      expect(fromRight).toBeCloseTo(fromLeft, 4);
+    }
+  });
+
+  it('never closes over the road', () => {
+    for (let y = 0; y <= VIEW.y + VIEW.h; y += 10) {
+      const gap = panelEdgeXAt(y, 'right') - panelEdgeXAt(y, 'left');
+      expect(gap, `y=${y}`).toBeGreaterThan(VIEW.w * 0.75);
+    }
+  });
+});

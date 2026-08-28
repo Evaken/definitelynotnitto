@@ -1,5 +1,6 @@
 import type { PassState } from '@nitto/game-core';
 import { COLORS, VIEW, VIEW_CENTER_X, VIEW_RIGHT } from './layout.js';
+import { panelEdgeXAt } from './chrome.js';
 import { isVisible, project } from './projection.js';
 
 /**
@@ -117,8 +118,15 @@ export function drawStageIndicators(ctx: CanvasRenderingContext2D, state: PassSt
   const h = 40;
   const y = VIEW.y + 6;
 
-  plate(ctx, VIEW.x + 6, y, w, h, state.lights.prestage, state.lights.stage);
-  plate(ctx, VIEW_RIGHT - w - 6, y, w, h, false, false);
+  // Positioned off the side panels' actual curve rather than a fixed inset.
+  // The panel is at its narrowest right at the top edge and widens fast, so a
+  // constant gutter clears it at the plate's top corner and clips its bottom.
+  const clearance = 6;
+  const left = Math.max(panelEdgeXAt(y, 'left'), panelEdgeXAt(y + h, 'left'));
+  const right = Math.min(panelEdgeXAt(y, 'right'), panelEdgeXAt(y + h, 'right'));
+
+  plate(ctx, left + clearance, y, w, h, state.lights.prestage, state.lights.stage);
+  plate(ctx, right - w - clearance, y, w, h, false, false);
 }
 
 function plate(

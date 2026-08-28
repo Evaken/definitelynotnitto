@@ -1,5 +1,7 @@
 import { TRACK_MARKS, stagingZoneStart, type PassState } from '@nitto/game-core';
 import {
+  BOARD_LEFT,
+  BOARD_RIGHT,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   CAR_Z,
@@ -14,6 +16,7 @@ import { DEFAULT_PAINT, PLACEHOLDER_CAR, suspensionMotion } from './carSprite.js
 import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
 import { drawCluster } from './cluster.js';
 import { drawBoards, drawStagingBar } from './boards.js';
+import { drawBoardBezel, drawDashCowl, drawSidePanels } from './chrome.js';
 
 /**
  * Draws one frame of the race.
@@ -46,12 +49,23 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);
 
+  // Everything from here is the casting the game sits in, painted over the
+  // finished scene rather than the scene being fitted around it. That is what
+  // keeps the projection out of it: the cowl can move without the road moving.
   ctx.strokeStyle = COLORS.panelEdge;
   ctx.lineWidth = 1;
   ctx.strokeRect(VIEW.x + 0.5, VIEW.y + 0.5, VIEW.w - 1, VIEW.h - 1);
 
+  // The side panels are blocks of dashboard the view is a hole in, so they go
+  // down before the boards that sit on them.
+  drawSidePanels(ctx);
+
+  drawBoardBezel(ctx, BOARD_LEFT);
+  drawBoardBezel(ctx, BOARD_RIGHT);
   drawBoards(ctx, state);
   drawStagingBar(ctx, state);
+
+  drawDashCowl(ctx);
   drawCluster(ctx, state, state.prevInput.throttle);
 }
 

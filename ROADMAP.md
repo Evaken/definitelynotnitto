@@ -183,6 +183,7 @@ Stage 3 is yours.
 | ✅ | 0 — Project Foundation | Skeleton, data models, navigation shell |
 | ✅ | 1 — Basic Drag Race Simulator | A drivable quarter-mile pass and a timing slip |
 | ✅ | *(view rebuild)* | *Chase camera and instrument cluster — the spec had the view wrong* |
+| ✅ | *(chrome pass)* | *Oval dashboard, curved side panels, inset timing boards — shape only* |
 | ✅ | 2 — Nitto Driving Feel | Launch and shift feel, run history and best-ET tracking |
 | ▶️ | **3 — Garage and Parts Shop** | **25–40 Civic parts, install/remove, the first progression loop** |
 | | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
@@ -229,6 +230,14 @@ that asserts an exact ET now means rewriting it later.
   go when the page is reloaded or the car changes. Persisting them means
   deciding where they live, and that is Stage 9's question — writing to local
   storage now would be a second answer thrown away when accounts arrive.
+- **The dashboard is the right shape but not the right finish.** The original's
+  casting is rendered metal with photographic gauge faces; ours is canvas paths
+  and gradients. Matching it wants a background image asset — Stage 14, with the
+  art pipeline Stage 8 needs anyway.
+- **`GRAPHIC SETTINGS` and the header band are not built.** Both are visible in
+  `race-view-two-civics.webp`: a button in the bottom-left corner, and a band
+  above the view with the Nitto logo, a `1320 CHALLENGE` wordmark and a version
+  number.
 - **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
   slider. Leaving it out is a project decision, not an oversight — but the
   neutral-rev launch technique exists *because* of that choice.

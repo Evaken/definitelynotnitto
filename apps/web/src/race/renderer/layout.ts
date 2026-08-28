@@ -14,11 +14,11 @@ export const CANVAS_HEIGHT = 600;
 // --- Regions ---------------------------------------------------------------
 
 /** Progress down the strip, down the far left edge. */
-export const POSITION_BAR = { x: 0, y: 8, w: 22, h: 332 } as const;
+export const POSITION_BAR = { x: 0, y: 8, w: 22, h: 352 } as const;
 
 /** Timing boards either side of the road. Left is the player. */
-export const BOARD_LEFT = { x: 28, y: 8, w: 178, h: 332 } as const;
-export const BOARD_RIGHT = { x: 754, y: 8, w: 178, h: 332 } as const;
+export const BOARD_LEFT = { x: 34, y: 8, w: 172, h: 352 } as const;
+export const BOARD_RIGHT = { x: 754, y: 8, w: 172, h: 352 } as const;
 
 /** The road view itself. */
 export const VIEW = { x: 214, y: 8, w: 532, h: 332 } as const;
