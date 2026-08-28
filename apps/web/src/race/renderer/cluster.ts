@@ -42,7 +42,7 @@ const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
  * car is doing, this one is asking for an input, and it has to be readable
  * without looking away from the strip.
  */
-export const SHIFT_LIGHT = { cx: 486, cy: 415, r: 19 } as const;
+export const SHIFT_LIGHT = { cx: 481, cy: 420, r: 19 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -317,9 +317,9 @@ function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
 function drawShiftLight(ctx: CanvasRenderingContext2D, state: PassState): void {
   const { cx, cy, r } = SHIFT_LIGHT;
   const lit = shouldShiftUp(state.car, state.tune, state.gear, engineRpm(state));
-  // No label: it sits on the tacho's rim, where there is nowhere to put one.
-  // The original has no label here either.
-  lamp(ctx, cx, cy, COLORS.green, lit, '', r, true);
+  // The label goes on the lens rather than under it -- there is no room under
+  // it once the lamp is lapping the tacho.
+  lamp(ctx, cx, cy, COLORS.green, lit, 'SHIFT', r, true, true);
 }
 
 function lamp(
@@ -332,6 +332,8 @@ function lamp(
   radius = 11,
   /** Ring it in the same brushed rim the dials use, so it reads as fitted. */
   dialRim = false,
+  /** Print the label across the lens instead of underneath it. */
+  faceLabel = false,
 ): void {
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -349,10 +351,22 @@ function lamp(
 
   if (label === '') return;
 
-  ctx.font = '8px Verdana, sans-serif';
-  ctx.fillStyle = COLORS.textDim;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+
+  if (faceLabel) {
+    // Shaded off whatever the lamp itself is showing, so it tracks the lamp
+    // rather than sitting on top of it: a shade darker than the dead glass when
+    // the lamp is out, a deeper version of the same colour when it lights.
+    // Enough to name the lamp, never enough to compete with it.
+    ctx.font = 'bold 7px Verdana, sans-serif';
+    ctx.fillStyle = shadeHex(lit ? color : COLORS.bulbOff, lit ? 0.45 : 0.7);
+    ctx.fillText(label, cx, cy);
+    return;
+  }
+
+  ctx.font = '8px Verdana, sans-serif';
+  ctx.fillStyle = COLORS.textDim;
   ctx.fillText(label, cx, cy + radius + 9);
 }
 

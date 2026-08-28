@@ -28,9 +28,14 @@ window is dragged to a different monitor.
 
 The reference puts it lapping the tachometer's rim at the upper right, not
 floating in the gap beside it — and after the dials were clustered there was no
-gap left to float in. It now sits tangent to the rim with the same brushed ring
-the dials wear, and has lost its label: there is nowhere to put one, and the
-original has no label there either.
+gap left to float in. It now laps the rim by a few pixels, wearing the same
+brushed ring the dials do.
+
+Its label moved onto the lens, since there is no room under it any more. The
+colour is shaded off whatever the lamp is showing rather than being a fixed
+grey: a shade darker than the dead glass when the lamp is out, a deeper green
+when it lights. Enough to name the lamp at a glance, never enough to compete
+with the thing it is naming.
 
 ## The instrument binnacle
 
