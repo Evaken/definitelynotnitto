@@ -102,15 +102,17 @@ Source: `race-view-two-civics.webp`, marked up by someone who played it.
 
 Not rectangular panels. An oval cowl sweeps across the bottom with the gauges
 set into it, and a curved surround frames the road view: one continuous sweep
-that starts inside the picture at the top, opens outward past the view's own
-edge around the middle, and flares into the top of the dash. The timing boards
-are inset panels sitting on that surround.
+that starts well inside the picture at the top, sweeps outward fast, and
+flattens out past the view's own edge as it runs into the top of the dash --
+arched, the way a windscreen header is. The timing boards are inset panels
+sitting on that surround.
 
 The offsets in `renderer/chrome.ts` were measured off the marked-up screenshot
-rather than chosen. **The curve was drawn backwards twice before it was right** --
-convex when it should be concave, then pinched in the middle when it should be
-pinched at the top -- which is why `chrome.test.ts` asserts the direction
-explicitly rather than trusting the control points to stay put.
+rather than chosen. **The curve was drawn wrong three times before it was
+right** -- convex when it should be concave, then pinched in the middle when it
+should be pinched at the top, then bowing the wrong way while being deepened --
+which is why `chrome.test.ts` asserts the direction *and* the bow explicitly
+rather than trusting four control points to stay put.
 
 What is *not* reproduced is the finish. The original's dash is a rendered
 metallic casting with photographic gauge faces; ours is canvas paths and

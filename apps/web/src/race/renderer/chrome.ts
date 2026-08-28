@@ -20,7 +20,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, VIEW } from './layout.js';
  * queryable: `dashTopY` is what tells the instruments whether they are actually
  * sitting on the dashboard, and a bezier would only tell you after you drew it.
  */
-const COWL = { cx: CANVAS_WIDTH / 2, cy: 620, rx: 640, ry: 272 } as const;
+const COWL = { cx: CANVAS_WIDTH / 2, cy: 656, rx: 640, ry: 272 } as const;
 
 /** Height of the bright lip running along the top of the cowl. */
 const LIP_HEIGHT = 13;
@@ -124,8 +124,8 @@ export function drawSidePanels(ctx: CanvasRenderingContext2D): void {
  * cowl. One continuous sweep from the roof to the dashboard, which is what makes
  * it read as a cockpit rather than as three panels bolted together.
  */
-const EDGE_OFFSETS = [54, 20, -60, 40] as const;
-const EDGE_HEIGHTS = [-1, 150, 300, CANVAS_HEIGHT + 20] as const;
+const EDGE_OFFSETS = [62, -22, -38, -22] as const;
+const EDGE_HEIGHTS = [-1, 110, 260, CANVAS_HEIGHT + 20] as const;
 
 /**
  * The four control points of one panel's inner edge, top to bottom.

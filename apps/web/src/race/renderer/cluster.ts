@@ -20,17 +20,17 @@ import { CLUSTER, COLORS } from './layout.js';
  */
 
 /** Where the gas slider is drawn. Exported so the drag surface can sit on it. */
-export const GAS_SLIDER = { x: 694, y: 402, w: 34, h: 140 } as const;
+export const GAS_SLIDER = { x: 694, y: 430, w: 34, h: 140 } as const;
 /** The clutch bar. A readout here, not a control -- see below. */
-export const CLUTCH_SLIDER = { x: 748, y: 402, w: 34, h: 140 } as const;
+export const CLUTCH_SLIDER = { x: 748, y: 430, w: 34, h: 140 } as const;
 
 export const DIALS = {
-  boost: { cx: 232, cy: 468, r: 62 },
-  rpm: { cx: 424, cy: 468, r: 80 },
-  mph: { cx: 616, cy: 468, r: 62 },
+  boost: { cx: 232, cy: 496, r: 62 },
+  rpm: { cx: 424, cy: 496, r: 80 },
+  mph: { cx: 616, cy: 496, r: 62 },
 } as const;
 
-const GEAR_COLUMN = { x: 872, y: 372, w: 44, rowHeight: 26 } as const;
+const GEAR_COLUMN = { x: 872, y: 392, w: 44, rowHeight: 25 } as const;
 
 /**
  * The shift light, in the gap between the tachometer and the speedometer.
@@ -39,7 +39,7 @@ const GEAR_COLUMN = { x: 872, y: 372, w: 44, rowHeight: 26 } as const;
  * car is doing, this one is asking for an input, and it has to be readable
  * without looking away from the strip.
  */
-export const SHIFT_LIGHT = { cx: 528, cy: 400, r: 15 } as const;
+export const SHIFT_LIGHT = { cx: 528, cy: 428, r: 15 } as const;
 
 /** Sweep of every dial: south-west round to south-east. */
 const START_ANGLE = Math.PI * 0.75;
@@ -293,8 +293,8 @@ function drawGearColumn(ctx: CanvasRenderingContext2D, state: PassState): void {
  * green, so it does not read as a second shift light -- it means the opposite.
  */
 function drawLamps(ctx: CanvasRenderingContext2D, state: PassState): void {
-  lamp(ctx, 816, 448, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
-  lamp(ctx, 816, 508, COLORS.amber, state.limiterActive, 'LIMIT');
+  lamp(ctx, 816, 476, COLORS.red, state.wheelspin || state.wheelsLocked, 'SLIP');
+  lamp(ctx, 816, 536, COLORS.amber, state.limiterActive, 'LIMIT');
 }
 
 /**

@@ -14,14 +14,14 @@ export const CANVAS_HEIGHT = 600;
 // --- Regions ---------------------------------------------------------------
 
 /** Progress down the strip, down the far left edge. */
-export const POSITION_BAR = { x: 0, y: 8, w: 22, h: 352 } as const;
+export const POSITION_BAR = { x: 0, y: 8, w: 22, h: 388 } as const;
 
 /** Timing boards either side of the road. Left is the player. */
-export const BOARD_LEFT = { x: 34, y: 8, w: 172, h: 352 } as const;
-export const BOARD_RIGHT = { x: 754, y: 8, w: 172, h: 352 } as const;
+export const BOARD_LEFT = { x: 34, y: 8, w: 172, h: 388 } as const;
+export const BOARD_RIGHT = { x: 754, y: 8, w: 172, h: 388 } as const;
 
 /** The road view itself. */
-export const VIEW = { x: 214, y: 8, w: 532, h: 332 } as const;
+export const VIEW = { x: 214, y: 8, w: 532, h: 376 } as const;
 export const VIEW_RIGHT = VIEW.x + VIEW.w;
 export const VIEW_BOTTOM = VIEW.y + VIEW.h;
 export const VIEW_CENTER_X = VIEW.x + VIEW.w / 2;
@@ -30,7 +30,7 @@ export const VIEW_CENTER_X = VIEW.x + VIEW.w / 2;
 export const HORIZON_Y = VIEW.y + 139;
 
 /** The instrument cluster fills the rest. */
-export const CLUSTER = { x: 0, y: 348, w: CANVAS_WIDTH, h: CANVAS_HEIGHT - 348 } as const;
+export const CLUSTER = { x: 0, y: 384, w: CANVAS_WIDTH, h: CANVAS_HEIGHT - 384 } as const;
 
 // --- Camera ----------------------------------------------------------------
 

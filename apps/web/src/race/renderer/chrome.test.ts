@@ -107,6 +107,24 @@ describe('the side panels', () => {
     }
   });
 
+  it('bows away from the view rather than running straight', () => {
+    // The assertion that would have caught the three separate times this was
+    // drawn wrong. Direction of travel is not enough: the edge has to sweep out
+    // quickly near the top and flatten toward the dash, which means sitting well
+    // outside the straight line between its own endpoints.
+    const top = panelEdgeXAt(0, 'left');
+    const bottom = panelEdgeXAt(VIEW.y + VIEW.h, 'left');
+    const middleY = (VIEW.y + VIEW.h) / 2;
+    const chord = top + (bottom - top) * 0.5;
+
+    expect(chord - panelEdgeXAt(middleY, 'left')).toBeGreaterThan(20);
+
+    const rTop = panelEdgeXAt(0, 'right');
+    const rBottom = panelEdgeXAt(VIEW.y + VIEW.h, 'right');
+    const rChord = rTop + (rBottom - rTop) * 0.5;
+    expect(panelEdgeXAt(middleY, 'right') - rChord).toBeGreaterThan(20);
+  });
+
   it('is symmetric about the view', () => {
     for (const y of [0, 120, 255, 330]) {
       const fromLeft = panelEdgeXAt(y, 'left') - VIEW.x;

@@ -13,9 +13,9 @@ like one.
   that the cowl never rises into the road.
 - **Curved side panels** frame the view — not a border inside the viewport but
   two blocks of dashboard the road is a hole in, running the full height and
-  finishing against the cowl. Their inner edge starts inside the picture at the
-  top, opens outward past the view's own edge around the middle, and flares into
-  the dash.
+  finishing against the cowl. Their inner edge starts 62px inside the picture at
+  the top, sweeps outward fast, and flattens out past the view's own edge as it
+  runs into the dash. Arched, the way a windscreen header is.
 - **The timing boards** are inset panels with raised bezels, sitting on the side
   panels rather than floating beside them.
 
@@ -24,11 +24,17 @@ the scene being fitted around it. **`projection.ts` is untouched and so is
 `game-core`** — the cowl can move without the road moving with it, which is the
 same seam that made swapping the camera cost nothing in the simulator.
 
-The panel curve was drawn backwards twice — convex, then pinched at the waist
-instead of at the top — before a marked-up screenshot settled it. The offsets in
-`chrome.ts` are measured off that markup, and `chrome.test.ts` now asserts the
-sweep direction outright rather than leaving it to four control points nobody
-will re-derive.
+The panel curve was drawn wrong three times — convex, then pinched at the waist
+instead of at the top, then bowing the wrong way while being deepened — before it
+was right. The offsets in `chrome.ts` are measured off a marked-up screenshot,
+and `chrome.test.ts` now asserts both the sweep direction *and* the bow: the edge
+has to sit at least 20px outside the straight line between its own endpoints,
+which is the check that would have caught all three.
+
+The road view also grew, from 332 to 376 pixels tall, and the dashboard dropped
+36 to meet it, so the picture fills the space that used to be black above the
+dash. Nothing in the projection needed touching for that either — the view's
+bottom edge is its only input, and `Z_NEAR` falls out of it.
 
 This is the shape, not the finish. The original's casting is rendered metal with
 photographic gauge faces; canvas paths get the silhouette and approximate the
