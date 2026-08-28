@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 3 complete. Stage 4 is next.**
+**Current stage: Stage 4 complete. Stage 5 is next.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -216,6 +216,28 @@ fair game.
   cursor-driven carousels and screen/component transitions. Exact art, sound
   and timing remain clean-room inventions rather than historical claims.
 
+### Stage 4 — Tuning and Dyno
+
+- Tune & Dyno is now a working garage department with one control per actual
+  forward gear, a final-drive control, factory reset, per-gear redline speed
+  projections and persistent saved setups.
+- Tune validation belongs to game-core: gear count follows the selected car,
+  ratios must descend, and all values stay inside documented assumed ranges.
+- The Race Track consumes the saved tune rather than silently recreating stock
+  gearing. Tune changes clear incompatible run history just like build changes.
+- The chassis dyno samples the resolved engine torque curve used by the race
+  simulation and reports horsepower, torque, their peak RPM and a previous-run
+  overlay. Gearing correctly has no effect on engine-only dyno output.
+- Old Stage 3 browser saves migrate to stock gearing; malformed persisted tunes
+  are repaired without discarding cash or owned parts.
+
+Completion criteria met:
+
+- [x] Gear ratios and final drive materially affect quarter-mile performance.
+- [x] A deliberately poor tune can make a modified car slower than stock.
+- [x] Installed performance parts change dyno power and torque.
+- [x] Dyno and race use the same resolved vehicle and engine model.
+
 ---
 
 ## All sixteen stages
@@ -236,8 +258,8 @@ Stage 3 is yours.
 | ✅ | *(chrome pass)* | *Oval dashboard, curved side panels, inset timing boards — shape only* |
 | ✅ | 2 — Nitto Driving Feel | Launch and shift feel, run history and best-ET tracking |
 | ✅ | 3 — Garage and Parts Shop | 30 Civic parts, install/remove, the first progression loop |
-| ▶️ | **4 — Tuning and Dyno** | **Gear ratios, final drive, horsepower and torque curves** |
-| | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
+| ✅ | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
+| ▶️ | **5 — Nitrous and Mechanical Damage** | **Nitrous timing, mechanical stress, repair costs** |
 | | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
 | | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
 | | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |

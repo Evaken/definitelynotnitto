@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { lastRunWasBestEt, stockTune, type Car, type RacePhase, type TimingSlip } from '@nitto/game-core';
+import { useEffect } from 'react';
+import { lastRunWasBestEt, type Car, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
@@ -26,11 +26,13 @@ const PROMPTS: Record<RacePhase, string> = {
 
 export function RaceTrackScreen({
   car,
+  tune,
   fittedPartCount = 0,
   initialHistory = [],
   onHistoryChange,
 }: {
   car: Car;
+  tune: Tune;
   fittedPartCount?: number;
   initialHistory?: readonly TimingSlip[];
   onHistoryChange?: (history: readonly TimingSlip[]) => void;
@@ -47,9 +49,6 @@ export function RaceTrackScreen({
   const buildLabel = modified
     ? `MODIFIED — ${fittedPartCount} PART${fittedPartCount === 1 ? '' : 'S'} FITTED`
     : 'STOCK — NO PARTS FITTED';
-
-  // Memoised so the session is not torn down and restarted on every render.
-  const tune = useMemo(() => stockTune(car), [car]);
 
   const {
     canvasRef,

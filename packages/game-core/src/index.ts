@@ -22,7 +22,7 @@ export type {
 } from './types/car.js';
 export type { Build, ExclusionGroup, Part, PartCategory, PartEffects } from './types/part.js';
 export type { Tune } from './types/tune.js';
-export { stockTune } from './types/tune.js';
+export { stockTune, validateTune } from './types/tune.js';
 export type {
   InputChange,
   InputTimeline,
@@ -48,13 +48,14 @@ export {
   TRACK_MARKS,
   TRAP_LENGTH_M,
   TREE,
+  TUNING,
 } from './config/historical.js';
 
 // Data
 export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
 export type { GarageResult, GarageState, PurchaseInstallPlan, PurchaseInstallPreview } from './garage.js';
-export { buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
+export { applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
 
 // Simulation
 export {
@@ -75,6 +76,8 @@ export { optimalShiftRpm, shouldShiftUp } from './sim/shift.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';
 export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';
+export type { DynoPoint, DynoResult } from './sim/dyno.js';
+export { runDyno } from './sim/dyno.js';
 export { ATMOSPHERIC_BAR, barToPsi, boostBar, chargeTorqueMultiplier, wotBoostBar } from './sim/boost.js';
 export {
   forwardGearCount,

@@ -465,6 +465,19 @@ charged for parts, but it does not recover the historical prices used here.
 
 ---
 
+### Gear tuning and dyno ranges — `assumed`
+
+The surviving material confirms that Tune & Dyno was a garage department and
+the project specification records editable individual ratios, final drive,
+horsepower and torque curves. It does not recover the original editor's numeric
+limits or adjustment increments. The broad limits in `historical.ts` therefore
+exist for playability and validation, not as a claim about Version 1.52.
+
+The dyno samples flywheel output from the same resolved torque curve used by the
+race simulation. Gear ratios do not change that curve; they change wheel torque
+and road speed in a pass. This is physically coherent clean-room behaviour, not
+a recovered historical formula.
+
 ## Research leads
 
 Not yet pursued:

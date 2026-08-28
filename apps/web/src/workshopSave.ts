@@ -1,4 +1,4 @@
-import { createGarageState, partList, type GarageState } from '@nitto/game-core';
+import { createGarageState, getCar, partList, stockTune, validateTune, type GarageState, type Tune } from '@nitto/game-core';
 
 const STORAGE_KEY='nitto1320.workshop.v1';
 
@@ -14,7 +14,11 @@ export function parseWorkshopSave(raw:string|null):GarageState|null{
     const owned=[...new Set(candidate.ownedPartIds.filter((id):id is string=>typeof id==='string'&&known.has(id)))];
     const ownedSet=new Set(owned);
     const fitted=[...new Set(candidate.build.fittedPartIds.filter((id):id is string=>typeof id==='string'&&ownedSet.has(id)))];
-    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted}};
+    let car;try{car=getCar(candidate.build.carId);}catch{return null;}
+    const rawTune=(candidate as {tune?:unknown}).tune;
+    const proposed=rawTune&&typeof rawTune==='object'&&Array.isArray((rawTune as Tune).gearRatios)&&typeof (rawTune as Tune).finalDrive==='number'?{gearRatios:[...(rawTune as Tune).gearRatios],finalDrive:(rawTune as Tune).finalDrive}:stockTune(car);
+    const tune=validateTune(car,proposed)===null?proposed:stockTune(car);
+    return{cash:Math.round(candidate.cash),ownedPartIds:owned,build:{carId:candidate.build.carId,fittedPartIds:fitted},tune};
   }catch{return null;}
 }
 

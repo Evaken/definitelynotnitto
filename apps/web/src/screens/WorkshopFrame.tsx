@@ -41,12 +41,14 @@ export function edgeScroll(event:ReactPointerEvent<HTMLElement>):void{
   if(velocity)target.scrollLeft+=velocity;
 }
 
-export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false }: {
+export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false, activeDepartment='modifications', onDepartmentChange }: {
   cash: number;
   children: ReactNode;
   showDepartments?: boolean;
   onBack?: () => void;
   shop?: boolean;
+  activeDepartment?:'modifications'|'tune';
+  onDepartmentChange?:(department:'modifications'|'tune')=>void;
 }) {
   const audio=useWorkshopAudio();
   const playButton=(event:ReactPointerEvent<HTMLDivElement>)=>{
@@ -63,8 +65,8 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
       {(showDepartments || onBack) && <div className="workshop__toolbar">
         {onBack && <button className="workshop-back" data-sound="select" type="button" onClick={onBack}><span aria-hidden="true">◀</span> Back</button>}
         {showDepartments && <nav className="workshop__modes" aria-label="Garage departments">
-          <button className="workshop-tab workshop-tab--active" type="button">Modifications</button>
-          <button className="workshop-tab" type="button" disabled title="Stage 4">Tune &amp; Dyno <small>Stage 4</small></button>
+          <button className={`workshop-tab${activeDepartment==='modifications'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('modifications')}>Modifications</button>
+          <button className={`workshop-tab${activeDepartment==='tune'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('tune')}>Tune &amp; Dyno</button>
           <button className="workshop-tab" type="button" disabled title="Stage 8">Paint Shop <small>Stage 8</small></button>
           <button className="workshop-tab" type="button" disabled title="Stage 5">Maintenance <small>Stage 5</small></button>
         </nav>}

@@ -870,3 +870,33 @@ body {
 @media(prefers-reduced-motion:reduce){
   .screen--workshop,.garage-car-art,.car-bay__sweep,.garage-car-art__hotspot::after,.setup-subcategory-strip button,.garage-part-detail,.product-browser .product-card,.product-selection--rich{animation:none!important}
 }
+
+/* Stage 4 — transmission setup and chassis dyno */
+.tune-dyno{display:grid;grid-template-columns:minmax(330px,.82fr) minmax(430px,1.18fr);gap:10px;min-height:585px;padding:12px;background:linear-gradient(135deg,#172531,#0a1118 52%,#182c38)}
+.tune-console,.dyno-console{border:1px solid #607989;background:linear-gradient(#132431,#071017);box-shadow:inset 0 0 0 2px #071019,0 3px 12px #0008;color:#dbe9ef}
+.tune-console>header,.dyno-console>header{position:relative;padding:14px 16px 12px;border-bottom:2px solid #dfaf22;background:linear-gradient(180deg,#334b5c,#14232f)}
+.tune-console header span,.dyno-console header span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#5ee6ff}
+.tune-console h2,.dyno-console h2{margin:2px 0 4px;font:italic 800 22px/1 Arial,sans-serif;text-transform:uppercase;color:#fff;text-shadow:2px 2px #000}
+.tune-console header p{margin:0;max-width:440px;font-size:11px;color:#b3c5ce}
+.gear-stack{padding:12px 14px 5px}
+.gear-stack label{display:grid;grid-template-columns:30px 58px minmax(90px,1fr) 48px 58px;align-items:center;gap:8px;margin-bottom:7px;padding:6px;background:linear-gradient(90deg,#182c39,#0c171f);border:1px solid #304b5b}
+.gear-stack label b{display:grid;place-items:center;width:26px;height:26px;background:linear-gradient(#f3c536,#8e6500);border:1px solid #ffe36f;color:#071017;font:900 15px Arial;border-radius:50%}
+.gear-stack label span{text-transform:uppercase;font-size:10px;font-weight:800;color:#c6d8df}
+.gear-stack label input{width:100%;accent-color:#19cbe8}
+.gear-stack label output{padding:4px;text-align:center;background:#020609;border:1px inset #46606c;color:#f4cb37;font:700 13px Consolas,monospace}
+.gear-stack label small{text-align:right;color:#70d8e9;font-size:10px}
+.gear-stack .gear-stack__final{border-color:#b4871e;background:linear-gradient(90deg,#332b16,#11191d)}
+.tune-actions{display:flex;gap:8px;justify-content:flex-end;padding:5px 14px 8px}
+.tune-actions .workshop-action{width:auto;min-width:130px}
+.tune-console>.workshop-message{margin:0 14px 14px}
+.dyno-console>header{padding-right:145px}
+.dyno-run{position:absolute;right:14px;top:14px;padding:10px 15px;border:1px solid #74eaff;background:linear-gradient(#28d8f3,#087895);box-shadow:inset 0 0 0 2px #10485d;color:#fff;font-weight:900;text-transform:uppercase;cursor:pointer}
+.dyno-graph{margin:14px 14px 8px;padding:8px;background:radial-gradient(circle at 50% 55%,#193342,#030709 72%);border:1px solid #3b5865;box-shadow:inset 0 0 22px #000}
+.dyno-graph svg{display:block;width:100%;height:auto;overflow:visible}
+.dyno-grid line{stroke:#66818c;stroke-width:1;opacity:.24}.dyno-graph path{fill:none;stroke-width:3;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px currentColor)}
+.dyno-graph .dyno-hp{stroke:#19ddff;color:#19ddff}.dyno-graph .dyno-torque{stroke:#f1bd2e;color:#f1bd2e}.dyno-graph .dyno-previous{stroke-dasharray:6 5;opacity:.38;stroke-width:2}.dyno-graph text{fill:#8fa8b3;font:10px Arial}
+.dyno-legend{display:flex;gap:18px;padding:3px 28px 8px;font-size:10px;text-transform:uppercase}.dyno-legend span:before{content:"";display:inline-block;width:16px;height:3px;margin-right:5px;vertical-align:middle;background:#19ddff}.dyno-legend .torque:before{background:#f1bd2e}.dyno-legend .previous:before{height:1px;background:#9aaeb7}
+.dyno-readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 14px}.dyno-readout>div{padding:9px;background:linear-gradient(#142b38,#071117);border:1px solid #385565}.dyno-readout span,.dyno-readout small{display:block;color:#8fa9b5;font-size:9px;text-transform:uppercase}.dyno-readout strong{display:block;margin:3px 0;color:#f8d13c;font:800 21px Arial}
+.dyno-idle{display:flex;min-height:360px;flex-direction:column;align-items:center;justify-content:center;color:#8ba3ae;text-align:center}.dyno-idle strong{margin-top:14px;color:#d9e7eb;text-transform:uppercase}.dyno-idle span{font-size:11px}.dyno-idle__rollers{display:flex;gap:6px}.dyno-idle__rollers i{width:100px;height:28px;border-radius:50%;background:repeating-linear-gradient(90deg,#111 0 5px,#56616a 6px 8px);border:3px solid #263945;box-shadow:0 12px 18px #000}
+.dyno-note{margin:12px 14px;color:#7d929d;font-size:10px}
+@media(max-width:850px){.tune-dyno{grid-template-columns:1fr}.dyno-console{min-height:480px}.gear-stack label{grid-template-columns:28px 52px 1fr 45px}.gear-stack label small{display:none}}

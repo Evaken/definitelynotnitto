@@ -7,6 +7,7 @@
  */
 
 import type { Car } from './car.js';
+import { TUNING } from '../config/historical.js';
 
 export interface Tune {
   /** Overrides `GearboxSpec.gearRatios`. Must have the same length. */
@@ -21,4 +22,16 @@ export function stockTune(car: Car): Tune {
     gearRatios: [...car.gearbox.gearRatios],
     finalDrive: car.gearbox.finalDrive,
   };
+}
+
+/** Validate a player tune without silently repairing it. */
+export function validateTune(car: Car, tune: Tune): string | null {
+  if (tune.gearRatios.length !== car.gearbox.gearRatios.length) return `This gearbox requires ${car.gearbox.gearRatios.length} forward gears.`;
+  if (!Number.isFinite(tune.finalDrive) || tune.finalDrive < TUNING.finalDriveMin.value || tune.finalDrive > TUNING.finalDriveMax.value) return `Final drive must be between ${TUNING.finalDriveMin.value.toFixed(2)} and ${TUNING.finalDriveMax.value.toFixed(2)}.`;
+  for (let index = 0; index < tune.gearRatios.length; index++) {
+    const ratio = tune.gearRatios[index]!;
+    if (!Number.isFinite(ratio) || ratio < TUNING.gearRatioMin.value || ratio > TUNING.gearRatioMax.value) return `Gear ${index + 1} must be between ${TUNING.gearRatioMin.value.toFixed(2)} and ${TUNING.gearRatioMax.value.toFixed(2)}.`;
+    if (index > 0 && ratio >= tune.gearRatios[index - 1]!) return `Gear ${index + 1} must be taller than gear ${index}.`;
+  }
+  return null;
 }

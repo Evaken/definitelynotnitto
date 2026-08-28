@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { averageQuarterMileEt, fitPart, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, removePart, resolveBuild, type GarageState, type Car, type Part, type PartCategory, type TimingSlip } from '@nitto/game-core';
+import { averageQuarterMileEt, fitPart, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, removePart, resolveBuild, type GarageState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { PerformancePreview } from './PerformancePreview.js';
+import { TuneDynoPanel } from './TuneDynoPanel.js';
 
-export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemove}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void}){
-  const [view,setView]=useState<'overview'|'setup'>('overview');
+export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemove,onTune}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void}){
+  const [view,setView]=useState<'overview'|'setup'|'tune'>('overview');
   const [group,setGroup]=useState<WorkshopGroupId>('intake');
   const [category,setCategory]=useState<PartCategory>('intake');
   const [selectedId,setSelectedId]=useState('');
@@ -56,7 +57,9 @@ export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemo
 
   const chooseGroup=(next:WorkshopGroupId)=>{setGroup(next);const firstCategory=categoriesForGroup(next)[0]??'intake';setCategory(firstCategory);setSelectedId('');};
 
-  return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments onBack={()=>setView('overview')}>
+  if(view==='tune')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="tune" onDepartmentChange={department=>setView(department==='tune'?'tune':'setup')} onBack={()=>setView('overview')}><TuneDynoPanel car={car} tune={state.tune} message={message} onApply={onTune}/></WorkshopFrame></div>;
+
+  return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="modifications" onDepartmentChange={department=>setView(department==='tune'?'tune':'setup')} onBack={()=>setView('overview')}>
     <nav className="setup-category-strip" aria-label="Installed-part categories">
       {WORKSHOP_GROUPS.filter(item=>!('lockedStage' in item)).map(item=><button key={item.id} data-sound="select" type="button" aria-pressed={group===item.id} className={group===item.id?'active':''} onClick={()=>chooseGroup(item.id)}>{item.label}</button>)}
     </nav>

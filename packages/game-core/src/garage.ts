@@ -4,11 +4,13 @@ import { getCar } from './data/cars/index.js';
 import { getPart, PARTS } from './data/parts/index.js';
 import { chargeTorqueMultiplier } from './sim/boost.js';
 import type { InductionType } from './types/car.js';
-export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; }
+import { stockTune, validateTune, type Tune } from './types/tune.js';
+export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; readonly tune:Tune; }
 export type GarageResult={readonly ok:true;readonly state:GarageState}|{readonly ok:false;readonly reason:string};
 export interface PurchaseInstallPlan { readonly part:Part; readonly price:number; readonly replacedPartIds:readonly string[]; }
 export type PurchaseInstallPreview={readonly ok:true;readonly plan:PurchaseInstallPlan}|{readonly ok:false;readonly reason:string};
-export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[]};}
+export function createGarageState(carId='civic-si',cash=10_000):GarageState{return{cash,build:{carId,fittedPartIds:[]},ownedPartIds:[],tune:stockTune(getCar(carId))};}
+export function applyTune(state:GarageState,tune:Tune):GarageResult{const reason=validateTune(getCar(state.build.carId),tune);return reason?{ok:false,reason}:{ok:true,state:{...state,tune:{gearRatios:[...tune.gearRatios],finalDrive:tune.finalDrive}}};}
 export function canFit(build:Build,part:Part):string|null{
   if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(build.carId))return'Not compatible with this car.';
   if(build.fittedPartIds.includes(part.id))return'Already installed.';
@@ -56,6 +58,7 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
   const {part,price,replacedPartIds}=preview.plan;
   const removed=new Set(replacedPartIds);
   return{ok:true,state:{
+    ...state,
     cash:state.cash-price,
     ownedPartIds:state.ownedPartIds.includes(id)?state.ownedPartIds:[...state.ownedPartIds,id],
     build:{...state.build,fittedPartIds:[...state.build.fittedPartIds.filter(fittedId=>!removed.has(fittedId)),part.id]},

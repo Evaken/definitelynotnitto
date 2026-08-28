@@ -1,5 +1,20 @@
 # Changelog
 
+## Stage 4 — Tuning and Dyno
+
+- Enabled the workshop Tune & Dyno department with editable ratios for the
+  selected car's real gear count, final drive, factory reset and calculated
+  redline speed for every gear.
+- Saved and validated tuning in the garage state, migrated older browser saves,
+  and threaded the saved setup into every Race Track session.
+- Added a chassis-dyno graph with horsepower and torque curves, peak output and
+  RPM readouts, plus a previous-run comparison.
+- Made the dyno consume the exact resolved engine curve used by racing, so
+  fitted parts affect both systems without duplicated performance rules.
+- Added completion tests proving gearing changes ET, a poor tune can erase a
+  modified car's advantage, parts change dyno results and invalid saves recover.
+
+
 ## Race sprite transparency fix
 
 - Removed the scene-canvas tint blend that coloured the full rectangular sprite

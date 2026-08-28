@@ -116,6 +116,18 @@ export const TREE = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Player tuning
+// ---------------------------------------------------------------------------
+
+export const TUNING = {
+  gearRatioMin: uncertain(0.55, 'assumed', 'Broad playable range; original editor limits are not yet sourced.'),
+  gearRatioMax: uncertain(4.5, 'assumed', 'Broad playable range; original editor limits are not yet sourced.'),
+  finalDriveMin: uncertain(2.2, 'assumed', 'Broad playable range; original editor limits are not yet sourced.'),
+  finalDriveMax: uncertain(5.5, 'assumed', 'Broad playable range; original editor limits are not yet sourced.'),
+  ratioStep: uncertain(0.001, 'assumed', 'Preserves factory ratios while allowing fine setup changes.'),
+} as const;
+
+// ---------------------------------------------------------------------------
 // Driveline behaviour
 // ---------------------------------------------------------------------------
 
