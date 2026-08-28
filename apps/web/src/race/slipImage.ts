@@ -44,6 +44,7 @@ export function drawSlipImage(
   ctx: CanvasRenderingContext2D,
   slip: TimingSlip,
   carName: string,
+  buildLabel: string,
 ): void {
   ctx.save();
   ctx.scale(SCALE, SCALE);
@@ -100,7 +101,7 @@ export function drawSlipImage(
   ctx.font = `11px ${MONO}`;
   ctx.fillStyle = FADED;
   ctx.textAlign = 'center';
-  ctx.fillText('STOCK — NO PARTS FITTED', WIDTH / 2, HEIGHT - 22);
+  ctx.fillText(buildLabel, WIDTH / 2, HEIGHT - 22);
 
   ctx.restore();
 }
@@ -126,7 +127,11 @@ function solidRule(ctx: CanvasRenderingContext2D, x1: number, x2: number, y: num
 }
 
 /** Renders the slip and hands back a PNG. */
-export function renderSlipToBlob(slip: TimingSlip, carName: string): Promise<Blob> {
+export function renderSlipToBlob(
+  slip: TimingSlip,
+  carName: string,
+  buildLabel: string,
+): Promise<Blob> {
   const canvas = document.createElement('canvas');
   canvas.width = WIDTH * SCALE;
   canvas.height = HEIGHT * SCALE;
@@ -134,7 +139,7 @@ export function renderSlipToBlob(slip: TimingSlip, carName: string): Promise<Blo
   const ctx = canvas.getContext('2d');
   if (!ctx) return Promise.reject(new Error('Could not get a 2D context'));
 
-  drawSlipImage(ctx, slip, carName);
+  drawSlipImage(ctx, slip, carName, buildLabel);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -152,11 +157,15 @@ export function renderSlipToBlob(slip: TimingSlip, carName: string): Promise<Blo
  * the write.  Passing the promise keeps the call synchronous from its point of
  * view.
  */
-export async function copySlipToClipboard(slip: TimingSlip, carName: string): Promise<void> {
+export async function copySlipToClipboard(
+  slip: TimingSlip,
+  carName: string,
+  buildLabel: string,
+): Promise<void> {
   if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) {
     throw new Error('This browser cannot copy images to the clipboard');
   }
 
-  const item = new ClipboardItem({ 'image/png': renderSlipToBlob(slip, carName) });
+  const item = new ClipboardItem({ 'image/png': renderSlipToBlob(slip, carName, buildLabel) });
   await navigator.clipboard.write([item]);
 }

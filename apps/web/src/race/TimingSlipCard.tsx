@@ -5,6 +5,8 @@ import { copySlipToClipboard } from './slipImage.js';
 interface TimingSlipCardProps {
   slip: TimingSlip;
   carName: string;
+  /** How the car was built for this pass, e.g. "MODIFIED — 3 PARTS FITTED". */
+  buildLabel: string;
 }
 
 type CopyState = 'idle' | 'copied' | 'failed';
@@ -13,7 +15,7 @@ type CopyState = 'idle' | 'copied' | 'failed';
  * The slip handed over at the end of a run, laid out like a real one: printed
  * on paper, splits down the page, elapsed time and speed at the bottom.
  */
-export function TimingSlipCard({ slip, carName }: TimingSlipCardProps) {
+export function TimingSlipCard({ slip, carName, buildLabel }: TimingSlipCardProps) {
   if (slip.incomplete) {
     return (
       <div className="slip">
@@ -30,6 +32,7 @@ export function TimingSlipCard({ slip, carName }: TimingSlipCardProps) {
   return (
     <div className="slip">
       <h3 className="slip__heading">Time Slip</h3>
+      <p className="slip__build">{buildLabel}</p>
       <p className="slip__subheading">{carName} &middot; Quarter Mile</p>
 
       <Row label="R/T" value={slip.reactionTime.toFixed(3)} />
@@ -50,7 +53,7 @@ export function TimingSlipCard({ slip, carName }: TimingSlipCardProps) {
 
       {slip.foul && <div className="slip__foul">Red Light &mdash; Foul</div>}
 
-      <CopySlipButton slip={slip} carName={carName} />
+      <CopySlipButton slip={slip} carName={carName} buildLabel={buildLabel} />
     </div>
   );
 }
@@ -65,7 +68,7 @@ const COPY_LABELS: Record<CopyState, string> = {
  * Puts the slip on the clipboard as a picture, so a run can be pasted straight
  * into a chat or a forum post rather than retyped.
  */
-function CopySlipButton({ slip, carName }: TimingSlipCardProps) {
+function CopySlipButton({ slip, carName, buildLabel }: TimingSlipCardProps) {
   const [state, setState] = useState<CopyState>('idle');
   const resetTimer = useRef<number | undefined>(undefined);
 
@@ -75,14 +78,14 @@ function CopySlipButton({ slip, carName }: TimingSlipCardProps) {
 
   const copy = useCallback(async () => {
     try {
-      await copySlipToClipboard(slip, carName);
+      await copySlipToClipboard(slip, carName, buildLabel);
       setState('copied');
     } catch {
       setState('failed');
     }
     window.clearTimeout(resetTimer.current);
     resetTimer.current = window.setTimeout(() => setState('idle'), 2200);
-  }, [slip, carName]);
+  }, [slip, carName, buildLabel]);
 
   return (
     <button

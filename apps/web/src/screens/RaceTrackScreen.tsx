@@ -24,7 +24,30 @@ const PROMPTS: Record<RacePhase, string> = {
   finished: 'Run complete. Press R, or Run Again, to go back to the line.',
 };
 
-export function RaceTrackScreen({ car, modified = false, initialHistory = [], onHistoryChange }: { car: Car; modified?: boolean; initialHistory?:readonly TimingSlip[]; onHistoryChange?:(history:readonly TimingSlip[])=>void }) {
+export function RaceTrackScreen({
+  car,
+  fittedPartCount = 0,
+  initialHistory = [],
+  onHistoryChange,
+}: {
+  car: Car;
+  fittedPartCount?: number;
+  initialHistory?: readonly TimingSlip[];
+  onHistoryChange?: (history: readonly TimingSlip[]) => void;
+}) {
+  /**
+   * One source for the heading and for the slip.
+   *
+   * They used to disagree: the heading read the build, while the slip had
+   * "STOCK — NO PARTS FITTED" painted into the image with nothing threaded
+   * through to contradict it. A modified car handed out a slip claiming it was
+   * standard, and the slip is the thing players share.
+   */
+  const modified = fittedPartCount > 0;
+  const buildLabel = modified
+    ? `MODIFIED — ${fittedPartCount} PART${fittedPartCount === 1 ? '' : 'S'} FITTED`
+    : 'STOCK — NO PARTS FITTED';
+
   // Memoised so the session is not torn down and restarted on every render.
   const tune = useMemo(() => stockTune(car), [car]);
 
@@ -110,7 +133,11 @@ export function RaceTrackScreen({ car, modified = false, initialHistory = [], on
           <section className="panel">
             <h3 className="panel__heading">Result</h3>
             <div className="panel__body">
-              <TimingSlipCard slip={snapshot.slip} carName={car.displayName} />
+              <TimingSlipCard
+                slip={snapshot.slip}
+                carName={car.displayName}
+                buildLabel={buildLabel}
+              />
             </div>
           </section>
         )}

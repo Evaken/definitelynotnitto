@@ -18,13 +18,28 @@ export function GarageScreen({state,car,history,message,onFit,onRemove}:{state:G
   for(let rpm=car.engine.idleRpm;rpm<=car.engine.redlineRpm;rpm+=100)peakHp=Math.max(peakHp,kwToHp(powerKwAtRpm(car.engine.curve,rpm)));
   const torque=peakTorque(car.engine.curve);
 
+  /**
+   * Open Vehicle Setup on a system the player owns something in.
+   *
+   * It always opened on Intake, so a player who had bought only a turbo landed
+   * on a tab reading "0 owned" and reasonably concluded nothing had been fitted.
+   */
+  const openSetup=()=>{
+    for(const item of WORKSHOP_GROUPS){
+      if('lockedStage' in item)continue;
+      const ownedHere=partsForGroup(partList(),item.id).filter(part=>state.ownedPartIds.includes(part.id));
+      if(ownedHere.length){setGroup(item.id);setCategory(ownedHere[0]!.category);setSelectedId('');break;}
+    }
+    setView('setup');
+  };
+
   if(view==='overview')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash}>
     <section className="garage-overview">
       <header><span>Your Garage</span><h2>Select your ride</h2><p>Choose a vehicle to race or enter Vehicle Setup.</p></header>
       <article className="garage-ride-card">
         <div className="garage-ride-card__title"><span>Honda</span><strong>Civic <i>Si</i></strong></div>
         <div className="garage-ride-card__body">
-          <button type="button" className="vehicle-setup-button" onClick={()=>setView('setup')}>Vehicle Setup</button>
+          <button type="button" className="vehicle-setup-button" onClick={openSetup}>Vehicle Setup</button>
           <CarBay title={`${car.year} ${car.displayName}`} subtitle={`${car.engine.code} · ${state.build.fittedPartIds.length} upgrades installed`} badge=""/>
         </div>
         <dl className="garage-records">
@@ -52,10 +67,10 @@ export function GarageScreen({state,car,history,message,onFit,onRemove}:{state:G
         <dl className="workshop-stats"><div><dt>Power</dt><dd>{Math.round(peakHp)}<small> hp</small></dd></div><div><dt>Torque</dt><dd>{Math.round(torque.torqueNm)}<small> Nm</small></dd></div><div><dt>Weight</dt><dd>{Math.round(car.chassis.massKg)}<small> kg</small></dd></div><div><dt>Grip</dt><dd>{car.tyres.peakGrip.toFixed(2)}<small> μ</small></dd></div></dl>
       </div>
       <section className="workshop__inventory garage-components">
-        <header><span>{categoryLabel(category)}</span><small>{owned.length} owned · {owned.filter(part=>state.build.fittedPartIds.includes(part.id)).length} installed</small></header>
+        <header><span>{categoryLabel(category)}</span><small>{owned.length} owned · {owned.filter(part=>state.build.fittedPartIds.includes(part.id)).length} installed in this system · {state.ownedPartIds.length} owned overall</small></header>
         <div className="garage-component-browser">
           <div className="garage-component-list" role="listbox" aria-label="Owned components">
-            {owned.length===0?<div className="empty-slot"><strong>Factory equipment fitted</strong><span>No aftermarket components are owned for this system. Visit the Speedshop to buy one.</span></div>:owned.map(part=>{
+            {owned.length===0?<div className="empty-slot"><strong>Nothing owned in {categoryLabel(category)}</strong><span>{state.ownedPartIds.length>0?`You own ${state.ownedPartIds.length} part${state.ownedPartIds.length===1?'':'s'} in other systems — pick another tab above.`:'Factory equipment fitted. Visit the Speedshop to buy a component.'}</span></div>:owned.map(part=>{
               const fitted=state.build.fittedPartIds.includes(part.id);
               return <button key={part.id} type="button" role="option" aria-selected={selected?.id===part.id} className={selected?.id===part.id?'active':''} onClick={()=>setSelectedId(part.id)}><span><strong>{part.displayName}</strong><small>{partBrand(part)}</small></span><b className={fitted?'installed':'stored'}>{fitted?'Installed':'Stored'}</b></button>;
             })}
