@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CPU_OPPONENTS, applyPassStress, applyTune, fitPart, playerBeatCpu, purchaseAndFitPart, removePart, repairCar, resolveBuild, runCpuOpponent, settleCpuRace, type CpuDifficulty, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
+import { CPU_OPPONENTS, applyAppearance, applyPassStress, applyTune, buyCar, fitPart, playerBeatCpu, purchaseAndFitPart, removePart, repairCar, resolveBuild, runCpuOpponent, selectCar, settleCpuRace, type CpuDifficulty, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -8,6 +8,7 @@ import { GarageScreen } from './screens/GarageScreen.js';
 import { PartsShopScreen } from './screens/PartsShopScreen.js';
 import { loadWorkshopState,saveWorkshopState } from './workshopSave.js';
 import { MainScreen } from './screens/MainScreen.js';
+import { ShowroomScreen } from './screens/ShowroomScreen.js';
 
 /**
  * The game shell: a bounded canvas with the original's seven tabs.
@@ -47,7 +48,7 @@ export function App() {
     <div className="shell">
       <header className="shell__masthead">
         <h1 className="shell__title">Nitto 1320 Challenge</h1>
-        <span className="shell__stage">Stage 6 &middot; Offline Racing</span>
+        <span className="shell__stage">Stage 8 &middot; Multi-Car Garage</span>
       </header>
 
       <NavBar active={screen} onNavigate={navigate} />
@@ -55,10 +56,10 @@ export function App() {
       <div className="shell__brand" aria-label="Nitto 1320 Challenge">
         <span>NITTO<br/><small>EXTREME PERFORMANCE</small></span>
         <strong>1320 <i>CHALLENGE</i></strong>
-        <em>Version 0.6</em>
+        <em>Version 0.8</em>
       </div>
 
-      {screen==='main'?<MainScreen state={garage} onRace={startCpuRace}/>:screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress} {...(cpuRace?{opponent:cpuRace,onCompleted:completeCpuRace}:{})}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')} onRepair={()=>apply(repairCar(garage),'Repairs complete. Vehicle condition restored.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
+      {screen==='main'?<MainScreen state={garage} onRace={startCpuRace}/>:screen === 'track' ? <RaceTrackScreen car={car} tune={garage.tune} appearance={garage.appearance} fittedPartCount={garage.build.fittedPartIds.length} initialHistory={raceHistory} onHistoryChange={updateRaceHistory} onPassStress={recordStress} {...(cpuRace?{opponent:cpuRace,onCompleted:completeCpuRace}:{})}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} message={shopMessage} onVisitShop={()=>setScreen('parts')} onFit={id=>apply(fitPart(garage,id),'Component installed.')} onRemove={id=>apply(removePart(garage,id),'Component moved to storage.')} onTune={tune=>apply(applyTune(garage,tune),'Transmission setup saved.')} onRepair={()=>apply(repairCar(garage),'Repairs complete. Vehicle condition restored.')} onAppearance={appearance=>apply(applyAppearance(garage,appearance),'Appearance saved.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>:screen==='showroom'?<ShowroomScreen state={garage} message={shopMessage} onBuy={id=>apply(buyCar(garage,id),'Vehicle purchased and delivered to your garage.')} onSelect={id=>apply(selectCar(garage,id),'Selected vehicle changed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

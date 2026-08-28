@@ -1,5 +1,6 @@
 import type { Car } from '../../types/car.js';
 import { CIVIC_SI } from './civic-si.js';
+import { CORE_ROSTER } from './roster.js';
 
 /**
  * Every car in the game, by id.
@@ -7,7 +8,7 @@ import { CIVIC_SI } from './civic-si.js';
  * Stage 1 ships the Civic Si alone.  The rest of the roster arrives in Stage 7,
  * and adding one should mean adding a file here and nothing else.
  */
-export const CARS: ReadonlyMap<string, Car> = new Map([[CIVIC_SI.id, CIVIC_SI]]);
+export const CARS: ReadonlyMap<string, Car> = new Map([CIVIC_SI,...CORE_ROSTER].map(car=>[car.id,car]));
 
 export function getCar(id: string): Car {
   const car = CARS.get(id);
@@ -16,3 +17,4 @@ export function getCar(id: string): Car {
 }
 
 export { CIVIC_SI };
+export { CORE_ROSTER };

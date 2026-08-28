@@ -465,6 +465,19 @@ charged for parts, but it does not recover the historical prices used here.
 
 ---
 
+### Core roster vehicle data and customisation — `mixed`
+
+The ten model names and the existence of per-car paint, wheel and ride-height
+customisation come from the project research/specification. Their present mass,
+curves, gearing, grip, prices and upgrade compatibility are real-world-inspired
+or assumed values rather than extracted Challenge server data. Each definition
+is isolated as car data so Stage 15 can replace it without simulator branches.
+
+The surviving paint-shop reference supports separately controlled color zones.
+This implementation keeps body and graphics colors independent in layered path
+art. Exact slider ranges, wheel catalog and ride-height limits are clean-room
+choices pending stronger evidence.
+
 ### CPU opponents and offline economy — `assumed`
 
 The specification establishes easy, medium and hard CPU drivers, prize money

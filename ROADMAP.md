@@ -3,7 +3,7 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 6 complete. Stage 7 is next. The Offline Alpha milestone is playable.**
+**Current stage: Stage 8 complete. Stage 9 is next. The Garage Alpha milestone is playable.**
 
 Stage 1 is complete, the race view has been rebuilt around a chase camera, and
 the starter car has been corrected from an EP3 to the EK B16 the original
@@ -284,6 +284,40 @@ Completion criteria met:
 - [x] Parts, tuning, dyno, nitrous, damage and repair form one progression loop.
 - [x] Race record and account activity persist with the offline profile.
 
+### Stage 7 — Car Showroom and Core Vehicle Roster
+
+- The full ten-car normal roster is structured data: Civic Si, RSX Type-S,
+  Lancer Evolution VII, Supra Twin Turbo, Mustang SVT Cobra, Skyline GT-R,
+  Neon SRT-4, RX-8, NSX and Viper SRT-10.
+- Every car declares its own mass, curve, RPM range, gearbox, final drive,
+  drivetrain, grip, aero and price. Roster tests run the first four through the
+  simulator and prove distinct elapsed times.
+- Car Showroom is a complete browse/spec/purchase flow with horizontal roster,
+  ownership state, balance validation and garage selection.
+- Each owned car retains its own fitted build, stored parts, tune, condition and
+  appearance when another car is selected. Universal clean-room parts make the
+  whole normal roster upgradeable while per-car catalog data remains unknown.
+- Non-Civic race rendering uses the existing data-driven path artwork seam; no
+  physics or simulation branch checks a car id.
+
+### Stage 8 — Visual Customisation
+
+- Paint Shop is enabled with body hue, saturation, brightness, graphics hue,
+  four wheel designs and adjustable ride height.
+- Appearance is persistent per owned car, visible in the workshop and used by
+  the strip renderer. Factory Civic art remains untouched; a customised Civic
+  or other model uses layered path artwork whose body and graphic zones recolor
+  independently without multiplying full-car raster assets.
+- Cosmetics are isolated from build and vehicle performance and cost no money
+  until historical pricing evidence exists.
+
+Completion criteria met:
+
+- [x] Ten normal cars can be bought, selected, upgraded, tuned and raced.
+- [x] The first four cars produce measurably distinct passes.
+- [x] Simulator logic contains no Civic-specific performance branch.
+- [x] Two copies of a model can be visually distinct without separate renders.
+
 ---
 
 ## All sixteen stages
@@ -307,9 +341,9 @@ Stage 3 is yours.
 | ✅ | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
 | ✅ | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
 | ✅ | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
-| ▶️ | **7 — Car Showroom and Roster** | **The other nine cars, proving the sim is truly data-driven** |
-| | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
-| | 9 — Accounts and Persistent Profiles | Login, persistent garage, server-authoritative economy |
+| ✅ | 7 — Car Showroom and Roster | The other nine cars, proving the sim is truly data-driven |
+| ✅ | 8 — Visual Customisation | Paint, wheels, ride height, layered 2D rendering |
+| ▶️ | **9 — Accounts and Persistent Profiles** | **Login, persistent garage, server-authoritative economy** |
 | | 10 — Asynchronous Challenges | The defining feature: race someone who is not online |
 | | 11 — Heads-Up, Bracket, Wagers | Dial-ins, breakouts, escrowed cash |
 | | 12 — Teams | Create, join, team funds, team races |

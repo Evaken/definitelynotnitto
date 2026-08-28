@@ -1,6 +1,5 @@
 import type { Part, PartCategory, PartEffects } from '../../types/part.js';
-const note='Assumed progression value; historical calibration is Stage 15.';const civic=['civic-si'] as const;
-const p=(id:string,displayName:string,category:PartCategory,price:number,effects:PartEffects,requires:readonly string[]=[],exclusionGroups:readonly string[]=[]):Part=>({id,displayName,category,price,compatibleCarIds:civic,requires,exclusionGroups,effects,calibrationNote:note});
+const note='Assumed progression value; historical calibration is Stage 15.';const p=(id:string,displayName:string,category:PartCategory,price:number,effects:PartEffects,requires:readonly string[]=[],exclusionGroups:readonly string[]=[]):Part=>({id,displayName,category,price,compatibleCarIds:[],requires,exclusionGroups,effects,calibrationNote:note});
 const catalog:readonly Part[]=[
 p('panel-filter','High-Flow Panel Filter','intake',180,{torqueMultiplier:1.008},[],['intake-path']),p('cold-air-intake','Cold-Air Intake','intake',520,{torqueMultiplier:1.022},['panel-filter'],['intake-path']),p('short-ram-intake','Short-Ram Intake','intake',390,{torqueMultiplier:1.016},[],['intake-path']),
 p('sports-muffler','Sports Muffler','exhaust',360,{torqueMultiplier:1.012}),p('cat-back','Cat-Back Exhaust','exhaust',780,{torqueMultiplier:1.025},['sports-muffler']),p('race-header','4-2-1 Race Header','exhaust',950,{torqueMultiplier:1.032},['cat-back']),

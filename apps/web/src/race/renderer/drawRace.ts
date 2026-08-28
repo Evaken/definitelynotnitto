@@ -1,4 +1,4 @@
-import { TRACK_MARKS, stagingZoneStart, type PassState } from '@nitto/game-core';
+import { TRACK_MARKS, stagingZoneStart, type Appearance, type PassState } from '@nitto/game-core';
 import {
   BOARD_LEFT,
   BOARD_RIGHT,
@@ -12,7 +12,7 @@ import {
 } from './layout.js';
 import { cameraPosition, isVisible, project, roadHalfWidth } from './projection.js';
 import { drawRoad, drawRoadside, drawSky } from './road.js';
-import { CIVIC_RACE_ART, DEFAULT_PAINT, suspensionMotion } from './carSprite.js';
+import { CIVIC_RACE_ART, DEFAULT_PAINT, PLACEHOLDER_CAR, suspensionMotion } from './carSprite.js';
 import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
 import { drawCluster } from './cluster.js';
 import { drawBoards, drawStagingBar } from './boards.js';
@@ -30,7 +30,7 @@ import { drawBoardBezel, drawDashCowl, drawSidePanels } from './chrome.js';
  * component tree being involved (PROJECT_SPEC 6.1) -- and keeping the whole view
  * behind this one function is what made swapping the camera affordable at all.
  */
-export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void {
+export function drawRace(ctx: CanvasRenderingContext2D, state: PassState,appearance?:Appearance): void {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.fillStyle = COLORS.frame;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -45,7 +45,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   drawStagingLines(ctx, cameraM);
   drawDistanceMarks(ctx, cameraM);
   drawChristmasTree(ctx, state, cameraM);
-  drawPlayerCar(ctx, state);
+  drawPlayerCar(ctx, state,appearance);
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);
 
@@ -66,7 +66,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState): void 
   drawGraphicSettings(ctx);
 }
 
-function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
+function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState,appearance?:Appearance): void {
   const shaken = state.wheelspin || state.wheelsLocked;
   const ride = suspensionMotion(state.positionM, state.speedMs, shaken);
 
@@ -75,11 +75,14 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState): void {
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
   ctx.clip();
 
-  CIVIC_RACE_ART.drawRear(ctx, {
+  const customised=appearance&&(appearance.hue!==48||appearance.saturation!==78||appearance.brightness!==88||appearance.graphicsHue!==195||appearance.rideHeight!==0||appearance.wheelStyle!==0);
+  const artwork=state.car.id==='civic-si'&&!customised?CIVIC_RACE_ART:PLACEHOLDER_CAR;
+  const paint=appearance?{body:`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(20,Math.min(75,appearance.brightness*.58))}%)`,graphics:`hsl(${appearance.graphicsHue} 80% 55%)`,glass:'#182733'}:DEFAULT_PAINT;
+  artwork.drawRear(ctx, {
     laneOffsetM: -LANE_OFFSET_M,
     z: CAR_Z,
-    paint: DEFAULT_PAINT,
-    bounceM: ride.bounceM,
+    paint,
+    bounceM: ride.bounceM-(appearance?.rideHeight??0)/1000,
     // Acceleration squats the tail; the surface works the body on top of that.
     pitch: Math.max(-0.03, Math.min(0.03, -state.accelMs2 * 0.0035)) + ride.pitchWobble,
     braking: state.prevInput.brake,

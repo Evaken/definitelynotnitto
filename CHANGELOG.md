@@ -1,5 +1,20 @@
 # Changelog
 
+## Stages 7–8 — Multi-car garage and customisation
+
+- Added the complete ten-car normal roster with individual engine, gearbox,
+  chassis, tyre, drivetrain, aero and price data.
+- Built the Car Showroom browse, spec, purchase and select flow plus per-car
+  retention of build, parts, tune, damage and appearance.
+- Enabled the Paint Shop with body/graphics controls, brightness, saturation,
+  wheel designs and ride height, persisted independently for every owned car.
+- Threaded custom appearance into workshop and strip artwork using layered
+  code-native rendering for recolorable cars while preserving the clean factory
+  Civic bitmap.
+- Added tests for roster completeness, distinct performance, vehicle ownership,
+  state-preserving selection and performance-neutral cosmetics.
+
+
 ## Stage 6 — CPU Racing and Economy
 
 - Replaced the Main placeholder with an offline race lobby, member summary and

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { lastRunWasBestEt, type Car, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
+import { lastRunWasBestEt, type Appearance, type Car, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
@@ -33,6 +33,7 @@ export function RaceTrackScreen({
   onPassStress,
   opponent,
   onCompleted,
+  appearance,
 }: {
   car: Car;
   tune: Tune;
@@ -42,6 +43,7 @@ export function RaceTrackScreen({
   onPassStress?:(stress:number)=>void;
   opponent?:{name:string;difficulty:string;slip:TimingSlip;settled:boolean;won?:boolean};
   onCompleted?:(slip:TimingSlip)=>void;
+  appearance?:Appearance;
 }) {
   /**
    * One source for the heading and for the slip.
@@ -66,7 +68,7 @@ export function RaceTrackScreen({
     setThrottle,
     releaseThrottle,
     setNitrous,
-  } = useRaceSession(car, tune, initialHistory,onPassStress,onCompleted);
+  } = useRaceSession(car, tune, initialHistory,onPassStress,onCompleted,appearance);
 
   useEffect(()=>{onHistoryChange?.(history);},[history,onHistoryChange]);
 

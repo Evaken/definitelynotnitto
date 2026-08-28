@@ -1,5 +1,5 @@
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
-import type { Part, PartCategory } from '@nitto/game-core';
+import type { Appearance, Part, PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 
 export const WORKSHOP_GROUPS = [
@@ -41,14 +41,15 @@ export function edgeScroll(event:ReactPointerEvent<HTMLElement>):void{
   if(velocity)target.scrollLeft+=velocity;
 }
 
-export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false, activeDepartment='modifications', onDepartmentChange }: {
+export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false, activeDepartment='modifications', onDepartmentChange, carLabel='Honda Civic Si Hatchback' }: {
   cash: number;
   children: ReactNode;
   showDepartments?: boolean;
   onBack?: () => void;
   shop?: boolean;
-  activeDepartment?:'modifications'|'tune'|'maintenance';
-  onDepartmentChange?:(department:'modifications'|'tune'|'maintenance')=>void;
+  activeDepartment?:'modifications'|'tune'|'paint'|'maintenance';
+  onDepartmentChange?:(department:'modifications'|'tune'|'paint'|'maintenance')=>void;
+  carLabel?:string;
 }) {
   const audio=useWorkshopAudio();
   const playButton=(event:ReactPointerEvent<HTMLDivElement>)=>{
@@ -67,13 +68,13 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
         {showDepartments && <nav className="workshop__modes" aria-label="Garage departments">
           <button className={`workshop-tab${activeDepartment==='modifications'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('modifications')}>Modifications</button>
           <button className={`workshop-tab${activeDepartment==='tune'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('tune')}>Tune &amp; Dyno</button>
-          <button className="workshop-tab" type="button" disabled title="Stage 8">Paint Shop <small>Stage 8</small></button>
+          <button className={`workshop-tab${activeDepartment==='paint'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('paint')}>Paint Shop</button>
           <button className={`workshop-tab${activeDepartment==='maintenance'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('maintenance')}>Maintenance</button>
         </nav>}
       </div>}
       {children}
       <footer className="workshop-status">
-        <div><span>Selected car</span><strong>Honda Civic Si Hatchback</strong></div>
+        <div><span>Selected car</span><strong>{carLabel}</strong></div>
         <div><span>Account</span><strong>${cash.toLocaleString()}</strong></div>
         <div><span>Challenges</span><strong>Offline · Stage 6</strong></div>
       </footer>
@@ -111,7 +112,7 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   </div>;
 }
 
-export function CarBay({ title, subtitle, badge, highlight, fittedParts=[] }: { title: string; subtitle: string; badge: string; highlight?: WorkshopGroupId; fittedParts?:readonly Part[] }) {
+export function CarBay({ title, subtitle, badge, highlight, fittedParts=[],appearance }: { title: string; subtitle: string; badge: string; highlight?: WorkshopGroupId; fittedParts?:readonly Part[];appearance?:Appearance }) {
   const fitted=new Set(fittedParts.map(part=>part.category));
   const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`)).join(' ');
   return (
@@ -120,7 +121,8 @@ export function CarBay({ title, subtitle, badge, highlight, fittedParts=[] }: { 
       <div className="car-bay__sweep" />
       <div className="car-bay__badge">{badge}</div>
       <div className="garage-car-art">
-        <img src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.webp`} alt="" draggable={false}/>
+        <img className={`wheel-style-${appearance?.wheelStyle??0}`} style={appearance?{filter:`drop-shadow(0 18px 13px rgba(0,0,0,.8)) hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`,transform:`scale(1.3) translateY(${appearance.rideHeight/5-2}px)`}:undefined} src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.webp`} alt="" draggable={false}/>
+        {appearance&&appearance.wheelStyle>0&&<span className={`appearance-wheels appearance-wheels--${appearance.wheelStyle}`} style={{transform:`translateY(${appearance.rideHeight/5}px)`}}><i/><i/></span>}
         <span className="garage-car-art__mod garage-car-art__mod--intercooler" />
         <span className="garage-car-art__mod garage-car-art__mod--exhaust" />
         <span className="garage-car-art__mod garage-car-art__mod--wheels" />

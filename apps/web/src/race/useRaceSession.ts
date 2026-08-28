@@ -15,6 +15,7 @@ import {
   springThrottleClosed,
   stepPass,
   type Car,
+  type Appearance,
   type PassState,
   type RacePhase,
   type RaceInput,
@@ -109,7 +110,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
   };
 }
 
-export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void,onCompleted?:(slip:TimingSlip)=>void) {
+export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = [],onPassStress?:(stress:number)=>void,onCompleted?:(slip:TimingSlip)=>void,appearance?:Appearance) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<PassState>(createPassState(car, tune, 1));
   const recorderRef = useRef<TimelineRecorder>(new TimelineRecorder(1));
@@ -295,7 +296,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
         setThrottleState(shown);
       }
 
-      drawRace(ctx, state);
+      drawRace(ctx, state,appearance);
 
       const justFinished = isRunComplete(state) && !finishHandled;
       if (justFinished) {
@@ -344,7 +345,7 @@ export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly Tim
       observer.disconnect();
       detach();
     };
-  }, [car, tune, startPass]);
+  }, [appearance,car, tune, startPass]);
 
   const clearHistory = useCallback(() => setHistory([]), []);
 

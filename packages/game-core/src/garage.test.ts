@@ -7,7 +7,7 @@ import { createPassState } from './sim/pass.js';
 
 function succeed<T extends { ok:boolean }>(result:T):Extract<T,{ok:true}>{expect(result.ok).toBe(true);return result as Extract<T,{ok:true}>;}
 describe('Stage 3 garage',()=>{
-  it('contains 25-40 unique Civic parts',()=>{const parts=partList();expect(parts.length).toBeGreaterThanOrEqual(25);expect(parts.length).toBeLessThanOrEqual(40);expect(new Set(parts.map(p=>p.id)).size).toBe(parts.length);expect(parts.every(p=>p.compatibleCarIds.includes('civic-si'))).toBe(true);});
+  it('contains 25-40 unique universal upgrade parts',()=>{const parts=partList();expect(parts.length).toBeGreaterThanOrEqual(25);expect(parts.length).toBeLessThanOrEqual(40);expect(new Set(parts.map(p=>p.id)).size).toBe(parts.length);expect(parts.every(p=>p.compatibleCarIds.length===0)).toBe(true);});
   it('charges for, fits, and removes a part',()=>{let state=createGarageState();state=succeed(buyPart(state,'panel-filter')).state;expect(state.cash).toBe(9820);state=succeed(fitPart(state,'panel-filter')).state;expect(state.build.fittedPartIds).toContain('panel-filter');state=succeed(removePart(state,'panel-filter')).state;expect(state.build.fittedPartIds).not.toContain('panel-filter');});
   it('enforces ownership, requirements, and exclusions',()=>{
     let state=createGarageState('civic-si',20_000);

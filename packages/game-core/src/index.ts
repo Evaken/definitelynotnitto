@@ -54,10 +54,10 @@ export {
 } from './config/historical.js';
 
 // Data
-export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
+export { CARS, CIVIC_SI, CORE_ROSTER, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
-export type { CpuDifficulty, GarageResult, GarageState, PlayerRecord, PurchaseInstallPlan, PurchaseInstallPreview, Transaction } from './garage.js';
-export { CPU_PRIZES, applyPassStress, applyTune, buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, settleCpuRace } from './garage.js';
+export type { Appearance, CpuDifficulty, GarageResult, GarageState, OwnedCarState, PlayerRecord, PurchaseInstallPlan, PurchaseInstallPreview, Transaction } from './garage.js';
+export { CPU_PRIZES, applyAppearance, applyPassStress, applyTune, buyCar, buyPart, canFit, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, selectCar, settleCpuRace, stockAppearance } from './garage.js';
 
 // Simulation
 export {
