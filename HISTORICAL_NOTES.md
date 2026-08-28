@@ -351,9 +351,36 @@ Two things the correction taught us, both recorded there in full:
   enough that the revs barely fall on a change. Short-shifting now costs far
   more, but where to shift is unchanged.
 
-### Economy — not yet implemented
+### Garage and Speedshop hierarchy — `sourced`
 
-No prices beyond a placeholder showroom figure on the Civic. Stage 3 onwards.
+Source: [Nitto 1320 Challenge - Overview](https://www.youtube.com/watch?v=ujP5a1VzF7w),
+showing client Version 1.53. Relevant frames occur from 3:31 through 4:43.
+
+The footage settles several layout and interaction questions that earlier stills
+could not:
+
+- Garage opens on a selected-car overview with Vehicle Setup, average ET and
+  bracket/best ET rather than directly inside an inventory.
+- Vehicle Setup has Back, Modifications, Tune and Dyno, Paint Shop and
+  Maintenance departments. Modifications place a translucent mechanical car
+  behind category-specific installed-part rows.
+- Speedshop categories are large illustrated cards in a horizontal strip.
+  Selecting one opens a distinct product-card screen with brand, product image
+  and price, rather than expanding a list in place.
+- Purchasing conflicting hardware opens a blue-and-gold replacement dialog that
+  names the old part and offers Cancel or Proceed.
+- A narrow status rail showing selected car and account/challenge state remains
+  visible along the bottom of these screens.
+
+The present recreation follows that hierarchy. Category art remains schematic
+until Stage 8 supplies the real car-art pipeline; Tune, Maintenance, Paint and
+Nitrous functionality remain in their scheduled stages.
+
+### Economy — Stage 3 provisional
+
+Stage 3 now has a $10,000 session balance and provisional Civic part prices.
+The source footage confirms that the original displayed an account balance and
+charged for parts, but it does not recover the historical prices used here.
 
 ---
 

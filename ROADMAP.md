@@ -170,15 +170,21 @@ fair game.
 
 ## Stage 3 — Garage and Parts Shop
 
-- The garage now uses a layered workshop flow modelled on surviving footage:
-  department tabs, clickable modification families, a persistent car bay and a
-  component list rather than a flat utility page.
-- The Parts Shop uses the same workshop language and lets the player select a
-  component, inspect its requirements and price, buy it, then install it.
+- The garage now follows the recovered Version 1.53 hierarchy: selected-car
+  overview, Vehicle Setup, department tabs, modification systems and installed
+  component rows over a schematic car.
+- Session average ET, best ET and completed runs appear on the selected car and
+  survive navigation away from the Race Track until the build changes.
+- The Speedshop opens on illustrated department cards, then drills into branded
+  product cards with price, requirements and effect information.
+- Purchase and installation are one confirmed transaction. A conflicting part
+  opens a replacement dialog listing every component that will be removed; the
+  entire change succeeds or fails atomically in game-core.
 - Tune and Dyno, Paint Shop and Maintenance are visible as locked departments so
   the workshop feels like a larger game without implementing later stages early.
-- Garage stats update from the resolved build and fitted components can be
-  inspected and removed by modification family.
+- Nitrous is visible as a locked Speedshop department until Stage 5.
+- A persistent bottom rail carries the selected car, cash and challenge status
+  across the Garage and Speedshop flows.
 
 ---
 

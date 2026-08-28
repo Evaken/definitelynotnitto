@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestRuns, lastRunWasBestEt, noRuns } from './records.js';
+import { averageQuarterMileEt, bestRuns, lastRunWasBestEt, noRuns } from './records.js';
 import type { TimingSlip } from '../types/sim.js';
 
 function slip(over: Partial<TimingSlip> = {}): TimingSlip {
@@ -102,5 +102,15 @@ describe('telling the player they just did something', () => {
   it('says nothing about an empty session or an unfinished run', () => {
     expect(lastRunWasBestEt([])).toBe(false);
     expect(lastRunWasBestEt([slip({ incomplete: true })])).toBe(false);
+  });
+});
+
+describe('garage record summary',()=>{
+  it('averages completed passes and ignores incomplete attempts',()=>{
+    expect(averageQuarterMileEt([slip({quarterMileEt:15}),slip({quarterMileEt:17}),slip({quarterMileEt:1,incomplete:true})])).toBe(16);
+  });
+  it('has no average before a completed pass',()=>{
+    expect(averageQuarterMileEt([])).toBeNull();
+    expect(averageQuarterMileEt([slip({incomplete:true})])).toBeNull();
   });
 });

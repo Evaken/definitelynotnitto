@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { buyPart, createGarageState, fitPart, removePart, resolveBuild, type GarageState } from '@nitto/game-core';
+import { useCallback, useMemo, useState } from 'react';
+import { createGarageState, purchaseAndFitPart, removePart, resolveBuild, type GarageResult, type GarageState, type TimingSlip } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -27,9 +27,11 @@ const PLACEHOLDER_SUMMARIES: Partial<Record<ScreenId, string>> = {
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('track');
   const [garage,setGarage]=useState<GarageState>(()=>createGarageState());
+  const [raceHistory,setRaceHistory]=useState<readonly TimingSlip[]>([]);
   const [shopMessage,setShopMessage]=useState('');
   const car=useMemo(()=>resolveBuild(garage.build),[garage.build]);
-  const apply=(result:ReturnType<typeof buyPart>,success:string)=>{if(result.ok){setGarage(result.state);setShopMessage(success);}else setShopMessage(result.reason);};
+  const apply=(result:GarageResult,success:string)=>{if(result.ok){setGarage(result.state);setRaceHistory([]);setShopMessage(success);}else setShopMessage(result.reason);};
+  const updateRaceHistory=useCallback((history:readonly TimingSlip[])=>setRaceHistory(history),[]);
 
   return (
     <div className="shell">
@@ -40,7 +42,7 @@ export function App() {
 
       <NavBar active={screen} onNavigate={setScreen} />
 
-      {screen === 'track' ? <RaceTrackScreen car={car} modified={garage.build.fittedPartIds.length>0}/>:screen==='garage'?<GarageScreen state={garage} car={car} onRemove={id=>apply(removePart(garage,id),'Part removed.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onBuy={id=>apply(buyPart(garage,id),'Part purchased.')} onFit={id=>apply(fitPart(garage,id),'Part installed.')}/>: (
+      {screen === 'track' ? <RaceTrackScreen car={car} modified={garage.build.fittedPartIds.length>0} initialHistory={raceHistory} onHistoryChange={updateRaceHistory}/>:screen==='garage'?<GarageScreen state={garage} car={car} history={raceHistory} onRemove={id=>apply(removePart(garage,id),'Part removed.')}/>:screen==='parts'?<PartsShopScreen state={garage} message={shopMessage} onPurchaseAndFit={id=>apply(purchaseAndFitPart(garage,id),'Purchase complete. Component installed.')}/>: (
         <PlaceholderScreen screen={screen} summary={PLACEHOLDER_SUMMARIES[screen] ?? ''} />
       )}
     </div>

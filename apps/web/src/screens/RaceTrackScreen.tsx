@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { lastRunWasBestEt, stockTune, type Car, type RacePhase } from '@nitto/game-core';
+import { useEffect, useMemo } from 'react';
+import { lastRunWasBestEt, stockTune, type Car, type RacePhase, type TimingSlip } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
@@ -24,7 +24,7 @@ const PROMPTS: Record<RacePhase, string> = {
   finished: 'Run complete. Press R, or Run Again, to go back to the line.',
 };
 
-export function RaceTrackScreen({ car, modified = false }: { car: Car; modified?: boolean }) {
+export function RaceTrackScreen({ car, modified = false, initialHistory = [], onHistoryChange }: { car: Car; modified?: boolean; initialHistory?:readonly TimingSlip[]; onHistoryChange?:(history:readonly TimingSlip[])=>void }) {
   // Memoised so the session is not torn down and restarted on every render.
   const tune = useMemo(() => stockTune(car), [car]);
 
@@ -37,7 +37,9 @@ export function RaceTrackScreen({ car, modified = false }: { car: Car; modified?
     throttle,
     setThrottle,
     releaseThrottle,
-  } = useRaceSession(car, tune);
+  } = useRaceSession(car, tune, initialHistory);
+
+  useEffect(()=>{onHistoryChange?.(history);},[history,onHistoryChange]);
 
   const runComplete = snapshot.slip !== null;
   const newBest = runComplete && lastRunWasBestEt(history);

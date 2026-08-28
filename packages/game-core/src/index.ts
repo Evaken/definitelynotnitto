@@ -51,8 +51,8 @@ export {
 // Data
 export { CARS, CIVIC_SI, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
-export type { GarageResult, GarageState } from './garage.js';
-export { buyPart, canFit, createGarageState, fitPart, partList, removePart, resolveBuild } from './garage.js';
+export type { GarageResult, GarageState, PurchaseInstallPlan, PurchaseInstallPreview } from './garage.js';
+export { buyPart, canFit, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
 
 // Simulation
 export {
@@ -67,7 +67,7 @@ export {
 } from './sim/pass.js';
 export { buildTimingSlip } from './sim/timing.js';
 export type { BestRuns } from './sim/records.js';
-export { bestRuns, lastRunWasBestEt, noRuns } from './sim/records.js';
+export { averageQuarterMileEt, bestRuns, lastRunWasBestEt, noRuns } from './sim/records.js';
 export { quantiseThrottle, springThrottleClosed } from './sim/throttle.js';
 export { optimalShiftRpm, shouldShiftUp } from './sim/shift.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';

@@ -75,3 +75,9 @@ export function lastRunWasBestEt(slips: readonly TimingSlip[]): boolean {
   const best = bestRuns(slips).quarterMileEt;
   return best === slips.length - 1;
 }
+
+/** Mean quarter-mile ET of completed passes, or null before the first finish. */
+export function averageQuarterMileEt(slips:readonly TimingSlip[]):number|null{
+  const completed=slips.filter(slip=>!slip.incomplete);
+  return completed.length?completed.reduce((sum,slip)=>sum+slip.quarterMileEt,0)/completed.length:null;
+}

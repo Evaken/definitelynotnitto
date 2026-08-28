@@ -1,36 +1,60 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getPart, partList, type GarageState } from '@nitto/game-core';
-import { CarBay, partsForGroup, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
+import { useMemo, useState } from 'react';
+import { getPart, partList, previewPurchaseAndFit, type GarageState, type PurchaseInstallPlan } from '@nitto/game-core';
+import { CategoryArtwork, CategoryCarousel, partBrand, partsForGroup, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 
-export function PartsShopScreen({state,message,onBuy,onFit}:{state:GarageState;message:string;onBuy:(id:string)=>void;onFit:(id:string)=>void}){
- const [group,setGroup]=useState<WorkshopGroupId>('engine');
- const parts=useMemo(()=>partsForGroup(partList(),group),[group]);
- const [selectedId,setSelectedId]=useState(parts[0]?.id??'');
- useEffect(()=>{setSelectedId(parts[0]?.id??'');},[group,parts]);
- const selected=parts.find(part=>part.id===selectedId)??parts[0];
- const owned=selected ? state.ownedPartIds.includes(selected.id) : false;
- const fitted=selected ? state.build.fittedPartIds.includes(selected.id) : false;
- const requirement=selected?.requires.map(id=>getPart(id).displayName).join(', ');
- return <div className="screen screen--workshop"><WorkshopFrame activeGroup={group} onGroupChange={setGroup} cash={state.cash}>
-   <div className="workshop__stage workshop__stage--shop">
-     <div className="workshop__visual">
-       <CarBay title="Honda Civic Si" subtitle={`${group.replaceAll('-',' ')} components · ${state.build.fittedPartIds.length} total upgrades fitted`} badge="SPEEDSHOP" />
-       {selected&&<article className="part-detail">
-         <span className="part-detail__eyebrow">Selected component</span>
-         <h2>{selected.displayName}</h2>
-         <div className="part-detail__price">${selected.price.toLocaleString()}</div>
-         <p>{requirement?`Installation requires ${requirement}.`:'Direct-fit component for your Civic Si.'}</p>
-         <p className="part-detail__note">{selected.calibrationNote}</p>
-         {!owned?<button className="workshop-action" type="button" onClick={()=>onBuy(selected.id)}>Purchase Component</button>:!fitted?<button className="workshop-action" type="button" onClick={()=>onFit(selected.id)}>Install Component</button>:<div className="installed-banner">Installed on vehicle</div>}
-       </article>}
-     </div>
-     <section className="workshop__inventory workshop__inventory--catalog">
-       <header><span>Available Components</span><small>{parts.length} products</small></header>
-       <div className="catalog-list" role="listbox" aria-label="Available parts">
-         {parts.map(part=>{const isOwned=state.ownedPartIds.includes(part.id),isFitted=state.build.fittedPartIds.includes(part.id);return <button key={part.id} type="button" role="option" aria-selected={part.id===selected?.id} className={`catalog-item${part.id===selected?.id?' catalog-item--selected':''}`} onClick={()=>setSelectedId(part.id)}><span className="catalog-item__icon">{part.category.slice(0,2).toUpperCase()}</span><span><strong>{part.displayName}</strong><small>{part.category.replaceAll('-',' ')}</small></span><span className="catalog-item__price">{isFitted?'FITTED':isOwned?'OWNED':`$${part.price.toLocaleString()}`}</span></button>})}
-       </div>
-       <p className={`workshop-message${message?' workshop-message--active':''}`} aria-live="polite">{message||'Choose a component to view price and fitment information.'}</p>
-     </section>
-   </div>
- </WorkshopFrame></div>;
+export function PartsShopScreen({state,message,onPurchaseAndFit}:{state:GarageState;message:string;onPurchaseAndFit:(id:string)=>void}){
+  const [group,setGroup]=useState<WorkshopGroupId|null>(null);
+  const [selectedId,setSelectedId]=useState('');
+  const [pending,setPending]=useState<PurchaseInstallPlan|null>(null);
+  const [localMessage,setLocalMessage]=useState('');
+  const parts=useMemo(()=>group?partsForGroup(partList(),group):[],[group]);
+  const selected=parts.find(part=>part.id===selectedId)??parts[0];
+
+  const enterGroup=(next:WorkshopGroupId)=>{setGroup(next);const first=partsForGroup(partList(),next)[0];setSelectedId(first?.id??'');setLocalMessage('');};
+  const requestPurchase=()=>{
+    if(!selected)return;
+    const preview=previewPurchaseAndFit(state,selected.id);
+    if(!preview.ok){setLocalMessage(preview.reason);return;}
+    setPending(preview.plan);setLocalMessage('');
+  };
+  const proceed=()=>{if(!pending)return;onPurchaseAndFit(pending.part.id);setPending(null);};
+
+  return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} shop {...(group?{onBack:()=>{setGroup(null);setSelectedId('');setLocalMessage('');}}:{})}>
+    {!group?<section className="speedshop-home">
+      <header className="speedshop-title"><span>1320 Motorsport</span><h2>Speedshop</h2><p>Select a performance department.</p></header>
+      <CategoryCarousel onSelect={enterGroup}/>
+      <div className="speedshop-balance">Account balance <strong>${state.cash.toLocaleString()}</strong></div>
+    </section>:
+    <section className="product-browser">
+      <header className="speedshop-title speedshop-title--compact"><span>Speedshop Department</span><h2>{WORKSHOP_GROUPS.find(item=>item.id===group)?.label}</h2><p>Select a component, review fitment, then purchase and install.</p></header>
+      <div className="product-carousel" role="listbox" aria-label={`${group} products`}>
+        {parts.map(part=>{const isSelected=part.id===selected?.id;const owned=state.ownedPartIds.includes(part.id);const fitted=state.build.fittedPartIds.includes(part.id);return <button key={part.id} type="button" role="option" aria-selected={isSelected} className={`product-card${isSelected?' product-card--active':''}`} onClick={()=>{setSelectedId(part.id);setLocalMessage('');}}>
+          <span className="product-card__price">{fitted?'Fitted':owned?'Owned':`Price: $${part.price.toLocaleString()}`}</span>
+          <strong className="product-card__brand">{partBrand(part)}</strong>
+          <span className="product-card__name">{part.displayName}</span>
+          <CategoryArtwork groupId={group} label={part.displayName}/>
+        </button>})}
+      </div>
+      {selected&&<div className="product-selection">
+        <div><span>Selected component</span><strong>{partBrand(selected)} · {selected.displayName}</strong><small>{selected.requires.length?`Requires ${selected.requires.map(id=>getPart(id).displayName).join(', ')}`:'Direct fit for the selected Civic.'}</small></div>
+        <div className="product-selection__effect">{effectSummary(selected.effects)}</div>
+        <button type="button" className="workshop-action" disabled={state.build.fittedPartIds.includes(selected.id)} onClick={requestPurchase}>{state.build.fittedPartIds.includes(selected.id)?'Installed':state.ownedPartIds.includes(selected.id)?'Install Component':'Purchase & Install'}</button>
+      </div>}
+      <p className={`workshop-message${localMessage||message?' workshop-message--active':''}`} aria-live="polite">{localMessage||message||'Purchases are installed immediately. Conflicting hardware will be shown before you confirm.'}</p>
+    </section>}
+    {pending&&<div className="purchase-overlay" role="presentation"><section className="purchase-dialog" role="dialog" aria-modal="true" aria-labelledby="purchase-title">
+      <header>Part Purchase</header>
+      <div className="purchase-dialog__body"><span className="purchase-dialog__alert" aria-hidden="true">!</span><div><h2 id="purchase-title">{pending.replacedPartIds.length?'Replace part?':'Confirm purchase?'}</h2><p>{pending.price?<>Purchase and install <strong>{pending.part.displayName}</strong> for <strong>${pending.price.toLocaleString()}</strong>?</>:<>Install the owned <strong>{pending.part.displayName}</strong>?</>}</p>{pending.replacedPartIds.length>0&&<div className="purchase-conflicts"><span>Conflicting parts to be removed:</span><ul>{pending.replacedPartIds.map(id=><li key={id}>{getPart(id).displayName}</li>)}</ul></div>}</div></div>
+      <footer><button type="button" onClick={()=>setPending(null)}>Cancel</button><button type="button" className="primary" onClick={proceed}>Proceed</button></footer>
+    </section></div>}
+  </WorkshopFrame></div>;
+}
+
+function effectSummary(effects:{torqueMultiplier?:number;massDeltaKg?:number;tyreGripMultiplier?:number;drivelineEfficiencyDelta?:number}):string{
+  const lines:string[]=[];
+  if(effects.torqueMultiplier)lines.push(`Power +${Math.round((effects.torqueMultiplier-1)*100)}%`);
+  if(effects.massDeltaKg)lines.push(`Weight ${effects.massDeltaKg>0?'+':''}${effects.massDeltaKg} kg`);
+  if(effects.tyreGripMultiplier)lines.push(`Grip +${Math.round((effects.tyreGripMultiplier-1)*100)}%`);
+  if(effects.drivelineEfficiencyDelta)lines.push(`Driveline +${Math.round(effects.drivelineEfficiencyDelta*100)}%`);
+  return lines.join(' · ')||'Supporting hardware';
 }

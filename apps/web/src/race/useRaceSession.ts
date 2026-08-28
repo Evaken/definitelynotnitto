@@ -103,7 +103,7 @@ function snapshotOf(state: PassState, replayVerified: boolean | null): RaceSnaps
   };
 }
 
-export function useRaceSession(car: Car, tune: Tune) {
+export function useRaceSession(car: Car, tune: Tune, initialHistory:readonly TimingSlip[] = []) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<PassState>(createPassState(car, tune, 1));
   const recorderRef = useRef<TimelineRecorder>(new TimelineRecorder(1));
@@ -139,7 +139,7 @@ export function useRaceSession(car: Car, tune: Tune) {
    * garage that outlives the tab; writing to local storage now would be a
    * second, throwaway answer to the same question.
    */
-  const [history, setHistory] = useState<readonly TimingSlip[]>([]);
+  const [history, setHistory] = useState<readonly TimingSlip[]>(initialHistory);
 
   const setThrottle = useCallback((value: number) => {
     draggingRef.current = true;
@@ -170,11 +170,10 @@ export function useRaceSession(car: Car, tune: Tune) {
   }, [car, tune]);
 
   // Restart whenever the car or tune changes, so the screen is never showing a
-  // pass belonging to a different vehicle.
+  // pass belonging to a different vehicle. The owning App retains completed
+  // slips while this screen is unmounted; a build change clears them there.
   useEffect(() => {
     startPass();
-    // The history goes with it: those times belong to the car that set them.
-    setHistory([]);
   }, [startPass]);
 
   useEffect(() => {

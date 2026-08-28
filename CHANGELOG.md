@@ -1,5 +1,18 @@
 # Changelog
 
+## Stage 3.1 — Workshop fidelity pass
+
+- Rebuilt the Garage as a two-step flow: car overview first, then Vehicle Setup.
+- Added session average ET, best ET and completed-pass count to the selected car.
+- Rebuilt the Speedshop around an illustrated horizontal department carousel and
+  a separate product-card screen with fictional period brands and effect readouts.
+- Combined purchase and installation into one confirmed transaction. Conflicting
+  hardware and anything that depends on it are listed and replaced atomically.
+- Added the original-style Back hierarchy, locked future departments, schematic
+  component highlighting and a persistent selected-car/account/challenge rail.
+- Based the interaction hierarchy on the Version 1.53 overview footage recorded
+  in `HISTORICAL_NOTES.md`; later-stage mechanics remain locked rather than faked.
+
 ## Stage 3 workshop presentation pass
 
 - Rebuilt Garage and Parts Shop as a period game interface with two levels of
