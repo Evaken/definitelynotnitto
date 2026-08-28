@@ -572,11 +572,29 @@ body {
 
 .car-bay::after { content: ''; position: absolute; inset: auto 0 0; height: 34%; background: linear-gradient(170deg, transparent 48%, rgba(83,131,158,.28) 49% 52%, rgba(5,12,18,.8) 53%); }
 .car-bay__scanlines { position: absolute; inset: 0; opacity: .22; background: repeating-linear-gradient(0deg, transparent 0 3px, #7fdfff 4px); pointer-events: none; }
+.car-bay__sweep { position:absolute; z-index:3; inset:-20% auto -20% -35%; width:22%; pointer-events:none; opacity:0; transform:skewX(-16deg); background:linear-gradient(90deg,transparent,rgba(95,225,255,.2),transparent); animation:workshop-scan 1.15s .28s ease-out; }
 .car-bay__badge { position: absolute; z-index: 3; top: 14px; left: 16px; padding: 5px 18px 5px 8px; color: #fff; background: linear-gradient(90deg,#08a6d2,transparent); font-size: 9px; font-weight: bold; letter-spacing: 2px; }
 .car-bay__badge:empty { display:none; }
 .car-bay__identity { position: absolute; z-index: 4; left: 18px; bottom: 12px; display: grid; text-shadow: 0 2px 2px #000; }
 .car-bay__identity strong { color: #fff; font-size: 15px; text-transform: uppercase; }
 .car-bay__identity span { color: #7fc9e4; margin-top: 2px; font-family: var(--font-data); font-size: 9px; text-transform: uppercase; }
+
+.garage-car-art { position:absolute; z-index:2; inset:20px 3px 19px 18px; animation:garage-car-arrive .48s cubic-bezier(.2,.8,.25,1) both; }
+.garage-car-art img { width:100%; height:100%; object-fit:contain; object-position:center; user-select:none; transform:scale(1.3) translateY(-2px); filter:drop-shadow(0 18px 13px rgba(0,0,0,.8)) saturate(.92) brightness(.9); }
+.garage-car-art__hotspot { position:absolute; width:62px; height:62px; border:1px solid rgba(102,228,255,.85); border-radius:50%; opacity:0; transform:scale(.55); background:radial-gradient(circle,rgba(58,220,255,.46),rgba(25,165,207,.1) 52%,transparent 55%); box-shadow:0 0 16px #28d7ff,inset 0 0 11px #28d7ff; transition:opacity .22s,transform .22s; }
+.garage-car-art__hotspot::after { content:''; position:absolute; inset:-7px; border:1px solid rgba(79,219,249,.5); border-radius:50%; animation:hotspot-ring 1.4s ease-out infinite; }
+.garage-car-art__hotspot--engine { left:32%; top:37%; }
+.garage-car-art__hotspot--drivetrain { left:48%; top:57%; }
+.garage-car-art__hotspot--rear { right:9%; top:52%; }
+.car-bay--intake .garage-car-art__hotspot--engine,.car-bay--engine .garage-car-art__hotspot--engine,.car-bay--boost .garage-car-art__hotspot--engine,.car-bay--exhaust .garage-car-art__hotspot--engine { opacity:1; transform:scale(1); }
+.car-bay--drivetrain .garage-car-art__hotspot--drivetrain,.car-bay--tyres .garage-car-art__hotspot--drivetrain,.car-bay--suspension .garage-car-art__hotspot--drivetrain { opacity:1; transform:scale(1); }
+.car-bay--weight .garage-car-art__hotspot--rear { opacity:1; transform:scale(1); }
+
+@keyframes garage-car-arrive { from { opacity:0; transform:translateX(-42px) scale(.96); filter:blur(3px); } to { opacity:1; transform:none; filter:none; } }
+@keyframes workshop-scan { 0% { left:-35%; opacity:0; } 18% { opacity:1; } 75% { opacity:.7; } 100% { left:115%; opacity:0; } }
+@keyframes hotspot-ring { from { opacity:.8; transform:scale(.75); } to { opacity:0; transform:scale(1.25); } }
+@keyframes workshop-panel-in { from { opacity:0; transform:translateX(35px); } to { opacity:1; transform:none; } }
+@keyframes shop-card-in { from { opacity:0; transform:translateY(24px) rotateY(-8deg); } to { opacity:1; transform:none; } }
 
 .car-silhouette {
   position: absolute;
@@ -673,6 +691,8 @@ body {
 .setup-subcategory-strip { display:flex; gap:4px; padding:6px 12px; overflow-x:auto; background:linear-gradient(#0a1722,#030a10); border-bottom:3px double #314c5c; }
 .setup-subcategory-strip button { flex:1; min-width:130px; padding:7px 10px; color:#82a8b8; border:1px solid #315c6f; background:linear-gradient(#132c3a,#09151e); font:bold 8px var(--font-ui); letter-spacing:.4px; text-transform:uppercase; cursor:pointer; }
 .setup-subcategory-strip button.active { color:#fff; border-color:#64dcf7; background:linear-gradient(90deg,#119fca,#087692); box-shadow:inset 0 0 12px rgba(84,224,255,.2); }
+.setup-subcategory-strip button { animation:workshop-panel-in .28s ease-out both; }
+.setup-subcategory-strip button:nth-child(2) { animation-delay:.05s; }.setup-subcategory-strip button:nth-child(3) { animation-delay:.1s; }
 
 .garage-components { display:flex; flex-direction:column; }
 .garage-component-browser { min-height:310px; display:grid; grid-template-columns:minmax(150px,.9fr) minmax(180px,1.1fr); }
@@ -686,6 +706,7 @@ body {
 .garage-component-list b.installed { color:#63e88a; border-color:#2c7f48; background:rgba(34,118,67,.2); }
 .garage-component-list b.stored { color:#f0c64a; border-color:#7f6726; background:rgba(118,91,28,.2); }
 .garage-part-detail { min-width:0; align-content:center; padding:20px; background:radial-gradient(circle at 55% 45%,rgba(24,110,145,.28),transparent 62%),linear-gradient(145deg,#0c202d,#050d14); }
+.garage-part-detail:not(.garage-part-detail--empty) { animation:workshop-panel-in .26s ease-out both; }
 .garage-part-detail h2 { margin:7px 0 10px; color:#fff; font:italic 20px Impact,sans-serif; letter-spacing:.5px; text-transform:uppercase; }
 .garage-part-detail p { margin:0 0 8px; color:#f0c64a; font:10px var(--font-data); }
 .garage-part-detail small { display:block; min-height:34px; color:#789dad; font-size:8px; line-height:1.5; }
@@ -708,12 +729,16 @@ body {
 .speedshop-balance { width:max-content; margin:12px auto 0; padding:6px 24px; color:#89a9b7; border-top:1px solid #2f7088; border-bottom:1px solid #2f7088; font-size:9px; text-transform:uppercase; }.speedshop-balance strong{margin-left:8px;color:#42ddfa;font:12px var(--font-data)}
 .category-carousel,.product-carousel { display:flex; gap:14px; padding:8px 20px 14px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-color:#159bc0 #07121b; }
 .category-card,.product-card { position:relative; flex:0 0 164px; height:210px; scroll-snap-align:center; overflow:hidden; color:#fff; border:2px solid #1c3f50; border-radius:4px; background:linear-gradient(150deg,#192936,#050a0e 65%); box-shadow:0 8px 14px rgba(0,0,0,.55); cursor:pointer; text-align:center; transition:transform .14s,border-color .14s,filter .14s; }
+.product-browser .product-card { animation:shop-card-in .36s cubic-bezier(.2,.8,.3,1) both; }
+.product-browser .product-card:nth-child(2) { animation-delay:.04s; }.product-browser .product-card:nth-child(3) { animation-delay:.08s; }.product-browser .product-card:nth-child(4) { animation-delay:.12s; }.product-browser .product-card:nth-child(5) { animation-delay:.16s; }.product-browser .product-card:nth-child(6) { animation-delay:.2s; }
 .category-card:hover,.category-card--active,.product-card:hover,.product-card--active { transform:translateY(-4px); border-color:#37e0ff; filter:brightness(1.1); box-shadow:0 0 11px rgba(29,214,250,.45),0 8px 14px #000; }
 .category-card:disabled { cursor:not-allowed; filter:grayscale(.7) brightness(.55); }.category-card:disabled:hover{transform:none;border-color:#1c3f50;box-shadow:0 8px 14px rgba(0,0,0,.55)}
 .category-card__name { position:absolute; z-index:3; top:13px; left:6px; right:6px; font:16px Impact,sans-serif; text-transform:uppercase; text-shadow:0 2px #000; }
 .category-card__lock { position:absolute; z-index:4; inset:auto 0 0; padding:8px 4px; color:#ffcf47; background:rgba(4,9,13,.92); font:bold 8px var(--font-ui); text-transform:uppercase; }
 .category-art { position:absolute; inset:48px 10px 10px; display:grid; place-content:center; color:#6be7ff; border-radius:50%; background:radial-gradient(circle,rgba(34,181,220,.32),transparent 67%); font:45px Impact,sans-serif; }
 .category-art::before { content:'⚙'; font-size:78px; color:#67c9df; text-shadow:0 0 13px #159ac0; }.category-art i,.category-art b{position:absolute;display:block}
+.category-art--sprite { border-radius:0; background-repeat:no-repeat; background-size:400% auto; filter:drop-shadow(0 8px 9px rgba(0,0,0,.75)); }
+.category-art--sprite::before,.category-art--sprite i,.category-art--sprite b { display:none; }
 .category-art--intake::before{content:'◉';font-size:110px;color:#b42f31;text-shadow:0 0 0 #000}.category-art--intake i{width:66px;height:92px;left:38px;top:27px;border:7px repeating-linear-gradient(0deg,#ee5656 0 4px,#661a20 4px 8px);transform:skew(-12deg);background:repeating-linear-gradient(0deg,#d54448 0 5px,#641b22 5px 9px)}
 .category-art--boost::before{content:'◉';font-size:116px;color:#bfd3da}.category-art--boost i{width:58px;height:58px;left:42px;top:42px;border:9px solid #647c86;border-radius:50%;box-shadow:inset 0 0 0 7px #132832}
 .category-art--tyres::before{content:''}.category-art--tyres i{width:87px;height:128px;left:28px;top:10px;border:14px solid #12181c;border-radius:45%;box-shadow:inset 0 0 0 3px #627786,0 0 0 2px #67808d;background:repeating-linear-gradient(35deg,#1a2227 0 7px,#4e6069 7px 10px)}
@@ -722,15 +747,8 @@ body {
 .category-art--weight::before{content:'−KG';color:#f4c63c}.category-art--drivetrain::before{content:'⚙';}.category-art--exhaust::before{content:'≋';color:#c4d9df}.category-art--engine::before{content:'VTEC';font-size:38px;color:#e6473e}
 
 .product-card { flex-basis:190px;height:225px;padding:40px 10px 8px;background:linear-gradient(#f7f8f5 0 63%,#d4d9d9 64%,#101a21 65%);color:#16212a; }
-/*
- * The art sits ABOVE the brand and name, not behind them. It is absolutely
- * positioned and comes last in the DOM, so with the text static and unlayered
- * it painted straight over both: art ran 86-158px down a 225px card, brand
- * 100-127 and name 127-157.
- */
-.product-card .category-art{inset:6px 18px auto;height:84px;transform:scale(.62)}
-.product-card__brand,.product-card__name{position:relative;z-index:2}.product-card__price{position:absolute;z-index:4;top:0;right:7px;padding:5px 8px;color:#16212a;background:#d8e3cb;border:1px solid #718b77;font:9px var(--font-data)}
-.product-card__brand{display:block;font:22px Impact,sans-serif;letter-spacing:1px}.product-card__name{display:block;min-height:30px;font:bold 9px var(--font-ui);text-transform:uppercase}.product-card--active{border-color:#27e0ff}
+.product-card .category-art{inset:91px 17px 10px;transform:none}.product-card__price{position:absolute;z-index:4;top:0;right:7px;padding:5px 8px;color:#16212a;background:#d8e3cb;border:1px solid #718b77;font:9px var(--font-data)}
+.product-card__brand{position:absolute;z-index:4;top:42px;left:5px;right:5px;display:block;font:22px Impact,sans-serif;letter-spacing:1px}.product-card__name{position:absolute;z-index:4;top:70px;left:5px;right:5px;display:block;min-height:30px;font:bold 9px var(--font-ui);text-transform:uppercase}.product-card--active{border-color:#27e0ff}
 .product-selection { display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:16px;margin:0 20px;padding:10px 12px;border:1px solid #28718a;background:linear-gradient(90deg,rgba(6,104,139,.55),rgba(3,13,20,.9)); }
 .product-selection>div:first-child{display:grid;gap:2px}.product-selection span{color:#58dff8;font-size:7px;letter-spacing:1px;text-transform:uppercase}.product-selection strong{color:#fff;font-size:11px}.product-selection small{color:#789baa;font-size:8px}.product-selection__effect{color:#f0bd3c;font:9px var(--font-data);white-space:nowrap}
 .product-selection .workshop-action{margin:0}.product-selection .workshop-action:disabled{opacity:.45;cursor:default}
@@ -758,4 +776,6 @@ body {
   text-align: center;
   text-transform: uppercase;
   color: #8a8472;
+@media(prefers-reduced-motion:reduce){
+  .garage-car-art,.car-bay__sweep,.garage-car-art__hotspot::after,.setup-subcategory-strip button,.garage-part-detail,.product-browser .product-card{animation:none!important}
 }

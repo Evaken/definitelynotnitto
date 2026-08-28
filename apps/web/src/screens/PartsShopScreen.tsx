@@ -28,7 +28,7 @@ export function PartsShopScreen({state,message,onPurchaseAndFit}:{state:GarageSt
       <CategoryCarousel onSelect={enterGroup}/>
       <div className="speedshop-balance">Account balance <strong>${state.cash.toLocaleString()}</strong></div>
     </section>:
-    <section className="product-browser">
+    <section className="product-browser" key={group}>
       <header className="speedshop-title speedshop-title--compact"><span>Speedshop Department</span><h2>{WORKSHOP_GROUPS.find(item=>item.id===group)?.label}</h2><p>Select a component, review fitment, then purchase and install.</p></header>
       <div className="product-carousel" role="listbox" aria-label={`${group} products`}>
         {parts.map(part=>{const isSelected=part.id===selected?.id;const owned=state.ownedPartIds.includes(part.id);const fitted=state.build.fittedPartIds.includes(part.id);return <button key={part.id} type="button" role="option" aria-selected={isSelected} className={`product-card${isSelected?' product-card--active':''}`} onClick={()=>{setSelectedId(part.id);setLocalMessage('');}}>

@@ -10,6 +10,12 @@ provisional prices and conservative effects. They are not claims about the
 original and are tagged for Stage 15 calibration. No product photographs were
 copied.
 
+The Stage 3.3 garage car and component renders are also new replacement art,
+not recovered client media. Their early-2000s pre-rendered presentation follows
+the source's broad visual language, while the specific vehicle render, parts,
+lighting and animation are independently created. They must not be treated as
+historical evidence for exact artwork or motion timing.
+
 What is actually known about the original pre-2007 Nitto 1320 Challenge, and
 what has been invented to get the game running.
 
