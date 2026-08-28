@@ -83,6 +83,29 @@ const APPROACH_MARGIN_M = 0.03;
 const APPROACH_SPEED_MS = 0.7;
 /** ...and below this over the last few centimetres. */
 const CRAWL_SPEED_MS = 0.16;
+/**
+ * How far the revs must fall after an upshift before the driver will take
+ * another one.
+ *
+ * Without this the driver chain-shifts: the clutch is open through the change,
+ * so the instant the shift completes the engine is still above the shift point
+ * and it takes another, and another. A car with enough torque to keep the
+ * clutch slipping walks itself into top gear at 30mph. A driver watching a
+ * tacho does not do that.
+ */
+const SHIFT_REARM_RPM = 500;
+
+/**
+ * Shortest gap the driver will leave between upshifts, milliseconds.
+ *
+ * The rev re-arm alone cannot break a chain-shift: the clutch is open through a
+ * change, so a strong engine free-revs back past the shift point in about forty
+ * milliseconds and the driver takes another. Engagement then never recovers --
+ * measured at 1% while the car sat at 29mph in fifth. A hand on a lever cannot
+ * do that, and the physical limit is what stops it.
+ */
+const MIN_SHIFT_GAP_MS = 350;
+
 /** How far the revs are allowed to fall before the throttle goes back on. */
 const REV_HOLD_DEADBAND_RPM = 400;
 /** Quantised the same way the slider is, so replays match exactly. */
@@ -101,6 +124,9 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
   const shiftTicks = msToTicks(DRIVELINE.shiftTimeMs.value);
 
   let shiftUpUntil = -1;
+  /** Cleared by taking a shift, restored once the revs have come back down. */
+  let readyToShift = true;
+  let lastShiftTick = -Infinity;
   let shiftDownUntil = -1;
   let launched = false;
   /** Set once the driver has selected first gear to roll in. */
@@ -184,13 +210,18 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
       }
     } else {
       throttle = plan.launchThrottle;
+      if (rpm < plan.shiftRpm - SHIFT_REARM_RPM) readyToShift = true;
       if (
+        readyToShift &&
         state.tick > shiftUpUntil &&
+        state.tick - lastShiftTick >= msToTicks(MIN_SHIFT_GAP_MS) &&
         state.shiftTicksRemaining === 0 &&
         state.gear < topGear &&
         rpm >= plan.shiftRpm
       ) {
         shiftUpUntil = state.tick + PRESS_TICKS;
+        lastShiftTick = state.tick;
+        readyToShift = false;
       }
     }
 

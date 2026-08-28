@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CIVIC_SI } from '../data/cars/civic-si.js';
 import { stockTune } from '../types/tune.js';
 import { drive, goodDrivePlan, type DrivePlan } from '../testing/drive.js';
+import type { Car } from '../types/car.js';
 
 /**
  * Driving well has to beat driving badly.
@@ -140,5 +141,31 @@ describe('a good drive against a bad one', () => {
     expect(good.eighthMileEt).toBeLessThan(bad.eighthMileEt);
     expect(good.quarterMileEt).toBeLessThan(bad.quarterMileEt);
     expect(good.quarterMileMph).toBeGreaterThan(bad.quarterMileMph);
+  });
+});
+
+describe('the scripted driver itself', () => {
+  it('does not chain-shift a car with enough torque to slip its clutch', () => {
+    // The clutch is open through a change, so a strong engine free-revs back
+    // past the shift point in about forty milliseconds. Without a floor on how
+    // often a shift can be taken, the driver walks a turbo car into top gear at
+    // 29mph with the clutch at 1% and the run is destroyed. Every measurement
+    // in BALANCE_NOTES comes through this driver, so it has to drive.
+    const boosted: Car = {
+      ...CIVIC_SI,
+      engine: {
+        ...CIVIC_SI.engine,
+        curve: CIVIC_SI.engine.curve.map((point) => ({ ...point, torqueNm: point.torqueNm * 1.6 })),
+      },
+      gearbox: { ...CIVIC_SI.gearbox, clutchCapacityNm: 340 },
+    };
+
+    const result = drive(boosted, stockTune(boosted), goodDrivePlan(7));
+    expect(result.slip.quarterMileEt).toBeLessThan(
+      drive(CIVIC_SI, stockTune(CIVIC_SI), goodDrivePlan(7)).slip.quarterMileEt,
+    );
+    // Trap speed is power-to-weight and barely touched by traction, so it is the
+    // measure that exposes a car which spent the run in the wrong gear.
+    expect(result.slip.quarterMileMph).toBeGreaterThan(100);
   });
 });

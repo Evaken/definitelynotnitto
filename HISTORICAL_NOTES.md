@@ -397,6 +397,33 @@ original code or media in
   weight. The exact historical catalogue and values remain unknown because
   catalogue data was server supplied.
 
+
+### Forced induction — `assumed`
+
+Turbochargers and superchargers are modelled as pressure, not as a torque bonus.
+A part declares the boost it makes; the torque follows from it. That is what
+lets the boost gauge read something true -- it shows what the power is derived
+from, so the needle and the shove cannot disagree.
+
+The two behave differently, because that difference is the whole reason a game
+offers both:
+
+- A **turbo** is exhaust-driven. It makes nothing below its spool point and
+  comes in over about 1,800rpm. Highest trap speed of anything fitted.
+- A **supercharger** is belt-driven, so it is making pressure the moment the
+  engine turns and is at full song by roughly 55% of the redline. Quicker off
+  the line, lower down the straight.
+
+Every figure is invented -- spool points, peak pressures, the 0.85 charge
+efficiency that turns pressure into torque. Whether the original modelled boost
+at all is unknown; it drew the gauge, which is the only evidence there is.
+
+**Clutch capacity became a property of the build here**, which
+`config/historical.ts` had predicted since Stage 1. It is not cosmetic: with a
+fixed 240Nm clutch, any engine making more than that could never lock it, and a
+turbo car was *slower* than the standard one. Clutch parts now state what they
+hold, and the strongest fitted one counts.
+
 ### Economy — Stage 3 provisional
 
 Stage 3 now has a $10,000 session balance and provisional Civic part prices.

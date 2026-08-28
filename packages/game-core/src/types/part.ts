@@ -7,6 +7,8 @@
  * The registry in `data/parts` is intentionally empty until Stage 3.
  */
 
+import type { InductionType } from './car.js';
+
 export type PartCategory =
   | 'intake'
   | 'exhaust'
@@ -31,6 +33,22 @@ export type PartCategory =
 export type ExclusionGroup = string;
 export interface PartEffects {
   readonly torqueMultiplier?: number;
+  /**
+   * Gauge pressure this part adds at wide-open throttle, bar.
+   *
+   * Forced induction declares this INSTEAD of a torque multiplier: the torque
+   * it makes is derived from the pressure, so the gauge and the performance
+   * cannot disagree. Both would double-count.
+   */
+  readonly peakBoostBar?: number;
+  readonly inductionType?: InductionType;
+  /** Where this compressor comes on song. Turbos only. */
+  readonly spoolRpm?: number;
+  /**
+   * Torque this clutch can hold, Nm. A clutch replaces rather than adds, so the
+   * strongest one fitted is the one that counts.
+   */
+  readonly clutchCapacityNm?: number;
   readonly massDeltaKg?: number;
   readonly tyreGripMultiplier?: number;
   readonly drivelineEfficiencyDelta?: number;

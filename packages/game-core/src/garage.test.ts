@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buyPart, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
 import { stockTune } from './types/tune.js';
 import { drive, goodDrivePlan } from './testing/drive.js';
+import { barToPsi, boostBar } from './sim/boost.js';
+import { createPassState } from './sim/pass.js';
 
 function succeed<T extends { ok:boolean }>(result:T):Extract<T,{ok:true}>{expect(result.ok).toBe(true);return result as Extract<T,{ok:true}>;}
 describe('Stage 3 garage',()=>{
@@ -14,4 +16,59 @@ describe('Stage 3 garage',()=>{
   it('previews and completes a purchase and installation atomically',()=>{const state=createGarageState();const preview=previewPurchaseAndFit(state,'panel-filter');expect(preview).toMatchObject({ok:true,plan:{price:180,replacedPartIds:[]}});const installed=succeed(purchaseAndFitPart(state,'panel-filter')).state;expect(installed.cash).toBe(9820);expect(installed.ownedPartIds).toContain('panel-filter');expect(installed.build.fittedPartIds).toContain('panel-filter');expect(state.cash).toBe(10_000);expect(state.build.fittedPartIds).toEqual([]);});
   it('replaces conflicting hardware and its dependants in one transition',()=>{let state=createGarageState('civic-si',30_000);for(const id of ['supercharger-bracket','sports-clutch','street-supercharger','race-clutch','race-supercharger'])state=succeed(purchaseAndFitPart(state,id)).state;const preview=previewPurchaseAndFit(state,'turbo-manifold');expect(preview).toMatchObject({ok:true,plan:{replacedPartIds:expect.arrayContaining(['supercharger-bracket','street-supercharger','race-supercharger'])}});const replaced=succeed(purchaseAndFitPart(state,'turbo-manifold')).state;expect(replaced.build.fittedPartIds).toContain('turbo-manifold');expect(replaced.build.fittedPartIds).not.toContain('supercharger-bracket');expect(replaced.build.fittedPartIds).not.toContain('street-supercharger');expect(replaced.build.fittedPartIds).not.toContain('race-supercharger');});
   it('does not charge or alter the build when purchase-and-fit validation fails',()=>{const state=createGarageState('civic-si',100);expect(purchaseAndFitPart(state,'panel-filter')).toEqual({ok:false,reason:'Not enough cash.'});expect(state).toEqual(createGarageState('civic-si',100));});
+});
+
+describe('forced induction reaches the car and the gauge',()=>{
+  const build=(ids:readonly string[])=>{let state=createGarageState('civic-si',100_000);for(const id of ids)state=succeed(purchaseAndFitPart(state,id)).state;return state;};
+  const TURBO=['turbo-manifold','intercooler','sports-clutch','street-turbo'];
+  const BLOWER=['supercharger-bracket','sports-clutch','street-supercharger'];
+
+  it('gives a stock car no compressor at all',()=>{
+    const car=resolveBuild(createGarageState().build);
+    expect(car.engine.forcedInduction).toBeUndefined();
+  });
+
+  it('describes the system it fitted, not just more torque',()=>{
+    expect(resolveBuild(build(TURBO).build).engine.forcedInduction).toMatchObject({type:'turbo'});
+    expect(resolveBuild(build(BLOWER).build).engine.forcedInduction).toMatchObject({type:'supercharger'});
+  });
+
+  it('stacks a second compressor and spools later for it',()=>{
+    const single=resolveBuild(build(TURBO).build).engine.forcedInduction!;
+    const stacked=resolveBuild(build([...TURBO,'race-clutch','race-turbo']).build).engine.forcedInduction!;
+    expect(stacked.peakBoostBar).toBeGreaterThan(single.peakBoostBar);
+    // A bigger compressor on top of a smaller one comes on later, not sooner.
+    expect(stacked.spoolRpm).toBeGreaterThan(single.spoolRpm);
+  });
+
+  it('lifts the top of the curve far more than the bottom',()=>{
+    // A flat multiplier could not do this, and it is what makes the turbo car
+    // drive differently rather than simply harder.
+    const stock=resolveBuild(createGarageState().build).engine.curve;
+    const turbo=resolveBuild(build(TURBO).build).engine.curve;
+    const gain=(i:number)=>turbo[i]!.torqueNm/stock[i]!.torqueNm;
+    expect(gain(1)).toBeLessThan(1.05);
+    expect(gain(turbo.length-1)).toBeGreaterThan(gain(1)*1.3);
+  });
+
+  it('puts pressure on the gauge while the throttle is open',()=>{
+    const car=resolveBuild(build(TURBO).build);
+    const state=createPassState(car,stockTune(car),1);
+    const wot=boostBar(car.engine.forcedInduction,6000,car.engine.redlineRpm,1);
+    expect(wot).toBeGreaterThan(0);
+    expect(barToPsi(wot)).toBeGreaterThan(5);
+    // ...and none at all before anything has happened.
+    expect(state.boostBar).toBe(0);
+  });
+
+  it('makes the blower quicker off the line and the turbo faster through the traps',()=>{
+    // The reason both exist. Same money, different shape of power.
+    const turbo=resolveBuild(build([...TURBO,'race-clutch','race-turbo']).build);
+    const blower=resolveBuild(build([...BLOWER,'race-clutch','race-supercharger']).build);
+    const plan=goodDrivePlan(7);
+    const t=drive(turbo,stockTune(turbo),plan).slip;
+    const b=drive(blower,stockTune(blower),plan).slip;
+    expect(b.sixtyFoot).toBeLessThan(t.sixtyFoot);
+    expect(t.quarterMileMph).toBeGreaterThan(b.quarterMileMph);
+  });
 });

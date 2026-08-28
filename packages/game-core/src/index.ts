@@ -10,6 +10,8 @@
 // Types
 export type {
   Car,
+  ForcedInductionSpec,
+  InductionType,
   ChassisSpec,
   DrivetrainType,
   EngineSpec,
@@ -73,6 +75,7 @@ export { optimalShiftRpm, shouldShiftUp } from './sim/shift.js';
 export { TimelineRecorder, inputAtTick, replayPass } from './sim/replay.js';
 export { reactionTime, scheduleTree, treeLightsAt } from './sim/tree.js';
 export { kwToHp, peakTorque, powerKwAtRpm, torqueAtRpm } from './sim/engine.js';
+export { ATMOSPHERIC_BAR, barToPsi, boostBar, chargeTorqueMultiplier, wotBoostBar } from './sim/boost.js';
 export {
   forwardGearCount,
   gearLabel,

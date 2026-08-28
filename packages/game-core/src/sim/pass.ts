@@ -4,6 +4,7 @@ import type { PassState, RaceInput, SplitName } from '../types/sim.js';
 import { NEUTRAL_GEAR, NEUTRAL_INPUT, SIM_DT, SIM_HZ } from '../types/sim.js';
 import { DRIVELINE, STAGING, TRACK_MARKS } from '../config/historical.js';
 import { netEngineTorque } from './engine.js';
+import { boostBar } from './boost.js';
 import { gearRange, lockedDrivelineInertia, totalRatio } from './drivetrain.js';
 import {
   aeroDrag,
@@ -82,6 +83,7 @@ export function createPassState(car: Car, tune: Tune, seed: number): PassState {
     clutchEngagement: 0,
     clutchLocked: false,
     limiterActive: false,
+    boostBar: 0,
 
     engineTorqueNm: 0,
     wheelTorqueNm: 0,
@@ -215,14 +217,16 @@ function driveOneTick(state: PassState, input: RaceInput): void {
   const throttle = shifting || shutDown ? 0 : clamp(input.throttle, 0, 1);
 
   // --- Engine ------------------------------------------------------------
-  const engineResult = netEngineTorque(
-    car.engine,
-    radPerSecToRpm(state.engineOmega),
-    throttle,
-    state.limiterActive,
-  );
+  const engineRpmNow = radPerSecToRpm(state.engineOmega);
+  const engineResult = netEngineTorque(car.engine, engineRpmNow, throttle, state.limiterActive);
   state.limiterActive = engineResult.limiterActive;
   state.engineTorqueNm = engineResult.torqueNm;
+  // Boost follows the same throttle the torque does, so the needle and the
+  // shove arrive together. Zero under fuel cut: the limiter is not making
+  // pressure either.
+  state.boostBar = state.limiterActive
+    ? 0
+    : boostBar(car.engine.forcedInduction, engineRpmNow, car.engine.redlineRpm, throttle);
 
   // --- Clutch ------------------------------------------------------------
   // There is no clutch pedal, so the clutch follows the throttle: easing the
@@ -247,7 +251,8 @@ function driveOneTick(state: PassState, input: RaceInput): void {
       ? Math.min(engagementTarget, state.clutchEngagement + engagementStep)
       : Math.max(engagementTarget, state.clutchEngagement - engagementStep);
 
-  const capacity = state.clutchEngagement * DRIVELINE.clutchCapacityNm.value;
+  const capacity =
+    state.clutchEngagement * (car.gearbox.clutchCapacityNm ?? DRIVELINE.clutchCapacityNm.value);
   const ratio = inGear ? totalRatio(car, tune, state.gear) : 0;
 
   // --- Tyre --------------------------------------------------------------

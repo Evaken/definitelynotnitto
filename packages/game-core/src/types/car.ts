@@ -28,6 +28,24 @@ export interface TorquePoint {
  */
 export type TorqueCurve = readonly TorquePoint[];
 
+/** How a compressor behaves: exhaust-driven lag, or belt-driven from idle. */
+export type InductionType = 'turbo' | 'supercharger';
+
+/**
+ * Forced induction fitted to an engine.
+ *
+ * Absent on a naturally aspirated car, which is what keeps the boost gauge
+ * honest: it reads zero because there is nothing making pressure, not because
+ * the needle is pinned there.
+ */
+export interface ForcedInductionSpec {
+  readonly type: InductionType;
+  /** Peak gauge pressure at wide-open throttle, bar. */
+  readonly peakBoostBar: number;
+  /** Where a turbo starts making useful pressure. Ignored by a supercharger. */
+  readonly spoolRpm: number;
+}
+
 export interface EngineSpec {
   /** Human-readable engine code, e.g. "B16A2". Display only. */
   readonly code: string;
@@ -42,9 +60,19 @@ export interface EngineSpec {
    * is what makes a launch off the clutch feel heavy or snappy.
    */
   readonly inertiaKgM2: number;
+  /** Absent on a naturally aspirated engine. */
+  readonly forcedInduction?: ForcedInductionSpec;
 }
 
 export interface GearboxSpec {
+  /**
+   * Torque the clutch can hold before it slips, Nm.
+   *
+   * Absent means the assumed default in config. A build that adds power without
+   * adding clutch cannot put it down: the clutch simply never locks, and the
+   * car is slower than it was standard.
+   */
+  readonly clutchCapacityNm?: number;
   /**
    * Forward gear ratios, first gear first.  Length defines the gear count --
    * the simulator never assumes five or six speeds.

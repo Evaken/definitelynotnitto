@@ -163,7 +163,11 @@ export const DRIVELINE = {
    * the clutch then drags the engine down to driveline speed almost instantly
    * whatever it was revving at.
    */
-  clutchCapacityNm: uncertain(240, 'assumed', 'Stage 3 will make this a property of the fitted clutch.'),
+  clutchCapacityNm: uncertain(
+    240,
+    'assumed',
+    'Default for a car whose gearbox does not state one. Stage 3 made this a property of the build: clutch parts set gearbox.clutchCapacityNm, and a car that adds power without adding clutch never locks it.',
+  ),
   /**
    * Closed-throttle drag torque at redline, newton-metres, scaling down with
    * engine speed.  This is what pulls the revs back when the driver lifts, so

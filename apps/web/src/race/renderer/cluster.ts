@@ -1,4 +1,5 @@
 import {
+  barToPsi,
   engineRpm,
   gearLabel,
   msToMph,
@@ -52,7 +53,7 @@ export function drawCluster(ctx: CanvasRenderingContext2D, state: PassState, thr
   // The dashboard casting itself is drawn by chrome.ts before this runs.
   // Everything here goes on top of it.
   // Painted outside-in: the tacho overlaps both neighbours and belongs in front.
-  drawBoost(ctx);
+  drawBoost(ctx, state);
   drawSpeedo(ctx, state);
   drawTacho(ctx, state);
 
@@ -70,11 +71,12 @@ const CANVAS_RIGHT = CLUSTER.x + CLUSTER.w;
 // Dials
 // ---------------------------------------------------------------------------
 
-function drawBoost(ctx: CanvasRenderingContext2D): void {
+function drawBoost(ctx: CanvasRenderingContext2D, state: PassState): void {
   const { cx, cy, r } = DIALS.boost;
-  // Nothing produces boost until forced induction arrives in Stage 3, so the
-  // needle sits at rest. The gauge stays regardless, as the original's did.
-  dial(ctx, cx, cy, r, 0, 35, 0, 'BOOST', 'PSI', 5, null);
+  // Reads whatever the simulation is actually making. A naturally aspirated car
+  // sits at rest because nothing is producing pressure -- the gauge stays either
+  // way, as the original's did, rather than appearing when a turbo is fitted.
+  dial(ctx, cx, cy, r, 0, 35, barToPsi(state.boostBar), 'BOOST', 'PSI', 5, null);
 }
 
 function drawTacho(ctx: CanvasRenderingContext2D, state: PassState): void {

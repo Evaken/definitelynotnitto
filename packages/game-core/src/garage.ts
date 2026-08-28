@@ -2,6 +2,8 @@ import type { Car } from './types/car.js';
 import type { Build, Part } from './types/part.js';
 import { getCar } from './data/cars/index.js';
 import { getPart, PARTS } from './data/parts/index.js';
+import { chargeTorqueMultiplier } from './sim/boost.js';
+import type { InductionType } from './types/car.js';
 export interface GarageState { readonly cash:number; readonly build:Build; readonly ownedPartIds:readonly string[]; }
 export type GarageResult={readonly ok:true;readonly state:GarageState}|{readonly ok:false;readonly reason:string};
 export interface PurchaseInstallPlan { readonly part:Part; readonly price:number; readonly replacedPartIds:readonly string[]; }
@@ -59,5 +61,50 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
     build:{...state.build,fittedPartIds:[...state.build.fittedPartIds.filter(fittedId=>!removed.has(fittedId)),part.id]},
   }};
 }
-export function resolveBuild(build:Build):Car{const base=getCar(build.carId);let tm=1,kg=0,grip=1,eff=0;for(const id of build.fittedPartIds){const e=getPart(id).effects;tm*=e.torqueMultiplier??1;kg+=e.massDeltaKg??0;grip*=e.tyreGripMultiplier??1;eff+=e.drivelineEfficiencyDelta??0;}return{...base,engine:{...base.engine,curve:base.engine.curve.map(q=>({...q,torqueNm:q.torqueNm*tm}))},chassis:{...base.chassis,massKg:Math.max(500,base.chassis.massKg+kg)},tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip},gearbox:{...base.gearbox,driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)}};}
+/**
+ * Turn a build into the car the simulator actually runs.
+ *
+ * Forced induction is collected first, then baked into the torque curve point
+ * by point. The boosted curve is just a curve, so nothing downstream -- the
+ * shift point, the dyno, the simulator -- needs to know a turbo exists.
+ */
+export function resolveBuild(build:Build):Car{
+  const base=getCar(build.carId);
+  let tm=1,kg=0,grip=1,eff=0;
+  let boostBar=0,spoolRpm=0,clutchNm=0;
+  let induction:InductionType|null=null;
+
+  for(const id of build.fittedPartIds){
+    const e=getPart(id).effects;
+    tm*=e.torqueMultiplier??1;
+    kg+=e.massDeltaKg??0;
+    grip*=e.tyreGripMultiplier??1;
+    eff+=e.drivelineEfficiencyDelta??0;
+    // A clutch replaces rather than stacks: the strongest fitted one holds.
+    clutchNm=Math.max(clutchNm,e.clutchCapacityNm??0);
+    if(e.peakBoostBar){
+      boostBar+=e.peakBoostBar;
+      // A bigger compressor stacked on a smaller one spools later, not sooner.
+      spoolRpm=Math.max(spoolRpm,e.spoolRpm??0);
+      induction=e.inductionType??induction??'turbo';
+    }
+  }
+
+  const forcedInduction=induction?{type:induction,peakBoostBar:boostBar,spoolRpm}:undefined;
+  const redline=base.engine.redlineRpm;
+
+  return{...base,
+    engine:{...base.engine,
+      // Spread conditionally: exactOptionalPropertyTypes will not take an
+      // explicit undefined for an optional property.
+      ...(forcedInduction?{forcedInduction}:{}),
+      curve:base.engine.curve.map(point=>({...point,
+        torqueNm:point.torqueNm*tm*chargeTorqueMultiplier(forcedInduction,point.rpm,redline)})),
+    },
+    chassis:{...base.chassis,massKg:Math.max(500,base.chassis.massKg+kg)},
+    tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip},
+    gearbox:{...base.gearbox,
+      ...(clutchNm?{clutchCapacityNm:clutchNm}:{}),
+      driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)}};
+}
 export function partList():readonly Part[]{return[...PARTS.values()];}

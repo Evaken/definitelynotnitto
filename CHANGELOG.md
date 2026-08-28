@@ -1,5 +1,53 @@
 # Changelog
 
+## Boost is a pressure, not a percentage
+
+The boost gauge did not move because nothing was making any boost. Forced
+induction was a flat torque multiplier -- a turbo made the engine 32% stronger
+everywhere -- so there was no pressure anywhere in the model for a gauge to
+read, and `drawBoost` passed a hardcoded zero.
+
+A part now declares the pressure it makes and the torque is derived from it, so
+the needle and the shove come from one number and cannot disagree. The two
+systems behave as differently as they should, because that difference is the
+whole reason a game offers both:
+
+| build | 1/4 ET | trap |
+|---|---|---|
+| stock | 15.158 | 91.2 |
+| street blower | 14.188 | 102.0 |
+| street turbo | 14.364 | 103.2 |
+| race blower + grip | **13.087** | 110.2 |
+| race turbo | 13.510 | **114.4** |
+
+The blower is making pressure from idle and wins on elapsed time; the turbo
+makes nothing below 4,300rpm and wins on trap speed. Neither was tuned to
+produce that — it falls out of belt drive against exhaust drive.
+
+Two things had to be fixed before any of it worked.
+
+**Clutch capacity was a fixed 240Nm global**, which `config/historical.ts` had
+flagged since Stage 1: *"Stage 3 will make this a property of the fitted
+clutch."* It was not cosmetic. A turbo car making 317Nm could never lock a
+240Nm clutch, so it slipped the whole way and was **slower than standard**. The
+Sports and Race clutches now state what they hold, and the strongest fitted one
+counts.
+
+**The scripted driver chain-shifted.** The clutch is open through a change, so a
+strong engine free-revs back past the shift point in about forty milliseconds
+and the driver takes another shift, and another: four in 0.6 seconds, into fifth
+gear at 29mph with engagement at 1%. The run was destroyed and the cause looked
+like the boost model. It was not — every measurement in `BALANCE_NOTES.md` comes
+through that driver, and a hand on a lever cannot shift twice in fifty
+milliseconds. There is a floor on the interval now, and a regression test that
+drives a deliberately over-torqued car and checks it still traps over 100mph.
+
+Worth recording how long that took to find: the flat multiplier was replaced
+first, the car got *slower*, and traction was blamed, then the clutch, then the
+driver. Trap speed was the measurement that settled it — it is power-to-weight
+and barely touched by grip, so a car trapping 68mph on 245hp was never a
+traction problem.
+
 ## Stage 3.2 — Recovered 1.52 garage/store behaviour
 
 - Added a clean-room behaviour map from a verified Version 1.52 client; no

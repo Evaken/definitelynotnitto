@@ -135,6 +135,11 @@ export interface PassState {
   clutchLocked: boolean;
   /** True while the limiter is cutting fuel. */
   limiterActive: boolean;
+  /**
+   * Manifold gauge pressure this tick, bar. Zero on a naturally aspirated car
+   * because nothing is making any -- not because the gauge is stubbed out.
+   */
+  boostBar: number;
 
   // --- Derived, exposed for telemetry -------------------------------------
   /** Flywheel torque produced this step, Nm. */
