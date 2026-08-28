@@ -63,18 +63,19 @@ export function drawDashCowl(ctx: CanvasRenderingContext2D): void {
   cowlPath(ctx);
 
   const face = ctx.createLinearGradient(0, top, 0, CANVAS_HEIGHT);
-  face.addColorStop(0, '#4b535f');
-  face.addColorStop(0.06, '#333944');
-  face.addColorStop(0.35, '#262b34');
-  face.addColorStop(1, '#12151b');
+  face.addColorStop(0, '#b7bbbf');
+  face.addColorStop(0.035, '#70747a');
+  face.addColorStop(0.12, '#42454a');
+  face.addColorStop(0.4, '#26282b');
+  face.addColorStop(1, '#0a0b0c');
   ctx.fillStyle = face;
   ctx.fill();
 
   // Clip to the cowl so the lip band cannot spill past the arc.
   ctx.clip();
   const lip = ctx.createLinearGradient(0, top, 0, top + LIP_HEIGHT);
-  lip.addColorStop(0, 'rgba(190, 200, 214, 0.55)');
-  lip.addColorStop(1, 'rgba(190, 200, 214, 0)');
+  lip.addColorStop(0, 'rgba(244, 246, 248, 0.62)');
+  lip.addColorStop(1, 'rgba(244, 246, 248, 0)');
   ctx.fillStyle = lip;
   ctx.fillRect(0, top - 4, CANVAS_WIDTH, LIP_HEIGHT + 4);
   ctx.restore();
@@ -83,7 +84,7 @@ export function drawDashCowl(ctx: CanvasRenderingContext2D): void {
   ctx.save();
   ctx.beginPath();
   ctx.ellipse(COWL.cx, COWL.cy, COWL.rx, COWL.ry, 0, Math.PI, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(214, 222, 234, 0.75)';
+  ctx.strokeStyle = 'rgba(238, 240, 242, 0.85)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -172,10 +173,13 @@ function panel(ctx: CanvasRenderingContext2D, side: 'left' | 'right'): void {
   ctx.closePath();
 
   const shade = ctx.createLinearGradient(outer, 0, p[0]![0], 0);
-  shade.addColorStop(0, '#171a21');
-  shade.addColorStop(0.62, '#2b313b');
-  shade.addColorStop(0.93, '#49515f');
-  shade.addColorStop(1, '#5c6575');
+  // Mustard rather than the blue-grey everything else uses, following the
+  // original: the surround is the one warm thing on the screen, which is part of
+  // why the road view reads as lit from outside.
+  shade.addColorStop(0, '#241d0c');
+  shade.addColorStop(0.5, '#5a4715');
+  shade.addColorStop(0.85, '#9c7d24');
+  shade.addColorStop(1, '#cfa93a');
   ctx.fillStyle = shade;
   ctx.fill();
   ctx.restore();
@@ -184,7 +188,7 @@ function panel(ctx: CanvasRenderingContext2D, side: 'left' | 'right'): void {
   ctx.save();
   ctx.beginPath();
   traceEdge(ctx, p);
-  ctx.strokeStyle = 'rgba(206, 216, 232, 0.55)';
+  ctx.strokeStyle = 'rgba(246, 216, 130, 0.6)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
@@ -239,12 +243,12 @@ export function drawBoardBezel(
   const h = box.h + pad * 2;
 
   const face = ctx.createLinearGradient(x, y, x + w, y + h);
-  face.addColorStop(0, '#454d5b');
-  face.addColorStop(1, '#242932');
+  face.addColorStop(0, '#6a6355');
+  face.addColorStop(1, '#2a2721');
   ctx.fillStyle = face;
   ctx.fillRect(x, y, w, h);
 
-  ctx.strokeStyle = 'rgba(206, 216, 230, 0.45)';
+  ctx.strokeStyle = 'rgba(232, 224, 198, 0.45)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(x + 0.5, y + h - 0.5);

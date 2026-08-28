@@ -235,20 +235,21 @@ function drawSlider(
     ctx.fillRect(box.x - 3, handleY - 3, box.w + 6, 6);
   }
 
-  // Above the bar, horizontal. Rotated underneath, these ran off the bottom of
-  // the canvas and lost half their text.
+  // Under the bar. Above it they collided with the cowl's leading edge, and
+  // rotated underneath they ran off the bottom of the canvas.
+  const labelY = box.y + box.h;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.font = 'bold 9px Verdana, sans-serif';
   ctx.fillStyle = COLORS.textDim;
-  ctx.fillText(label, box.x + box.w / 2, box.y - 14);
+  ctx.fillText(label, box.x + box.w / 2, labelY + 13);
 
   ctx.font = '8px Verdana, sans-serif';
   ctx.fillStyle = readOnly ? COLORS.textDim : COLORS.accent;
   ctx.fillText(
-    readOnly ? 'AUTO' : `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%`,
+    readOnly ? 'AUTO' : Math.round(Math.max(0, Math.min(1, value)) * 100) + '%',
     box.x + box.w / 2,
-    box.y - 4,
+    labelY + 23,
   );
 }
 

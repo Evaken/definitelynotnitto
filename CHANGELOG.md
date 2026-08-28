@@ -1,5 +1,29 @@
 # Changelog
 
+## Colour, and the last of the black bands
+
+The race panel had two strips of dead black in it: a thin one above the road
+view and a wider one between the view and the dashboard. Both are gone. The view
+starts at the very top of the canvas now and runs down *behind* the cowl, which
+overlaps its bottom edge rather than sitting below it — 412 pixels tall against
+332 two commits ago.
+
+That overlap is the first time the chrome covers any of the scene, so the test
+guarding it changed rather than being deleted: it used to assert the cowl never
+touched the view, and now asserts it takes less than 15% of it and stays nowhere
+near the horizon. `projection.ts` still knows nothing about any of it.
+
+**The side panels are mustard and the dashboard is silver falling to black**,
+following the original. The warm/cool split is doing work rather than being
+decoration: the surround being the one warm thing on screen is a large part of
+why the road view reads as lit from outside instead of as another panel.
+
+The `GAS` and `CLUTCH` labels moved under their bars. Above them they collided
+with the cowl's leading edge once the dash came up to meet the view; below the
+bars was where they belonged in the first place, and the earlier objection to it
+— that rotated labels ran off the bottom of the canvas — only ever applied to
+rotated ones.
+
 ## The dashboard
 
 The race view was rectangles: a slab of cluster along the bottom, boards either

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COWL_CROWN_Y, dashTopY, panelEdgeXAt } from './chrome.js';
-import { CANVAS_WIDTH, VIEW } from './layout.js';
+import { CANVAS_WIDTH, HORIZON_Y, VIEW } from './layout.js';
 import { CLUTCH_SLIDER, DIALS, GAS_SLIDER, SHIFT_LIGHT } from './cluster.js';
 
 const CENTRE = CANVAS_WIDTH / 2;
@@ -35,11 +35,23 @@ describe('the dashboard cowl', () => {
     }
   });
 
-  it('never rises into the road view', () => {
-    // The whole point of the overlay approach: the projection knows nothing
-    // about the cowl, so the cowl must not cover anything the projection drew.
+  it('overlaps the bottom of the road view without eating it', () => {
+    // The cowl sits in front of the picture rather than below it -- that is what
+    // closes the black band that used to run along the top of the dash. It is
+    // still an overlay, so the only rule is that it must not climb far enough to
+    // matter: the projection has no idea it is there.
+    const bottom = VIEW.y + VIEW.h;
+    let deepest = 0;
+    for (let x = VIEW.x; x <= VIEW.x + VIEW.w; x += 10) {
+      deepest = Math.max(deepest, bottom - dashTopY(x));
+    }
+    expect(deepest).toBeGreaterThan(0);
+    expect(deepest).toBeLessThan(VIEW.h * 0.15);
+  });
+
+  it('stays nowhere near the horizon', () => {
     for (let x = 0; x <= CANVAS_WIDTH; x += 10) {
-      expect(dashTopY(x), `x=${x}`).toBeGreaterThanOrEqual(VIEW.y + VIEW.h);
+      expect(dashTopY(x), `x=${x}`).toBeGreaterThan(HORIZON_Y + VIEW.h * 0.5);
     }
   });
 

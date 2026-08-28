@@ -107,6 +107,13 @@ flattens out past the view's own edge as it runs into the top of the dash --
 arched, the way a windscreen header is. The timing boards are inset panels
 sitting on that surround.
 
+
+The surround is **mustard**, not the blue-grey the rest of the interface uses,
+and the dashboard is silver falling to black. That warm/cool split is the
+original's, and it is doing work: the surround being the one warm thing on
+screen is part of why the road view reads as lit from outside rather than as a
+panel among panels.
+
 The offsets in `renderer/chrome.ts` were measured off the marked-up screenshot
 rather than chosen. **The curve was drawn wrong three times before it was
 right** -- convex when it should be concave, then pinched in the middle when it
