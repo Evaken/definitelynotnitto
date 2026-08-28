@@ -3,9 +3,12 @@
 Current state of the project. Read this before starting work — it, not chat
 history, is the record of where things stand (PROJECT_SPEC 12).
 
-**Current stage: Stage 2, in progress.** Stage 1 is complete, the view has been
-rebuilt, and the starter car has been corrected from an EP3 to the EK B16 the
-original actually used.
+**Current stage: Stage 2 is as complete as the evidence allows. Stage 3 is next.**
+
+Stage 1 is complete, the race view has been rebuilt around a chase camera, and
+the starter car has been corrected from an EP3 to the EK B16 the original
+actually used. Two of Stage 2's criteria are blocked on evidence nobody has —
+they are listed below, open rather than ticked.
 
 Surviving screenshots turned up in [`docs/reference/`](docs/reference/) after
 Stage 1 was finished and showed the race view was wrong -- the original used a
@@ -123,7 +126,7 @@ later without the race screen, showroom or paint shop having to know.
 
 Still to add: `drawThreeQuarter`, once there is a screen that needs it.
 
-## Then Stage 2 — Nitto Driving Feel
+## Stage 2 — Nitto Driving Feel
 
 Much of Stage 2's groundwork exists because building it later would have meant
 rewriting the launch model. What already works:
@@ -137,14 +140,31 @@ rewriting the launch model. What already works:
 - Throttle is analogue, so how sharply it is opened changes the launch.
 - Shift dead time is modelled.
 
-Stage 2 acceptance criteria still to meet:
+Stage 2 acceptance criteria:
 
-- [ ] Retry/reset flow beyond the current single-key reset.
-- [ ] Best ET tracking across runs.
+- [x] Launch technique matters, with a clear optimum between bogging and
+      wheelspin. Nearly lost when the car was corrected — see BALANCE_NOTES.
+- [x] Shift technique matters, and now matters far more than it did.
+- [x] Retry/reset flow beyond the current single-key reset. `Run Again` when a
+      pass is done, `Reset Run` mid-pass, and the history survives both.
+- [x] Best ET tracking across runs. Session bests for ET, MPH, 60ft and R/T,
+      with the quickest pass called out in the table (`sim/records.ts`).
 - [ ] Historical-style timing slip presentation refined against references.
+      **Blocked, not skipped:** none of the three surviving screenshots shows a
+      timing slip, so there is no reference to refine against. Reopen this if
+      one turns up.
 - [ ] Physics calibration tests tightened from today's wide plausibility bands.
+      **Deferred to Stage 15.** Tightening them now would mean inventing a
+      target, since nothing is known about the original's numbers. The bands
+      exist to catch a wildly wrong change, and that is all they can honestly do
+      until there is evidence.
 - [ ] Confirm the stock Civic's pass is plausible *for the original game*,
-      rather than merely plausible for a real Civic Si.
+      rather than merely plausible for a real Civic Si. **Deferred to Stage 15**,
+      same reason. The car is now at least the right car.
+
+Two of the five remaining items are blocked on evidence nobody has, rather than
+on work nobody has done. They are left open rather than ticked, and Stage 3 is
+fair game.
 
 ---
 
@@ -163,8 +183,8 @@ Stage 3 is yours.
 | ✅ | 0 — Project Foundation | Skeleton, data models, navigation shell |
 | ✅ | 1 — Basic Drag Race Simulator | A drivable quarter-mile pass and a timing slip |
 | ✅ | *(view rebuild)* | *Chase camera and instrument cluster — the spec had the view wrong* |
-| ▶️ | **2 — Nitto Driving Feel** | **Tuning the launch and shift feel, best-ET tracking, calibration tests** |
-| | 3 — Garage and Parts Shop | 25–40 Civic parts, install/remove, the first progression loop |
+| ✅ | 2 — Nitto Driving Feel | Launch and shift feel, run history and best-ET tracking |
+| ▶️ | **3 — Garage and Parts Shop** | **25–40 Civic parts, install/remove, the first progression loop** |
 | | 4 — Tuning and Dyno | Gear ratios, final drive, horsepower and torque curves |
 | | 5 — Nitrous and Mechanical Damage | Nitrous timing, mechanical stress, repair costs |
 | | 6 — CPU Racing and Economy | Easy/medium/hard opponents, prize money — the first offline alpha |
@@ -205,6 +225,10 @@ that asserts an exact ET now means rewriting it later.
   for a real 1999 Civic Si. Whether it matches the original game is still
   unknown, and calibrating to that is Stage 15. The car is at least the right
   car now: the EP3/EK mistake is fixed.
+- **Run history lasts as long as the tab does.** Times are held in memory and
+  go when the page is reloaded or the car changes. Persisting them means
+  deciding where they live, and that is Stage 9's question — writing to local
+  storage now would be a second answer thrown away when accounts arrive.
 - **The clutch is deliberately omitted.** The original had a `CLUTCH FEATHER`
   slider. Leaving it out is a project decision, not an oversight — but the
   neutral-rev launch technique exists *because* of that choice.

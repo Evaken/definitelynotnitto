@@ -132,6 +132,15 @@ export function useRaceSession(car: Car, tune: Tune) {
 
   const [snapshot, setSnapshot] = useState<RaceSnapshot>(() => snapshotOf(stateRef.current, null));
 
+  /**
+   * Every completed run this session, oldest first.
+   *
+   * Deliberately not persisted. Stage 9 gives the player an account and a
+   * garage that outlives the tab; writing to local storage now would be a
+   * second, throwaway answer to the same question.
+   */
+  const [history, setHistory] = useState<readonly TimingSlip[]>([]);
+
   const setThrottle = useCallback((value: number) => {
     draggingRef.current = true;
     throttleRef.current = value;
@@ -164,6 +173,8 @@ export function useRaceSession(car: Car, tune: Tune) {
   // pass belonging to a different vehicle.
   useEffect(() => {
     startPass();
+    // The history goes with it: those times belong to the car that set them.
+    setHistory([]);
   }, [startPass]);
 
   useEffect(() => {
@@ -238,6 +249,10 @@ export function useRaceSession(car: Car, tune: Tune) {
       if (justFinished) {
         finishHandled = true;
         verifiedRef.current = verifyReplay(state);
+        // Recorded the moment the run is done rather than on the next reset, so
+        // a player who coasts off into the shut-down area and closes the tab
+        // still made the pass.
+        setHistory((previous) => [...previous, buildTimingSlip(state)]);
       }
 
       const phaseChanged = state.phase !== lastPhase;
@@ -275,9 +290,13 @@ export function useRaceSession(car: Car, tune: Tune) {
     };
   }, [car, tune, startPass]);
 
+  const clearHistory = useCallback(() => setHistory([]), []);
+
   return {
     canvasRef,
     snapshot,
+    history,
+    clearHistory,
     startPass,
     throttle,
     setThrottle,

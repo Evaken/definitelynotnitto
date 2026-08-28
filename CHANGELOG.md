@@ -1,5 +1,31 @@
 # Changelog
 
+## Run history
+
+A drag strip is a place you go again, and a single time on its own says almost
+nothing. Every completed pass now collects in a table under the strip, newest
+first, with the session's best ET, MPH, 60ft and reaction time called out above
+it and the quickest run highlighted in the list.
+
+Reset no longer throws that away. `Reset Run` mid-pass and `Run Again` once a
+pass is done both keep the history; only changing car or tune clears it, because
+those times belong to the car that set them.
+
+Which run is the best is decided in `sim/records.ts` rather than in the
+component, because it is gameplay logic rather than presentation — Stage 10 has
+the server deciding whether a submitted run beats a standing record, and it will
+need to agree with what the player was shown. Two rules there are worth knowing:
+
+- **A red-lit run still counts for ET, MPH and 60ft.** The clock starts on the
+  stage beam whether the driver left early or not, so the elapsed time is honest
+  and was really achieved. It does not count for reaction time, where leaving
+  early is the thing being measured and a negative light would win every time.
+- **A run that never reached the finish is ignored outright**, rather than
+  competing with a meaningless ET.
+
+Times last as long as the tab does. Persisting them means deciding where they
+live, which is Stage 9's question.
+
 ## The right Civic
 
 The starter car was an EP3 with a K20A3. The original's is a sixth-generation EK

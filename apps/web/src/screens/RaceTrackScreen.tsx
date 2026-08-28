@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { CIVIC_SI, stockTune, type RacePhase } from '@nitto/game-core';
+import { CIVIC_SI, lastRunWasBestEt, stockTune, type RacePhase } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
 import { TimingSlipCard } from '../race/TimingSlipCard.js';
+import { RunHistoryPanel } from '../race/RunHistoryPanel.js';
 
 /**
  * The Race Track: roll in, stage the car, take the tree, run the quarter.
@@ -20,7 +21,7 @@ const PROMPTS: Record<RacePhase, string> = {
   tree: 'Tree is armed. Watch for the green.',
   running: 'Go! Shift at the top of each gear.',
   shutdown: 'Through the traps — coasting down. Press R when you are ready to go again.',
-  finished: 'Run complete. Press R to run again.',
+  finished: 'Run complete. Press R, or Run Again, to go back to the line.',
 };
 
 export function RaceTrackScreen() {
@@ -28,8 +29,21 @@ export function RaceTrackScreen() {
   // Memoised so the session is not torn down and restarted on every render.
   const tune = useMemo(() => stockTune(car), [car]);
 
-  const { canvasRef, snapshot, startPass, throttle, setThrottle, releaseThrottle, width, height } =
-    useRaceSession(car, tune);
+  const {
+    canvasRef,
+    snapshot,
+    history,
+    clearHistory,
+    startPass,
+    throttle,
+    setThrottle,
+    releaseThrottle,
+    width,
+    height,
+  } = useRaceSession(car, tune);
+
+  const runComplete = snapshot.slip !== null;
+  const newBest = runComplete && lastRunWasBestEt(history);
 
   const prompt = snapshot.rolledThrough
     ? 'Rolled through the stage line — select R and back up into the window.'
@@ -57,9 +71,14 @@ export function RaceTrackScreen() {
       <p className="race__prompt">{prompt}</p>
 
       <div className="race__actions">
-        <button type="button" className="button" onClick={startPass}>
-          Reset Run
+        <button
+          type="button"
+          className={runComplete ? 'button' : 'button button--secondary'}
+          onClick={startPass}
+        >
+          {runComplete ? 'Run Again' : 'Reset Run'}
         </button>
+        {newBest && <span className="tag tag--best">New best ET this session</span>}
         <span className="tag">Single car &middot; No opponent until Stage 6</span>
       </div>
 
@@ -98,6 +117,8 @@ export function RaceTrackScreen() {
             </div>
           </section>
         )}
+
+        <RunHistoryPanel runs={history} onClear={clearHistory} />
 
         <DebugPanel snapshot={snapshot} />
       </div>
