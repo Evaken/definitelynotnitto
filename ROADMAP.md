@@ -224,14 +224,18 @@ fair game.
   is shared by the Showroom, department and product strips, with arrow-key and
   touch fallbacks.
 - Garage Setup and the Speedshop now form one continuous build workflow. The
-  exact selected car and appearance remain visible in the shop, each system has
-  a physical workshop-bay treatment, requirements link directly to the missing
-  part or stored inventory, and a completed installation retains its before/after
-  results with direct Garage, Dyno and Test Track actions.
+  exact selected car and appearance remain visible in the shop, requirements
+  link directly to the missing part or stored inventory, and a completed
+  installation retains its before/after results with direct Garage, Dyno and
+  Test Track actions.
 - Garage Setup now reveals only the hierarchy needed for the current decision:
   single-option subsystem bars and duplicate fitted/empty panels are omitted,
   stock systems collapse into one clear Speedshop action, and owned systems show
   one compact component selector and comparison beside the car.
+- Vehicle Setup uses a fixed, reference-led game composition rather than a
+  responsive dashboard: the customized car dominates a restrained blue stage,
+  secondary subsystem choices live inside one contextual drawer, and generated-
+  looking cards, graphs, stat tiles, glow effects and explanatory copy are absent.
 
 ### Stage 4 — Tuning and Dyno
 
