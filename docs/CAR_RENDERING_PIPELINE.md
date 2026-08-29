@@ -29,14 +29,15 @@ bonnets, roofs, wheelbases and boot lines are per-car data.
 
 ## Preparing the Civic pack
 
-The checked-in assets live at:
+The original pilot remains in `v1`; the corrected current pack lives at:
 
 ```
-apps/web/public/assets/cars/civic-si/v1/
+apps/web/public/assets/cars/civic-si/v2/
   garage-body.webp
   garage-paint-mask.png
   race-body.webp
   race-paint-mask.png
+  wheel-mesh.webp
 ```
 
 Rebuild them from clean masters with:
@@ -48,9 +49,12 @@ python tools/prepare_civic_asset_pack.py `
 ```
 
 The tool removes the authoring background, fits the fixed 768×512 canvas,
-creates true wheel apertures, neutralises baked paint and derives the paint
-masks. Its polygons are calibration data for this exact Civic and camera view.
-Change them only after inspecting a full-size composite.
+neutralises baked paint and derives the paint masks. The current stock Civic
+keeps its photographed tyres and factory wheels. An aftermarket choice overlays
+only a perspective-scaled rim face inside the existing tyre; do not cut guessed
+elliptical holes through the body again. Mask polygons are calibration data for
+this exact Civic and camera view. Change them only after inspecting a full-size
+composite.
 
 ## Adding another car
 

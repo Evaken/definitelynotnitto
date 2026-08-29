@@ -17,7 +17,7 @@ function load(url:string):Promise<HTMLImageElement>{
 }
 
 export function preloadCivicPack(view:CivicViewId):Promise<readonly HTMLImageElement[]>{
-  const manifest=CIVIC_ASSET_PACK.views[view];return Promise.all([load(civicAssetUrl(manifest.bodyAsset)),load(civicAssetUrl(manifest.paintMaskAsset))]);
+  const manifest=CIVIC_ASSET_PACK.views[view];return Promise.all([load(civicAssetUrl(manifest.bodyAsset)),load(civicAssetUrl(manifest.paintMaskAsset)),...(manifest.wheelAsset?[load(civicAssetUrl(manifest.wheelAsset))]:[])]);
 }
 
 export async function renderCivicToCanvas(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearance):Promise<void>{
@@ -40,10 +40,11 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   canvas.width=manifest.width;canvas.height=manifest.height;const ctx=canvas.getContext('2d');if(!ctx)return;
   const bodyOffset=view==='garage'?-appearance.rideHeight*.18:0;
   ctx.clearRect(0,0,canvas.width,canvas.height);drawShadow(ctx,view);
-  if(view==='garage')for(const slot of manifest.wheels)drawWheel(ctx,slot,appearance.components.wheels);
   drawSpoiler(ctx,view,appearance,bodyOffset,true);
   ctx.drawImage(body,0,bodyOffset,manifest.width,manifest.height);
   drawPaint(ctx,body,mask,manifest.baseHue,appearance,bodyOffset);
+  if(view==='garage'&&manifest.wheelAsset&&appearance.components.wheels!=='wheel-stock')for(const slot of manifest.wheels)drawWheel(ctx,slot,appearance.components.wheels,image(civicAssetUrl(manifest.wheelAsset)));
+  drawHood(ctx,view,appearance,bodyOffset);
   drawGraphics(ctx,mask,view,appearance,bodyOffset);
   drawPanelComponents(ctx,view,appearance,bodyOffset);
   drawDecals(ctx,view,appearance,bodyOffset);
@@ -82,30 +83,31 @@ function drawShadow(ctx:CanvasRenderingContext2D,view:CivicViewId):void{
   ctx.save();ctx.fillStyle='rgba(0,0,0,.55)';ctx.filter='blur(8px)';ctx.beginPath();if(view==='garage')ctx.ellipse(410,421,350,23,-.025,0,Math.PI*2);else ctx.ellipse(384,430,245,22,0,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 
-function drawWheel(ctx:CanvasRenderingContext2D,slot:WheelSlot,id:string):void{
+function drawWheel(ctx:CanvasRenderingContext2D,slot:WheelSlot,id:string,rim:HTMLImageElement):void{
   const x=slot.x*ctx.canvas.width,y=slot.y*ctx.canvas.height,r=slot.radius*ctx.canvas.height;ctx.save();ctx.translate(x,y);ctx.rotate(slot.rotation);ctx.scale(slot.squash,1);
-  const tyre=ctx.createRadialGradient(-r*.22,-r*.2,r*.1,0,0,r);tyre.addColorStop(0,'#41464b');tyre.addColorStop(.55,'#171a1d');tyre.addColorStop(1,'#050607');ctx.fillStyle=tyre;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#090b0d';ctx.beginPath();ctx.arc(0,0,r*.73,0,Math.PI*2);ctx.fill();const rim=ctx.createRadialGradient(-r*.16,-r*.2,0,0,0,r*.68);rim.addColorStop(0,'#f1f4f5');rim.addColorStop(.45,id==='wheel-drag'?'#aeb5bb':'#727a80');rim.addColorStop(1,'#25292d');ctx.fillStyle=rim;ctx.beginPath();ctx.arc(0,0,r*.66,0,Math.PI*2);ctx.fill();
-  const spokes=id==='wheel-mesh'?12:id==='wheel-drag'?8:5;ctx.strokeStyle=id==='wheel-drag'?'#d7dbde':'#d2d8dc';ctx.shadowColor='#111';ctx.shadowBlur=2;ctx.lineWidth=Math.max(2,r*(id==='wheel-mesh'?.055:.1));for(let index=0;index<spokes;index++){const angle=index/spokes*Math.PI*2+(id==='wheel-five-spoke'?.18:0);ctx.beginPath();ctx.moveTo(Math.cos(angle)*r*.16,Math.sin(angle)*r*.16);ctx.lineTo(Math.cos(angle)*r*.6,Math.sin(angle)*r*.6);ctx.stroke();if(id==='wheel-mesh'){ctx.beginPath();ctx.moveTo(Math.cos(angle+.18)*r*.16,Math.sin(angle+.18)*r*.16);ctx.lineTo(Math.cos(angle+.36)*r*.6,Math.sin(angle+.36)*r*.6);ctx.stroke();}}
-  ctx.fillStyle='#151719';ctx.beginPath();ctx.arc(0,0,r*.13,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.filter=id==='wheel-drag'?'grayscale(.75) brightness(1.22)':id==='wheel-five-spoke'?'brightness(1.08)':'none';const diameter=r*1.56;ctx.drawImage(rim,-diameter*.5,-diameter*.5,diameter,diameter);ctx.restore();
 }
 
 function drawSpoiler(ctx:CanvasRenderingContext2D,view:CivicViewId,appearance:Appearance,offset:number,behind:boolean):void{
-  const id=appearance.components.spoiler;if(id==='spoiler-none')return;ctx.save();ctx.translate(0,offset);ctx.lineJoin='round';ctx.strokeStyle='#071015';ctx.fillStyle=`hsl(${appearance.hue} ${Math.max(25,appearance.saturation)}% ${Math.max(18,appearance.brightness*.42)}%)`;
+  const id=appearance.components.spoiler;if(id!=='spoiler-gt')return;ctx.save();ctx.translate(0,offset);ctx.lineJoin='round';ctx.strokeStyle='#071015';ctx.fillStyle=`hsl(${appearance.hue} ${Math.max(25,appearance.saturation)}% ${Math.max(18,appearance.brightness*.42)}%)`;
   if(view==='garage'){
-    if(behind){ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(665,120);ctx.lineTo(742,107);ctx.stroke();if(id==='spoiler-gt'){ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(679,117);ctx.lineTo(680,91);ctx.moveTo(728,109);ctx.lineTo(733,82);ctx.stroke();}}
-    else if(id==='spoiler-gt'){ctx.strokeStyle='#10181d';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(657,92);ctx.lineTo(748,79);ctx.stroke();ctx.strokeStyle='#8ba0aa';ctx.lineWidth=2;ctx.stroke();}
+    if(!behind){ctx.strokeStyle='#172329';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(675,124);ctx.lineTo(678,99);ctx.moveTo(721,127);ctx.lineTo(724,101);ctx.stroke();ctx.fillStyle='#172329';polygon(ctx,[[648,94],[746,96],[744,105],[650,102]]);ctx.fill();ctx.strokeStyle='#91a6ae';ctx.lineWidth=1.5;ctx.stroke();}
   }else if(!behind){const y=id==='spoiler-gt'?112:150;ctx.fillRect(205,y,358,id==='spoiler-gt'?13:8);if(id==='spoiler-gt'){ctx.fillRect(238,y,11,54);ctx.fillRect(519,y,11,54);}}
   ctx.restore();
+}
+
+function drawHood(ctx:CanvasRenderingContext2D,view:CivicViewId,appearance:Appearance,offset:number):void{
+  if(view!=='garage'||appearance.components.hood==='hood-stock')return;const hood:CivicPolygon=[[82,278],[264,197],[473,202],[347,320]];ctx.save();ctx.translate(0,offset);clipPolygon(ctx,hood);
+  if(appearance.components.hood==='hood-carbon'){ctx.fillStyle='#11181c';ctx.fillRect(55,180,450,170);ctx.strokeStyle='#4b5b62';ctx.lineWidth=1;for(let x=20;x<540;x+=9){ctx.beginPath();ctx.moveTo(x,178);ctx.lineTo(x-160,350);ctx.stroke();}}
+  else {const paint=ctx.createLinearGradient(110,300,450,195);paint.addColorStop(0,`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(20,appearance.brightness*.42)}%)`);paint.addColorStop(.48,`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(30,appearance.brightness*.62)}%)`);paint.addColorStop(1,`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(22,appearance.brightness*.48)}%)`);ctx.fillStyle=paint;ctx.fillRect(55,180,450,170);if(appearance.components.hood==='hood-vented'){ctx.fillStyle='rgba(3,10,13,.82)';ctx.beginPath();ctx.ellipse(291,251,56,9,-.19,0,Math.PI*2);ctx.fill();}}
+  ctx.restore();ctx.strokeStyle='rgba(205,230,238,.36)';ctx.lineWidth=1.4;polygon(ctx,hood);ctx.stroke();ctx.restore();
 }
 
 function drawPanelComponents(ctx:CanvasRenderingContext2D,view:CivicViewId,appearance:Appearance,offset:number):void{
   ctx.save();ctx.translate(0,offset);
   if(view==='garage'){
-    const hood:CivicPolygon=[[92,272],[220,207],[484,218],[359,316]];
-    if(appearance.components.hood!=='hood-stock'){clipPolygon(ctx,hood);if(appearance.components.hood==='hood-carbon'){ctx.fillStyle='#121a1e';ctx.fillRect(50,175,450,180);ctx.strokeStyle='#42515a';ctx.lineWidth=1;for(let x=30;x<520;x+=10){ctx.beginPath();ctx.moveTo(x,175);ctx.lineTo(x-160,355);ctx.stroke();}}else{ctx.fillStyle='rgba(20,35,42,.22)';ctx.fillRect(50,175,450,180);ctx.fillStyle='#081014';ctx.beginPath();ctx.ellipse(290,251,58,9,-.2,0,Math.PI*2);ctx.fill();}ctx.restore();}
     if(appearance.components.roof==='roof-sunroof'){ctx.fillStyle='rgba(4,11,17,.78)';polygon(ctx,[[392,98],[535,94],[590,114],[430,121]]);ctx.fill();ctx.strokeStyle='#8aa3ae';ctx.stroke();}
-    if(appearance.components.headlights==='lights-smoked'){ctx.fillStyle='rgba(4,8,10,.56)';polygon(ctx,[[47,255],[90,242],[97,315],[49,307]]);ctx.fill();polygon(ctx,[[220,287],[350,289],[357,340],[216,327]]);ctx.fill();}
+    if(appearance.components.headlights==='lights-smoked'){ctx.fillStyle='rgba(4,8,10,.5)';polygon(ctx,[[48,257],[98,245],[102,321],[49,318]]);ctx.fill();polygon(ctx,[[235,269],[348,270],[353,335],[231,330]]);ctx.fill();}
   }else{
     if(appearance.components.exhaustTip!=='exhaust-stock'){ctx.strokeStyle=appearance.components.exhaustTip==='exhaust-titanium'?'#6f83e7':'#e5ecef';ctx.lineWidth=7;ctx.beginPath();ctx.arc(493,381,17,0,Math.PI*2);ctx.stroke();}
   }

@@ -12,14 +12,15 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import colorsys
 from collections import deque
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageEnhance
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "apps" / "web" / "public" / "assets" / "cars" / "civic-si" / "v1"
+OUTPUT = ROOT / "apps" / "web" / "public" / "assets" / "cars" / "civic-si" / "v2"
 RACE_SOURCE = ROOT / "apps" / "web" / "public" / "assets" / "race-civic-ek-rear-v2.webp"
 CANVAS = (768, 512)
 
@@ -89,16 +90,29 @@ def alpha_mask(image: Image.Image) -> Image.Image:
     return mask
 
 
-def cut_garage_wheel_wells(image: Image.Image) -> Image.Image:
-    """Make the authored empty wells true slots for wheels drawn underneath."""
+def paint_colour_mask(image: Image.Image, base_hue: float) -> Image.Image:
+    """Select the photographed blue paint without tinting glass, tyres or trim."""
 
-    result = image.convert("RGBA")
-    alpha = result.getchannel("A")
-    draw = ImageDraw.Draw(alpha)
-    draw.ellipse((368, 275, 478, 392), fill=0)
-    draw.ellipse((677, 240, 756, 331), fill=0)
-    result.putalpha(alpha)
-    return result
+    source = image.convert("RGBA")
+    alpha = Image.new("L", source.size)
+    output = alpha.load()
+    pixels = source.load()
+    for y in range(source.height):
+        for x in range(source.width):
+            red, green, blue, opacity = pixels[x, y]
+            if opacity == 0:
+                continue
+            hue, saturation, value = colorsys.rgb_to_hsv(red / 255, green / 255, blue / 255)
+            distance = abs((hue * 360 - base_hue + 180) % 360 - 180)
+            if distance > 92 or saturation < 0.055 or value < 0.035:
+                continue
+            hue_weight = max(0.0, 1.0 - distance / 105)
+            saturation_weight = min(1.0, saturation / 0.22)
+            output[x, y] = round(opacity * max(0.72, hue_weight * saturation_weight))
+    alpha = alpha.filter(ImageFilter.MaxFilter(5)).filter(ImageFilter.GaussianBlur(0.8))
+    mask = Image.new("RGBA", source.size, (255, 255, 255, 0))
+    mask.putalpha(alpha)
+    return mask
 
 
 def save_webp(image: Image.Image, destination: Path) -> None:
@@ -131,6 +145,17 @@ def erase_mask_polygons(mask: Image.Image, polygons: list[list[tuple[int, int]]]
     return mask
 
 
+def erase_mask_ellipses(mask: Image.Image, ellipses: list[tuple[int, int, int, int]]) -> Image.Image:
+    """Keep complete photographed wheels out of the body-paint zone."""
+
+    alpha = mask.getchannel("A")
+    draw = ImageDraw.Draw(alpha)
+    for ellipse in ellipses:
+        draw.ellipse(ellipse, fill=0)
+    mask.putalpha(alpha)
+    return mask
+
+
 def fit_canvas(image: Image.Image) -> Image.Image:
     """Contain artwork without changing the source camera's aspect ratio."""
 
@@ -148,16 +173,20 @@ def main() -> None:
     args = parser.parse_args()
 
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    garage = remove_connected_checkerboard(Image.open(args.garage_master))
-    garage = cut_garage_wheel_wells(fit_canvas(garage))
-    garage_mask = erase_mask_polygons(alpha_mask(garage), [
-        [(205, 156), (390, 96), (513, 120), (487, 216), (226, 211)],
-        [(504, 105), (651, 112), (731, 214), (529, 219)],
-        [(128, 250), (331, 190), (459, 244), (263, 313)],
-        [(47, 254), (91, 242), (99, 316), (48, 307)],
-        [(216, 285), (349, 288), (357, 341), (214, 329)],
-        [(88, 313), (211, 313), (207, 343), (91, 343)],
-        [(31, 340), (196, 344), (201, 389), (31, 383)],
+    garage = fit_canvas(remove_connected_checkerboard(Image.open(args.garage_master)))
+    garage_mask = paint_colour_mask(garage, 220)
+    garage_mask = erase_mask_polygons(garage_mask, [
+        [(263, 147), (392, 91), (494, 109), (469, 196), (274, 195)],
+        [(500, 107), (644, 104), (707, 196), (530, 197)],
+        [(100, 260), (260, 192), (468, 205), (341, 307)],
+        [(48, 257), (98, 245), (102, 321), (49, 318)],
+        [(235, 269), (348, 270), (353, 335), (231, 330)],
+        [(96, 321), (226, 322), (221, 346), (99, 345)],
+        [(58, 354), (211, 355), (211, 383), (61, 381)],
+    ])
+    garage_mask = erase_mask_ellipses(garage_mask, [
+        (367, 293, 479, 438),
+        (666, 236, 758, 359),
     ])
     save_webp(neutralise_paint(garage, garage_mask), OUTPUT / "garage-body.webp")
     garage_mask.save(OUTPUT / "garage-paint-mask.png", optimize=True)

@@ -8,6 +8,7 @@ export interface CivicViewManifest {
   readonly height:number;
   readonly bodyAsset:string;
   readonly paintMaskAsset:string;
+  readonly wheelAsset?:string;
   readonly baseHue:number;
   readonly contactY:number;
   readonly wheels:readonly WheelSlot[];
@@ -17,7 +18,7 @@ export interface CivicViewManifest {
 export interface CivicAssetPack {
   readonly id:'civic-si';
   readonly schemaVersion:1;
-  readonly assetVersion:1;
+  readonly assetVersion:number;
   readonly views:Readonly<Record<CivicViewId,CivicViewManifest>>;
 }
 
@@ -29,11 +30,11 @@ const hidden:Quad=[[0,0],[0,0],[0,0],[0,0]];
  * same structure without changing application code.
  */
 export const CIVIC_ASSET_PACK:CivicAssetPack={
-  id:'civic-si',schemaVersion:1,assetVersion:1,
+  id:'civic-si',schemaVersion:1,assetVersion:2,
   views:{
     garage:{
-      width:768,height:512,bodyAsset:'assets/cars/civic-si/v1/garage-body.webp',paintMaskAsset:'assets/cars/civic-si/v1/garage-paint-mask.png',baseHue:220,contactY:.84,
-      wheels:[{x:.551,y:.648,radius:.111,squash:.96,rotation:-.03},{x:.933,y:.56,radius:.083,squash:.9,rotation:-.025}],
+      width:768,height:512,bodyAsset:'assets/cars/civic-si/v2/garage-body.webp',paintMaskAsset:'assets/cars/civic-si/v2/garage-paint-mask.png',wheelAsset:'assets/cars/civic-si/v2/wheel-mesh.webp',baseHue:220,contactY:.86,
+      wheels:[{x:.548,y:.696,radius:.126,squash:.75,rotation:0},{x:.922,y:.58,radius:.096,squash:.73,rotation:0}],
       surfaces:{
         hood:[[.12,.55],[.52,.39],[.61,.51],[.31,.66]],
         'left-door':[[.61,.43],[.84,.39],[.88,.61],[.61,.67]],
@@ -43,7 +44,7 @@ export const CIVIC_ASSET_PACK:CivicAssetPack={
       },
     },
     'race-rear':{
-      width:768,height:512,bodyAsset:'assets/cars/civic-si/v1/race-body.webp',paintMaskAsset:'assets/cars/civic-si/v1/race-paint-mask.png',baseHue:48,contactY:.86,wheels:[],
+      width:768,height:512,bodyAsset:'assets/cars/civic-si/v2/race-body.webp',paintMaskAsset:'assets/cars/civic-si/v2/race-paint-mask.png',baseHue:48,contactY:.86,wheels:[],
       surfaces:{
         hood:hidden,
         'left-door':hidden,

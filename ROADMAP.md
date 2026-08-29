@@ -348,6 +348,10 @@ Completion criteria met:
   composed from the same saved recipe in garage-facing views and on the strip.
   This is the mechanical production pilot; its generated wheel/attachment art
   remains replaceable per layer. See `docs/CAR_RENDERING_PIPELINE.md`.
+- Civic pack v2 corrects the failed wheel-hole experiment: factory wheels stay
+  in the photographed master and aftermarket rims align inside those tyres.
+  Unsupported lip artwork now falls back to the photographed body instead of
+  drawing an uncalibrated shape.
 
 Completion criteria met:
 
