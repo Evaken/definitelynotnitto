@@ -2,6 +2,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from
 import { DECAL_CATALOG,stockAppearance,type Appearance,type DecalPlacement,type Part,type PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 import { vehiclePortraitUrl } from '../vehicleArt.js';
+import {useEdgePan} from '../useEdgePan.js';
 
 export const WORKSHOP_GROUPS = [
   { id: 'intake', label: 'Intake', shortLabel: 'IN', categories: ['intake'] },
@@ -33,13 +34,6 @@ export function categoriesForGroup(groupId: WorkshopGroupId): readonly PartCateg
 export function partsForGroup(parts: readonly Part[], groupId: WorkshopGroupId): Part[] {
   const group = WORKSHOP_GROUPS.find((candidate) => candidate.id === groupId) ?? WORKSHOP_GROUPS[0];
   return parts.filter((part) => (group.categories as readonly PartCategory[]).includes(part.category));
-}
-
-export function edgeScroll(event:ReactPointerEvent<HTMLElement>):void{
-  if(event.pointerType==='touch')return;
-  const target=event.currentTarget;const bounds=target.getBoundingClientRect();const position=(event.clientX-bounds.left)/bounds.width;
-  const velocity=position<.18?(position-.18)*34:position>.82?(position-.82)*34:0;
-  if(velocity)target.scrollLeft+=velocity;
 }
 
 export function WorkshopFrame({ cash, children, showDepartments = false, onBack, shop = false, activeDepartment='modifications', onDepartmentChange, carLabel='Honda Civic Si Hatchback' }: {
@@ -77,7 +71,7 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
       <footer className="workshop-status">
         <div><span>Selected car</span><strong>{carLabel}</strong></div>
         <div><span>Account</span><strong>${cash.toLocaleString()}</strong></div>
-        <div><span>Challenges</span><strong>Offline · Stage 6</strong></div>
+        <div><span>Garage status</span><strong>Build saved</strong></div>
       </footer>
     </div>
   );
@@ -101,7 +95,8 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   showAll?: boolean;
 }) {
   const groups = showAll ? WORKSHOP_GROUPS : WORKSHOP_GROUPS;
-  return <div className="category-carousel" aria-label="Modification categories" onPointerMove={edgeScroll}>
+  const edgePan=useEdgePan<HTMLDivElement>();
+  return <div className="category-carousel edge-pan" aria-label="Modification categories. Move the pointer toward either edge to browse." {...edgePan}>
     {groups.map(group => {
       return <button key={group.id} type="button"
         className={`category-card${activeGroup===group.id?' category-card--active':''}`}
@@ -137,13 +132,14 @@ function decalPosition(surface:DecalPlacement['surface'],x:number,y:number):{lef
   return{left:bounds[0]+x*(bounds[1]-bounds[0]),top:bounds[2]+y*(bounds[3]-bounds[2])};
 }
 
-export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance }) {
+export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance,focusGroup }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance;focusGroup?:WorkshopGroupId }) {
   const fitted=new Set(fittedParts.map(part=>part.category));
-  const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`)).join(' ');
+  const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`),focusGroup?`car-bay--focus-${focusGroup}`:'').join(' ');
   return (
     <div className={`car-bay ${fittedClasses}`} aria-label={`${title}, ${subtitle}`}>
       <div className="car-bay__scanlines" />
       <div className="car-bay__sweep" />
+      <div className="car-bay__scene" aria-hidden="true"><i/><i/><b/></div>
       <div className="car-bay__badge">{badge}</div>
       <VehiclePortrait carId={carId} {...(appearance?{appearance}:{})}/>
       <div className="car-bay__identity"><strong>{title}</strong><span>{subtitle}</span></div>

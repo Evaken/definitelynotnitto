@@ -1,17 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect,useMemo,useState } from 'react';
 import { CUSTOMIZATION_CATALOG,DECAL_CATALOG,WHEEL_IDS,averageQuarterMileEt, fitPart, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, removePart, repairCost, resolveBuild, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune, type VisualSlot } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, VehiclePortrait, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { PerformancePreview } from './PerformancePreview.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
+import {useEdgePan} from '../useEdgePan.js';
 
-export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void}){
-  const [view,setView]=useState<'overview'|'setup'|'tune'|'paint'|'maintenance'>('overview');
-  const [group,setGroup]=useState<WorkshopGroupId>('intake');
-  const [category,setCategory]=useState<PartCategory>('intake');
+type GarageView='overview'|'setup'|'tune'|'paint'|'maintenance';
+export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect,initialView='overview',initialGroup='intake'}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:(group:WorkshopGroupId)=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void;initialView?:GarageView;initialGroup?:WorkshopGroupId}){
+  const [view,setView]=useState<GarageView>(initialView);
+  const [group,setGroup]=useState<WorkshopGroupId>(initialGroup);
+  const [category,setCategory]=useState<PartCategory>(categoriesForGroup(initialGroup)[0]??'intake');
   const [selectedId,setSelectedId]=useState('');
   const groupParts=useMemo(()=>partsForGroup(partList(),group),[group]);
   const categories=categoriesForGroup(group);
   const owned=groupParts.filter(part=>part.category===category&&state.ownedPartIds.includes(part.id));
+  const fittedHere=owned.filter(part=>state.build.fittedPartIds.includes(part.id));
   const selected=owned.find(part=>part.id===selectedId)??owned[0];
   const fittedParts=state.build.fittedPartIds.map(getPart);
   const completed=history.filter(slip=>!slip.incomplete);
@@ -22,6 +25,8 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
   const torque=peakTorque(car.engine.curve);
   const activeCar:OwnedCarState={vehicleId:state.selectedVehicleId??'selected',build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};
   const garageCars=state.hasSelectedCar?[activeCar,...state.ownedCars]:[];
+  const [pendingSetup,setPendingSetup]=useState<string|null>(null);
+  const garagePan=useEdgePan<HTMLDivElement>(),categoryPan=useEdgePan<HTMLElement>(),subcategoryPan=useEdgePan<HTMLElement>();
 
   /**
    * Open Vehicle Setup on a system the player owns something in.
@@ -37,29 +42,31 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
     }
     setView('setup');
   };
+  useEffect(()=>{if(!pendingSetup||state.selectedVehicleId!==pendingSetup)return;setPendingSetup(null);openSetup();},[pendingSetup,state.selectedVehicleId]);
+  useEffect(()=>{if(view!=='overview')return;const frame=requestAnimationFrame(()=>{const node=garagePan.ref.current,selectedCard=node?.querySelector<HTMLElement>('[aria-current="true"]');if(node&&selectedCard)node.scrollTo({left:selectedCard.offsetLeft-(node.clientWidth-selectedCard.clientWidth)/2,behavior:'smooth'});});return()=>cancelAnimationFrame(frame);},[state.selectedVehicleId,view,garageCars.length]);
 
   const carLabel=`${car.manufacturer} ${car.displayName}`;
   if(!state.hasSelectedCar)return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash}><section className="garage-overview garage-overview--empty"><header><span>Your Garage</span><h2>No Vehicles Owned</h2><p>Your first purchase becomes the selected car. Keep buying cars and switch between every build stored here.</p></header><div className="empty-garage-bay"><strong>0 CARS GARAGED</strong><p>Every car keeps its own parts, tune, paint, wheels, ride height and condition.</p><button type="button" onClick={onVisitShowroom}>Visit Car Showroom</button></div></section></WorkshopFrame></div>;
   if(view==='overview')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} carLabel={carLabel}>
-    <section className="garage-overview">
-      <header><span>Your Garage</span><h2>Garage Vehicles</h2><p>Select a garaged vehicle or enter Vehicle Setup for the active car.</p></header>
-      <div className="garage-carousel" aria-label="Owned vehicles">
+    <section className="garage-overview garage-overview--cars">
+      <div className="garage-gallery-chrome" aria-hidden="true"/>
+      <div className="garage-carousel edge-pan" aria-label="Owned vehicles. Move the pointer toward either edge to browse." {...garagePan}>
         {garageCars.map(item=>{
           const itemCar=getCar(item.build.carId);const isSelected=item.vehicleId===state.selectedVehicleId;
           const average=isSelected?averageEt:null;const bracket=isSelected?bestEt:null;
           return <article key={item.vehicleId} className={`garage-vehicle-card${isSelected?' garage-vehicle-card--selected':''}`} aria-current={isSelected?'true':undefined}>
             <header><span>{itemCar.manufacturer}</span><strong>{itemCar.displayName}</strong></header>
-            <button type="button" className="vehicle-setup-button" onClick={()=>isSelected?openSetup():onSelect(item.vehicleId)}>Vehicle Setup</button>
+            <button type="button" className="vehicle-setup-button" onClick={()=>{if(isSelected)openSetup();else{setPendingSetup(item.vehicleId);onSelect(item.vehicleId);}}}>Vehicle Setup</button>
             <dl className="garage-records">
               <div><dt>Average ET</dt><dd>{average===null?'--.---':average.toFixed(3)}</dd></div>
               <div><dt>Bracket ET</dt><dd>{bracket===null?'--.---':bracket.toFixed(3)}</dd></div>
             </dl>
             <VehiclePortrait carId={item.build.carId} appearance={item.appearance} className="garage-vehicle-card__portrait"/>
-            <small>{itemCar.year} {itemCar.displayName} · {item.build.fittedPartIds.length} upgrade{item.build.fittedPartIds.length===1?'':'s'} · ID {item.vehicleId.slice(0,8)}</small>
             <button type="button" className="selected-car-button" disabled={isSelected} onClick={()=>onSelect(item.vehicleId)}>{isSelected?'Selected Car':'Garaged'}</button>
           </article>;
         })}
       </div>
+      {garageCars.length>2&&<p className="garage-pan-instruction">Move pointer left or right to browse your garage</p>}
     </section>
   </WorkshopFrame></div>;
 
@@ -71,19 +78,20 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
   if(view==='maintenance')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} showDepartments activeDepartment="maintenance" onDepartmentChange={changeDepartment} onBack={()=>setView('overview')}><section className="maintenance-bay"><header><span>Vehicle Maintenance</span><h2>Workshop Inspection</h2></header><CarBay carId={car.id} title={`${car.year} ${car.displayName}`} subtitle="Mechanical inspection" badge="MAINTENANCE" fittedParts={fittedParts} appearance={state.appearance}/><div className="condition-card"><div className="condition-dial" style={{'--condition':`${state.condition*3.6}deg`} as React.CSSProperties}><strong>{state.condition.toFixed(1)}%</strong><span>Condition</span></div><div><h3>{state.condition>85?'Race ready':state.condition>55?'Service recommended':'Critical wear'}</h3><p>Over-revving, sustained boost and nitrous use add stress. Damage reduces engine output until repaired.</p><dl><div><dt>Power retained</dt><dd>{Math.round(70+state.condition*.3)}%</dd></div><div><dt>Repair estimate</dt><dd>${repairCost(state).toLocaleString()}</dd></div></dl><button type="button" className="workshop-action" disabled={repairCost(state)===0||state.cash<repairCost(state)} onClick={onRepair}>Authorise Repairs</button></div></div><p className={`workshop-message${message?' workshop-message--active':''}`}>{message||'Inspection results update after every completed pass.'}</p></section></WorkshopFrame></div>;
 
   return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} carLabel={carLabel} showDepartments activeDepartment="modifications" onDepartmentChange={changeDepartment} onBack={()=>setView('overview')}>
-    <nav className="setup-category-strip" aria-label="Installed-part categories">
+    <nav className="setup-category-strip edge-pan" aria-label="Installed-part categories" {...categoryPan}>
       {WORKSHOP_GROUPS.filter(item=>!('lockedStage' in item)).map(item=><button key={item.id} data-sound="select" type="button" aria-pressed={group===item.id} className={group===item.id?'active':''} onClick={()=>chooseGroup(item.id)}>{item.label}</button>)}
     </nav>
-    <nav className="setup-subcategory-strip" aria-label={`${WORKSHOP_GROUPS.find(item=>item.id===group)?.label} systems`}>
+    <nav className="setup-subcategory-strip edge-pan" aria-label={`${WORKSHOP_GROUPS.find(item=>item.id===group)?.label} systems`} {...subcategoryPan}>
       {categories.map(item=><button key={item} data-sound="select" type="button" className={category===item?'active':''} aria-pressed={category===item} onClick={()=>{setCategory(item);setSelectedId('');}}>{categoryLabel(item)}</button>)}
     </nav>
     <div className="workshop__stage">
       <div className="workshop__visual">
-        <CarBay key={group} carId={car.id} title={`${car.year} ${car.manufacturer} ${car.displayName}`} subtitle={`${car.engine.code} · ${car.drivetrain} · ${state.build.fittedPartIds.length ? `${state.build.fittedPartIds.length} upgrade${state.build.fittedPartIds.length===1?'':'s'} fitted` : 'factory specification'}`} badge={WORKSHOP_GROUPS.find(item=>item.id===group)?.label.toUpperCase()??'MODIFICATIONS'} fittedParts={fittedParts} appearance={state.appearance}/>
+        <CarBay key={group} carId={car.id} title={`${car.year} ${car.manufacturer} ${car.displayName}`} subtitle={`${car.engine.code} · ${car.drivetrain} · ${state.build.fittedPartIds.length ? `${state.build.fittedPartIds.length} upgrade${state.build.fittedPartIds.length===1?'':'s'} fitted` : 'factory specification'}`} badge={WORKSHOP_GROUPS.find(item=>item.id===group)?.label.toUpperCase()??'MODIFICATIONS'} fittedParts={fittedParts} appearance={state.appearance} focusGroup={group}/>
         <dl className="workshop-stats"><div><dt>Power</dt><dd>{Math.round(peakHp)}<small> hp</small></dd></div><div><dt>Torque</dt><dd>{Math.round(torque.torqueNm)}<small> Nm</small></dd></div><div><dt>Weight</dt><dd>{Math.round(car.chassis.massKg)}<small> kg</small></dd></div><div><dt>Grip</dt><dd>{car.tyres.peakGrip.toFixed(2)}<small> μ</small></dd></div></dl>
       </div>
       <section className="workshop__inventory garage-components">
         <header><span>{categoryLabel(category)}</span><small>{owned.length} here · {owned.filter(part=>state.build.fittedPartIds.includes(part.id)).length} fitted · {state.ownedPartIds.length} total</small></header>
+        <div className="garage-slot-summary"><span>Currently fitted</span><strong>{fittedHere.length?fittedHere.map(part=>part.displayName).join(' + '):`Factory ${categoryLabel(category)}`}</strong><small>{fittedHere.length?'Select a stored component below to compare or swap.':'Original equipment remains on the car.'}</small></div>
         <div className="garage-component-browser">
           <div className="garage-component-list" role="listbox" aria-label="Owned components">
             {owned.length===0?<div className="empty-slot"><strong>Nothing owned in {categoryLabel(category)}</strong><span>{state.ownedPartIds.length>0?`You own ${state.ownedPartIds.length} part${state.ownedPartIds.length===1?'':'s'} in other systems — pick another tab above.`:'Factory equipment fitted. Visit the Speedshop to buy a component.'}</span></div>:owned.map(part=>{
@@ -91,7 +99,7 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
               return <button key={part.id} type="button" role="option" aria-selected={selected?.id===part.id} className={selected?.id===part.id?'active':''} onClick={()=>setSelectedId(part.id)}><span><strong>{part.displayName}</strong><small>{partBrand(part)}</small></span><b className={fitted?'installed':'stored'}>{fitted?'Installed':'Stored'}</b></button>;
             })}
           </div>
-          {selected?<GaragePartDetail key={selected.id} state={state} car={car} part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>:<FactoryComponent category={category} onVisitShop={onVisitShop}/>}
+          {selected?<GaragePartDetail key={selected.id} state={state} car={car} part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>:<FactoryComponent category={category} onVisitShop={()=>onVisitShop(group)}/>}
         </div>
         <p className={`workshop-message${message?' workshop-message--active':''}`} aria-live="polite">{message||'Owned parts remain in storage when removed and can be reinstalled later.'}</p>
       </section>
@@ -105,7 +113,7 @@ function GaragePartDetail({state,car,part,installed,onFit,onRemove}:{state:Garag
     <span className="part-detail__eyebrow">{partBrand(part)} · {categoryLabel(part.category)}</span>
     <h2>{part.displayName}</h2>
     <p>{effectSummary(part)}</p>
-    <small>{part.requires.length?'Supporting hardware must be fitted first.':'Direct fit for the selected Civic.'}</small>
+    <small>{part.requires.length?'Supporting hardware must be fitted first.':`Direct fit for the selected ${car.displayName}.`}</small>
     <PerformancePreview current={car} next={projected}/>
     <div className="garage-part-detail__actions"><button type="button" className="workshop-action workshop-action--secondary" data-sound="engine">Start Engine</button><button type="button" className="workshop-action" data-sound="install" onClick={()=>installed?onRemove(part.id):onFit(part.id)}>{installed?'Uninstall Part':'Install Part'}</button></div>
   </article>;

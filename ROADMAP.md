@@ -218,6 +218,16 @@ fair game.
   owned-car carousel, per-car Vehicle Setup and selection controls, original-
   style ET readouts and a persistent selected-car rail. Each tile uses the exact
   owned model and that car's saved appearance rather than a hard-coded Civic.
+- The overview was reduced to the cars themselves: two large period-style bays
+  fill the screen, while moving the pointer toward either edge continuously pans
+  larger collections without exposing a browser scrollbar. The same interaction
+  is shared by the Showroom, department and product strips, with arrow-key and
+  touch fallbacks.
+- Garage Setup and the Speedshop now form one continuous build workflow. The
+  exact selected car and appearance remain visible in the shop, each system has
+  a physical workshop-bay treatment, requirements link directly to the missing
+  part or stored inventory, and a completed installation retains its before/after
+  results with direct Garage, Dyno and Test Track actions.
 
 ### Stage 4 — Tuning and Dyno
 
