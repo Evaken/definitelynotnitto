@@ -1,4 +1,4 @@
-import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
+import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import type { Appearance, Part, PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 
@@ -112,26 +112,48 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   </div>;
 }
 
-export function CarBay({ title, subtitle, badge, highlight, fittedParts=[],appearance }: { title: string; subtitle: string; badge: string; highlight?: WorkshopGroupId; fittedParts?:readonly Part[];appearance?:Appearance }) {
+const VEHICLE_ART: Readonly<Record<string,string>> = {
+  'civic-si':'garage-civic-ek.webp',
+  'rsx-type-s':'garage-rsx-type-s.webp',
+  'evo-vii':'garage-evo-vii.webp',
+  'supra-tt':'garage-supra-tt.webp',
+  'mustang-cobra':'garage-mustang-cobra.webp',
+  'skyline-gtr':'garage-skyline-gtr.webp',
+  'neon-srt4':'garage-neon-srt4.webp',
+  rx8:'garage-rx8.webp',
+  nsx:'garage-nsx.webp',
+  'viper-srt10':'garage-viper-srt10.webp',
+  'mopar-drag':'special-mopar-drag.webp',
+  'f-type-drag':'special-f-type-drag.webp',
+  'funny-car':'special-funny-car.webp',
+};
+
+export function VehiclePortrait({carId,appearance,className=''}:{carId:string;appearance?:Appearance;className?:string}){
+  const asset=VEHICLE_ART[carId]??VEHICLE_ART['civic-si']!;
+  const src=`${import.meta.env.BASE_URL}assets/${asset}`;
+  const visual=appearance??{hue:220,saturation:70,brightness:100,graphicsHue:195,wheelStyle:0,rideHeight:0};
+  const showGraphics=appearance!==undefined&&appearance.graphicsHue!==195;
+  const style={
+    '--vehicle-art':`url("${src}")`,
+    '--graphics-color':`hsl(${visual.graphicsHue} 90% 55%)`,
+    '--ride-offset':`${-visual.rideHeight/6}px`,
+  } as CSSProperties;
+  return <div className={`garage-car-art garage-car-art--${carId} ${className}`} style={style}>
+    <img className={`wheel-style-${visual.wheelStyle}`} style={{filter:`drop-shadow(0 18px 13px rgba(0,0,0,.8)) hue-rotate(${visual.hue-220}deg) saturate(${visual.saturation/70}) brightness(${visual.brightness/100})`}} src={src} alt="" draggable={false}/>
+    {showGraphics&&<span className="garage-car-art__graphics" aria-hidden="true"/>}
+    {visual.wheelStyle>0&&<span className={`appearance-wheels appearance-wheels--${visual.wheelStyle}`} aria-hidden="true"><i/><i/></span>}
+  </div>;
+}
+
+export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance }) {
   const fitted=new Set(fittedParts.map(part=>part.category));
   const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`)).join(' ');
   return (
-    <div className={`car-bay${highlight ? ` car-bay--${highlight}` : ''} ${fittedClasses}`} aria-label={`${title}, ${subtitle}`}>
+    <div className={`car-bay ${fittedClasses}`} aria-label={`${title}, ${subtitle}`}>
       <div className="car-bay__scanlines" />
       <div className="car-bay__sweep" />
       <div className="car-bay__badge">{badge}</div>
-      <div className="garage-car-art">
-        <img className={`wheel-style-${appearance?.wheelStyle??0}`} style={appearance?{filter:`drop-shadow(0 18px 13px rgba(0,0,0,.8)) hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`,transform:`scale(1.3) translateY(${appearance.rideHeight/5-2}px)`}:undefined} src={`${import.meta.env.BASE_URL}assets/garage-civic-ek.webp`} alt="" draggable={false}/>
-        {appearance&&appearance.wheelStyle>0&&<span className={`appearance-wheels appearance-wheels--${appearance.wheelStyle}`} style={{transform:`translateY(${appearance.rideHeight/5}px)`}}><i/><i/></span>}
-        <span className="garage-car-art__mod garage-car-art__mod--intercooler" />
-        <span className="garage-car-art__mod garage-car-art__mod--exhaust" />
-        <span className="garage-car-art__mod garage-car-art__mod--wheels" />
-        <span className="garage-car-art__mod garage-car-art__mod--suspension" />
-        <span className="garage-car-art__mod garage-car-art__mod--seat" />
-        <span className="garage-car-art__hotspot garage-car-art__hotspot--engine" />
-        <span className="garage-car-art__hotspot garage-car-art__hotspot--drivetrain" />
-        <span className="garage-car-art__hotspot garage-car-art__hotspot--rear" />
-      </div>
+      <VehiclePortrait carId={carId} {...(appearance?{appearance}:{})}/>
       <div className="car-bay__identity"><strong>{title}</strong><span>{subtitle}</span></div>
     </div>
   );

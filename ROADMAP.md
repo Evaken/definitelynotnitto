@@ -137,14 +137,12 @@ status-bar thumbnail, rear three-quarter for the strip. Ten cars makes twenty
 renders, each tintable in three separate zones because the paint shop is HSB
 sliders rather than preset colours.
 
-That full pipeline is not solved, and deliberately so. What exists is the seam:
-`CarArtwork` in `renderer/carSprite.ts`, now backed on the strip by an original
-clean-room Civic rear render. `PLACEHOLDER_CAR` remains as the loading and test
-fallback. Colours still arrive as parameters, but the present single bitmap can
-only take a light tint glaze; separately tintable body, graphics and number
-layers remain Stage 8's work.
-
-Still to add: `drawThreeQuarter`, once there is a screen that needs it.
+The garage side of that pipeline is now solved with clean-room front
+three-quarter portraits for all ten normal cars plus the three special cars.
+`VehiclePortrait` maps model id to art and applies each owned car's persisted
+paint, graphics, wheel and ride-height state at runtime. The strip side remains
+less complete: `CarArtwork` in `renderer/carSprite.ts` has a dedicated Civic
+rear render while other models retain the data-driven path fallback.
 
 ## Stage 2 — Nitto Driving Feel
 
@@ -211,10 +209,15 @@ fair game.
 - Cash, owned parts and the fitted build persist locally between visits. This is
   browser-only; Stage 9 still owns account and authoritative server saves.
 - Part detail screens show simulation-derived before/after power curves and
-  performance metrics, while visible workshop overlays reflect fitted systems.
+  performance metrics. Fitted hardware is identified in the component list and
+  stats; the inaccurate glowing car hotspots and component overlays were removed.
 - The workshop has original replacement component art, sound feedback,
   cursor-driven carousels and screen/component transitions. Exact art, sound
   and timing remain clean-room inventions rather than historical claims.
+- The garage overview now follows the surviving multi-car layout: a horizontal
+  owned-car carousel, per-car Vehicle Setup and selection controls, original-
+  style ET readouts and a persistent selected-car rail. Each tile uses the exact
+  owned model and that car's saved appearance rather than a hard-coded Civic.
 
 ### Stage 4 — Tuning and Dyno
 
@@ -304,10 +307,10 @@ Completion criteria met:
 
 - Paint Shop is enabled with body hue, saturation, brightness, graphics hue,
   four wheel designs and adjustable ride height.
-- Appearance is persistent per owned car, visible in the workshop and used by
-  the strip renderer. Factory Civic art remains untouched; a customised Civic
-  or other model uses layered path artwork whose body and graphic zones recolor
-  independently without multiplying full-car raster assets.
+- Appearance is persistent per owned car, visible in the garage and workshop
+  and used by the strip renderer. Garage portraits are recoloured at runtime,
+  with optional masked graphics and wheel treatments, without multiplying
+  full-car raster assets for every saved appearance.
 - Cosmetics are isolated from build and vehicle performance and cost no money
   until historical pricing evidence exists.
 
@@ -483,10 +486,10 @@ that asserts an exact ET now means rewriting it later.
 - **The throttle slider is pointer-only.** It carries ARIA roles for screen
   readers but no key bindings, because the obvious keys are taken by the gear
   selector and brake.
-- **Car artwork is only complete for the current Civic screens.** The strip now
-  uses an original clean-room rear three-quarter render and the workshop uses a
-  separate front three-quarter render. The other cars and true layered body,
-  graphics and number tinting still belong to Stages 7–8.
+- **Strip artwork still has one dedicated road-car raster.** The garage and
+  workshop now have model-specific clean-room portraits for the full roster,
+  but only the Civic has a dedicated rear three-quarter strip render. Other
+  models still use the data-driven path fallback during a pass.
 - **No opponent.** Single car against the clock until Stage 6, so the right lane
   and the right-hand timing board stay empty. That is a solo pass, which is a
   real thing on a real strip — not a bug.

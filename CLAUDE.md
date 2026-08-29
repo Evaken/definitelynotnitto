@@ -132,10 +132,11 @@ its own piece of work.
 - **`COMMUNITY` is only a navigation placeholder.** The surviving screenshots
   prove the eighth tab existed, so the race-interface rebuild restored it, but
   nothing reliable is known about the screen it opened.
-- **The car-art pipeline is incomplete.** The Civic now has an original
-  clean-room rear three-quarter strip render, with the generic path hatchback
-  retained only as its loading fallback. Multi-car artwork and separately
-  tintable paint layers remain Stage 8.
+- **The car-art pipeline is still split by screen.** The garage has clean-room
+  front three-quarter portraits for the full normal roster and model-specific
+  special-car renders. The strip still has a dedicated rear raster only for the
+  Civic; other models use the data-driven path fallback. Garage paint is applied
+  non-destructively at runtime rather than stored as separate raster variants.
 
 The starter car being the wrong Civic *was* on this list. It is fixed —
 `data/cars/civic-si.ts` is now a B16A2. Correcting it moved every figure in
