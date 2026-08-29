@@ -1,5 +1,5 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
-import type { Appearance, Part, PartCategory } from '@nitto/game-core';
+import { DECAL_CATALOG,stockAppearance,type Appearance,type DecalPlacement,type Part,type PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 import { vehiclePortraitUrl } from '../vehicleArt.js';
 
@@ -115,18 +115,26 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
 
 export function VehiclePortrait({carId,appearance,className=''}:{carId:string;appearance?:Appearance;className?:string}){
   const src=vehiclePortraitUrl(carId);
-  const visual=appearance??{hue:220,saturation:70,brightness:100,graphicsHue:195,wheelStyle:0,rideHeight:0};
-  const showGraphics=appearance!==undefined&&appearance.graphicsHue!==195;
+  const visual=appearance??{...stockAppearance(),hue:220,saturation:70,brightness:100};
+  const showGraphics=visual.graphicsId!=='none';
   const style={
     '--vehicle-art':`url("${src}")`,
     '--graphics-color':`hsl(${visual.graphicsHue} 90% 55%)`,
     '--ride-offset':`${-visual.rideHeight/6}px`,
   } as CSSProperties;
-  return <div className={`garage-car-art garage-car-art--${carId} ${className}`} style={style}>
+  return <div className={`garage-car-art garage-car-art--${carId} finish--${visual.finishId} graphics--${visual.graphicsId} component--${visual.components.spoiler} component--${visual.components.exhaustTip} component--${visual.components.hood} component--${visual.components.roof} component--${visual.components.headlights} ${className}`} style={style}>
     <img className={`wheel-style-${visual.wheelStyle}`} style={{filter:`drop-shadow(0 18px 13px rgba(0,0,0,.8)) hue-rotate(${visual.hue-220}deg) saturate(${visual.saturation/70}) brightness(${visual.brightness/100})`}} src={src} alt="" draggable={false}/>
     {showGraphics&&<span className="garage-car-art__graphics" aria-hidden="true"/>}
     {visual.wheelStyle>0&&<span className={`appearance-wheels appearance-wheels--${visual.wheelStyle}`} aria-hidden="true"><i/><i/></span>}
+    <span className="vehicle-accessory vehicle-accessory--spoiler" aria-hidden="true"/><span className="vehicle-accessory vehicle-accessory--exhaust" aria-hidden="true"/><span className="vehicle-accessory vehicle-accessory--hood" aria-hidden="true"/><span className="vehicle-accessory vehicle-accessory--roof" aria-hidden="true"/><span className="vehicle-accessory vehicle-accessory--lights" aria-hidden="true"/>
+    {visual.decals.map(decal=>{const item=DECAL_CATALOG.find(candidate=>candidate.id===decal.decalId);const position=decalPosition(decal.surface,decal.x,decal.y);return item?<span key={decal.instanceId} className={`vehicle-decal vehicle-decal--${decal.surface}`} style={{left:`${position.left}%`,top:`${position.top}%`,transform:`translate(-50%,-50%) rotate(${decal.rotation}deg) scale(${decal.scale})`,color:`hsl(${decal.colorHue} 90% 62%)`}} aria-hidden="true">{item.glyph}</span>:null;})}
   </div>;
+}
+
+function decalPosition(surface:DecalPlacement['surface'],x:number,y:number):{left:number;top:number}{
+  const surfaces:Record<DecalPlacement['surface'],readonly[number,number,number,number]>={hood:[25,50,42,57],'left-door':[47,67,43,60],'right-door':[47,67,43,60],roof:[43,61,29,42],'rear-quarter':[64,78,39,55]};
+  const bounds=surfaces[surface];
+  return{left:bounds[0]+x*(bounds[1]-bounds[0]),top:bounds[2]+y*(bounds[3]-bounds[2])};
 }
 
 export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance }) {

@@ -314,6 +314,15 @@ Completion criteria met:
   and used by the strip renderer. Garage portraits are recoloured at runtime,
   with optional masked graphics and wheel treatments, without multiplying
   full-car raster assets for every saved appearance.
+- Ownership now uses immutable vehicle-instance ids rather than model ids. A
+  player can own multiple copies of the same model, each retaining an
+  independent performance build and versioned visual recipe.
+- The recipe is catalogue-driven and server-validated: paint finish, graphic
+  style, wheels, spoiler, exhaust tip, hood, roof/sunroof, lights and up to 24
+  positioned decals. Adding a category grows the catalogue and renderer layers,
+  not a matrix of pre-rendered combinations.
+- Community member results can open a public garage showcase built from the
+  same authoritative recipes; private inventory and tune data are not exposed.
 - Cosmetics are isolated from build and vehicle performance and cost no money
   until historical pricing evidence exists.
 
@@ -324,6 +333,8 @@ Completion criteria met:
 - [x] Simulator logic contains no Civic-specific performance branch.
 - [x] Each owned model retains an independent visual setup without separate
       paint-specific renders.
+- [x] Multiple copies of one model have distinct ids and independent recipes.
+- [x] The server rejects unknown components and invalid decal placement.
 
 ### Stages 9–12 — Online Beta
 

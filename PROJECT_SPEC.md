@@ -475,6 +475,19 @@ base car body
 
 Do not introduce full 3D vehicle models unless the project direction is explicitly changed later.
 
+Implemented foundation:
+
+- A purchased car is a unique vehicle instance, not merely a model id. Players
+  may own multiple independently configured copies of the same model.
+- The server stores a versioned customisation recipe per vehicle: HSB paint,
+  finish, graphic design/colour, component slots and positioned decal layers.
+- Component and decal ids come from an allow-listed catalogue; the server
+  validates compatibility, placement bounds and decal count before saving.
+- Garage, workshop, showroom, strip and public Community showcases all consume
+  the same recipe. No combination-specific full-car image is stored.
+- New categories extend the catalogue and renderer slot rather than changing
+  the ownership schema.
+
 ---
 
 ## 5. User Interface Direction
@@ -981,11 +994,17 @@ Allow players to make visually distinct versions of the same car while retaining
 - Tyre appearance
 - Other cosmetics confirmed from Challenge research
 - Layered 2D vehicle rendering
+- Unique vehicle-instance ids and duplicate-model ownership
+- Versioned, server-authoritative customisation recipes
+- Paint finishes, graphics, spoilers, exhaust tips, hoods, roofs/headlights
+- Surface, position, scale, rotation and colour for decal instances
+- Public garage showcase rendering from the authoritative recipe
 
 ### Completion Criteria
 
 - Two players can own the same model but create clearly different-looking cars.
 - Cosmetic choices do not require separate full car renders for every combination.
+- Invalid catalogue ids or out-of-bounds decal recipes are rejected server-side.
 
 ---
 

@@ -1,0 +1,8 @@
+import {describe,expect,it} from 'vitest';
+import {migrateAppearance,stockAppearance,validateAppearance} from './customization.js';
+
+describe('vehicle customization recipes',()=>{
+  it('migrates the original six appearance fields into a versioned recipe',()=>{const appearance=migrateAppearance({hue:300,saturation:60,brightness:90,graphicsHue:20,wheelStyle:2,rideHeight:-15});expect(appearance).toMatchObject({schemaVersion:1,hue:300,finishId:'metallic',graphicsId:'none',wheelStyle:2,components:{wheels:'wheel-mesh',spoiler:'spoiler-none'},decals:[]});});
+  it('accepts catalogue components and positioned decals',()=>{const appearance={...stockAppearance(),finishId:'matte' as const,graphicsId:'twin-stripe' as const,components:{...stockAppearance().components,spoiler:'spoiler-gt',roof:'roof-sunroof'},decals:[{instanceId:'door-star',decalId:'decal-star',surface:'left-door' as const,x:.45,y:.6,scale:.4,rotation:-8,colorHue:55}]};expect(validateAppearance(appearance,'civic-si')).toMatchObject({ok:true,appearance:{finishId:'matte',graphicsId:'twin-stripe',components:{spoiler:'spoiler-gt',roof:'roof-sunroof'},decals:[{instanceId:'door-star'}]}});});
+  it('rejects unknown components, duplicate decal identities and unbounded placement',()=>{const stock=stockAppearance();expect(validateAppearance({...stock,components:{...stock.components,spoiler:'spoiler-hacked'}},'civic-si')).toMatchObject({ok:false});const decal={instanceId:'same',decalId:'decal-star',surface:'hood' as const,x:2,y:.5,scale:.4,rotation:0,colorHue:20};expect(validateAppearance({...stock,decals:[decal]},'civic-si')).toMatchObject({ok:false});});
+});

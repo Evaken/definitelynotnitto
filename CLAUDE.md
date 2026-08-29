@@ -129,9 +129,9 @@ asymptotically. Judge "stopped" against a threshold.
 Recorded in `ROADMAP.md` with the reasoning. Do not "fix" it in passing — it is
 its own piece of work.
 
-- **`COMMUNITY` is only a navigation placeholder.** The surviving screenshots
-  prove the eighth tab existed, so the race-interface rebuild restored it, but
-  nothing reliable is known about the screen it opened.
+- **Community is intentionally conservative.** It implements member search and
+  a read-only public vehicle showcase because those are required by the online
+  game, but does not invent unsupported historical forums or chat features.
 - **Career-special race art is still incomplete.** The ten normal showroom cars
   have clean-room front and rear portraits shared across garage, workshop,
   showroom, status rail and strip. The three career-special cars still use the

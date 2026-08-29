@@ -5,7 +5,7 @@ import { stockAppearance, stockTune, getCar } from '@nitto/game-core';
 describe('workshop save',()=>{
   it('round-trips valid owned and fitted parts',()=>{
     const state=parseWorkshopSave(JSON.stringify({cash:8120,ownedPartIds:['panel-filter'],build:{carId:'civic-si',fittedPartIds:['panel-filter']}}));
-    expect(state).toEqual({cash:8120,hasSelectedCar:true,ownedPartIds:['panel-filter'],build:{carId:'civic-si',fittedPartIds:['panel-filter']},tune:stockTune(getCar('civic-si')),condition:100,appearance:stockAppearance(),ownedCars:[],record:{wins:0,losses:0,races:0},transactions:[]});
+    expect(state).toEqual({cash:8120,hasSelectedCar:true,selectedVehicleId:'legacy-selected',nextVehicleSequence:2,ownedPartIds:['panel-filter'],build:{carId:'civic-si',fittedPartIds:['panel-filter']},tune:stockTune(getCar('civic-si')),condition:100,appearance:stockAppearance(),ownedCars:[],record:{wins:0,losses:0,races:0},transactions:[]});
   });
   it('drops unknown parts and fitted parts that are not owned',()=>{
     const state=parseWorkshopSave(JSON.stringify({cash:9000,ownedPartIds:['panel-filter','unknown'],build:{carId:'civic-si',fittedPartIds:['panel-filter','sports-muffler']}}));

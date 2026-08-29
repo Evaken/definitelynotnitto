@@ -18,6 +18,7 @@ createServer(async(request,response)=>{
     else if(request.method==='POST'&&url.pathname==='/api/login')result=await service.login(text(body,'username'),text(body,'password'));
     else if(request.method==='GET'&&url.pathname==='/api/me')result=await service.account(token);
     else if(request.method==='GET'&&url.pathname==='/api/players')result=await service.search(token,url.searchParams.get('q')??'');
+    else if(request.method==='GET'&&/^\/api\/players\/[^/]+\/garage$/.test(url.pathname))result=await service.publicGarage(token,url.pathname.split('/')[3]!);
     else if(request.method==='POST'&&url.pathname==='/api/garage/action')result=await service.garageAction(token,body as never);
     else if(request.method==='POST'&&url.pathname==='/api/cpu-races')result=await service.cpuRace(token,body as never);
     else if(request.method==='GET'&&url.pathname==='/api/challenges')result=await service.listChallenges(token);
@@ -38,7 +39,7 @@ createServer(async(request,response)=>{
     else if(request.method==='GET'&&url.pathname==='/api/admin/races'){requireAdmin(request);result=await service.adminRaces();}
     else if(request.method==='POST'&&/^\/api\/admin\/accounts\/[^/]+\/moderation$/.test(url.pathname)){requireAdmin(request);result=await service.moderateAccount(url.pathname.split('/')[4]!,Boolean(body.disabled));}
     else if(request.method==='POST'&&url.pathname==='/api/admin/backup'){requireAdmin(request);result={path:await store.backup()};}
-    else if(request.method==='GET'&&url.pathname==='/api/health')result={ok:true,schemaVersion:1,uptimeSeconds:Math.floor((Date.now()-startedAt)/1000)};
+    else if(request.method==='GET'&&url.pathname==='/api/health')result={ok:true,schemaVersion:2,uptimeSeconds:Math.floor((Date.now()-startedAt)/1000)};
     else throw new ApiError(404,'Route not found.');
     send(response,200,result);
   }catch(error){const status=error instanceof ApiError?error.status:500;if(status>=500)process.stderr.write(`${new Date().toISOString()} ${error instanceof Error?error.stack:String(error)}\n`);send(response,status,{error:error instanceof Error?error.message:'Server error'});}
