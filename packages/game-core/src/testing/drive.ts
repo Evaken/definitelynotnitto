@@ -97,16 +97,23 @@ const APPROACH_SPEED_MS = 0.7;
 /** ...and below this over the last few centimetres. */
 const CRAWL_SPEED_MS = 0.16;
 /**
- * How far the revs must fall after an upshift before the driver will take
- * another one.
+ * The driver will not take a second upshift until the revs have come down AND
+ * the clutch has taken up again.
  *
- * Without this the driver chain-shifts: the clutch is open through the change,
- * so the instant the shift completes the engine is still above the shift point
- * and it takes another, and another. A car with enough torque to keep the
- * clutch slipping walks itself into top gear at 30mph. A driver watching a
- * tacho does not do that.
+ * Without a guard the driver chain-shifts: the clutch is open through a change,
+ * so the instant it completes the engine is still above the shift point and
+ * another is taken, and another, until a torquey car is in top gear at 30mph.
+ *
+ * The guard used to be a flat 500rpm drop, which was worse than the disease.
+ * The limiter's own hysteresis is 250rpm, so an engine pinned against it
+ * oscillates in a band far narrower than 500 and the re-arm can never fire: the
+ * built Mustang sat in second at 62mph, on the limiter, for the whole run,
+ * unable to shift. It read as a traction problem and was not one.
+ *
+ * Waiting for the clutch instead is the physical distinction that matters --
+ * revs falling because the drive took up and pulled the engine down, rather
+ * than because the throttle was cut for the change.
  */
-const SHIFT_REARM_RPM = 500;
 
 /**
  * Shortest gap the driver will leave between upshifts, milliseconds.
@@ -268,7 +275,7 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
         if (sliding) throttle = Math.min(throttle, TRACTION_THROTTLE);
       }
 
-      if (rpm < plan.shiftRpm - SHIFT_REARM_RPM) readyToShift = true;
+      if (rpm < plan.shiftRpm && state.clutchLocked) readyToShift = true;
       if (
         readyToShift &&
         state.tick > shiftUpUntil &&

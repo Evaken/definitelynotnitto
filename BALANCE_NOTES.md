@@ -259,29 +259,54 @@ Against the engine, one number means the same thing everywhere. Sports holds
 1.08x peak, Race 1.35x, and neither is ever worse than the clutch the car came
 with.
 
-| Build | Torque | Clutch | Stock pass | Flat out | Managed |
+| Build | Grip | Stock pass | Flat out | Managed | Gap |
 |---|---|---|---|---|---|
-| civic-si | 409 | 553 | 15.29 @ 91 | 15.23 @ 113 | 12.21 @ 126 |
-| rsx-type-s | 506 | 683 | 14.99 @ 94 | 12.36 @ 131 | 12.05 @ 131 |
-| evo-vii | 597 | 806 | 12.82 @ 105 | 10.95 @ 127 | 10.79 @ 127 |
-| supra-tt | 700 | 945 | 13.83 @ 106 | 12.81 @ 129 | 11.23 @ 132 |
-| mustang-cobra | 1083 | 1462 | 14.05 @ 109 | 16.66 @ 62 | 11.70 @ 139 |
-| skyline-gtr | 794 | 1073 | 12.95 @ 107 | 9.94 @ 142 | 10.15 @ 142 |
-| neon-srt4 | 533 | 719 | 14.46 @ 101 | 13.53 @ 118 | 12.53 @ 119 |
-| rx8 | 547 | 738 | 14.27 @ 98 | 11.14 @ 138 | 10.90 @ 138 |
-| nsx | 770 | 1039 | 13.20 @ 106 | 10.32 @ 147 | 10.19 @ 147 |
-| viper-srt10 | 1388 | 1873 | 12.60 @ 120 | 15.07 @ 68 | 10.83 @ 151 |
+| skyline-gtr | 1.81 | 12.95 @ 107 | **9.57 @ 143** | 10.07 @ 142 | −0.50 |
+| nsx | 1.78 | 13.20 @ 106 | **9.58 @ 149** | 9.72 @ 149 | −0.14 |
+| viper-srt10 | 1.75 | 12.60 @ 120 | 10.25 @ 155 | 9.32 @ 157 | 0.93 |
+| rx8 | 1.73 | 14.27 @ 98 | **10.29 @ 140** | 10.41 @ 139 | −0.12 |
+| evo-vii | 1.80 | 12.82 @ 105 | **10.54 @ 128** | 10.66 @ 128 | −0.12 |
+| supra-tt | 1.72 | 13.83 @ 106 | 11.02 @ 133 | 10.69 @ 133 | 0.33 |
+| rsx-type-s | 1.68 | 14.99 @ 94 | 11.52 @ 134 | 11.39 @ 133 | 0.13 |
+| civic-si | 1.67 | 15.29 @ 91 | **11.61 @ 129** | 11.68 @ 128 | −0.07 |
+| mustang-cobra | 1.68 | 14.05 @ 109 | 12.47 @ 138 | 10.22 @ 143 | 2.25 |
+| neon-srt4 | 1.65 | 14.46 @ 101 | 13.33 @ 118 | 11.88 @ 121 | 1.45 |
+
+A negative gap means **flooring it is the quickest way down the track**, which is
+how the game should feel: the driver sees green and pins it. Eight of the ten are
+at or inside a third of a second either way.
+
+Getting there took three separate fixes, and only one of them was about grip.
+
+**The driver could not shift off the limiter.** The guard added to stop
+chain-shifting waited for the revs to fall 500rpm below the shift point, but the
+limiter's own hysteresis is 250rpm — so an engine pinned against it oscillates in
+a band half as wide as the re-arm needs, and the shift can never fire. The built
+Mustang sat in second gear at 62mph, on the limiter, for the entire run. It
+looked exactly like a traction problem and was not one: it was a bug, and it cost
+that car four seconds and 67mph of trap speed. The re-arm now waits for the
+clutch to take up instead, which is the physical difference between revs falling
+because the drive re-engaged and revs dipping because the throttle was cut for
+the change.
+
+**The clutch could not hold a built engine** — see above.
+
+**The grip parts were not scaled for what the engine parts do.** Drag radials
+gave 13% more grip against a torque increase of up to 170%, so a fully built car
+simply could not put its power down and a driver who lifted was three seconds
+quicker. Street tyres now give 15% and drag radials 45%. These are invented
+figures chosen for feel, which is what this file is for.
+
+**The Mustang and the Neon still reward a lift**, by 2.25s and 1.45s. They are
+the two cars whose torque is furthest ahead of what their tyres and drivetrain
+can use — 1083Nm through the back wheels, and 533Nm through the front of a car
+that unloads its drive wheels as it accelerates. Both still run well flat out
+(12.47 @ 138 and 13.33 @ 118); they are simply not at their best. Closing that
+too would mean either more grip for everyone, which makes the other eight a
+grip-fest, or cutting their torque specifically.
 
 Every car finishes, standard and fully built. Before this the Skyline finished
 neither.
-
-**The Mustang and the Viper still punish being floored** — 62 and 68mph through
-the traps against 139 and 151 when the throttle is managed. That is 1083 and
-1388Nm through the back wheels, and no clutch or gearing change hides it: the
-tyres simply will not take it. Left as it is, because the throttle slider is the
-game's central mechanic and a car that demands it is the point. It is the one
-place where the difference between flooring it and driving it is worth five
-seconds.
 
 ### Two things the driver was getting wrong
 
