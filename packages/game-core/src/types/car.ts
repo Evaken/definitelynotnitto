@@ -44,6 +44,18 @@ export interface ForcedInductionSpec {
   readonly peakBoostBar: number;
   /** Where a turbo starts making useful pressure. Ignored by a supercharger. */
   readonly spoolRpm: number;
+  /**
+   * Pressure the car already made when its torque curve was written, bar.
+   *
+   * Descriptive, not applied: a factory-turbocharged car's published torque
+   * figure already includes its own boost, so multiplying that curve by it again
+   * would count the turbo twice. What this does instead is set the baseline an
+   * upgrade is measured against -- adding a bar to an engine already running one
+   * is worth proportionally less than adding it to one running none.
+   *
+   * Zero, or absent, on a naturally aspirated engine.
+   */
+  readonly factoryBoostBar?: number;
 }
 
 export interface EngineSpec {

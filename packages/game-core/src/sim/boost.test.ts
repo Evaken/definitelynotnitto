@@ -94,3 +94,42 @@ describe('turning pressure into torque', () => {
     expect(high).toBeGreaterThan(low * 1.2);
   });
 });
+
+describe('a car that left the factory boosted', () => {
+  const factory: ForcedInductionSpec = {
+    type: 'turbo', peakBoostBar: 1, spoolRpm: 2600, factoryBoostBar: 1,
+  };
+
+  it('does not have its own boost counted twice', () => {
+    // A factory-turbo car's published torque figure already contains its boost.
+    // Multiplying that curve by the same boost again is what took a built Evo to
+    // 784Nm and made it undriveable.
+    expect(chargeTorqueMultiplier(factory, REDLINE, REDLINE)).toBe(1);
+  });
+
+  it('still shows that boost on the gauge', () => {
+    // The gauge should read what the engine is doing, and a stock Evo is making
+    // about fourteen pounds. It used to read zero.
+    expect(barToPsi(boostBar(factory, REDLINE, REDLINE, 1))).toBeGreaterThan(13);
+  });
+
+  it('gains less from a kit than an unboosted engine would', () => {
+    // The same kit on top of an already-pressurised manifold is worth
+    // proportionally less. That is the whole correction.
+    const upgraded: ForcedInductionSpec = { ...factory, peakBoostBar: 2.1 };
+    const fromNothing: ForcedInductionSpec = { type: 'turbo', peakBoostBar: 1.1, spoolRpm: 2600 };
+    expect(chargeTorqueMultiplier(upgraded, REDLINE, REDLINE)).toBeLessThan(
+      chargeTorqueMultiplier(fromNothing, REDLINE, REDLINE),
+    );
+    expect(chargeTorqueMultiplier(upgraded, REDLINE, REDLINE)).toBeGreaterThan(1);
+  });
+
+  it('leaves a naturally aspirated engine exactly as it was', () => {
+    // The factory figure defaults to zero, so the formula collapses to the ratio
+    // against atmosphere and the Civic -- the one balanced car -- does not move.
+    const na: ForcedInductionSpec = { type: 'turbo', peakBoostBar: 0.6, spoolRpm: 3200 };
+    expect(chargeTorqueMultiplier(na, REDLINE, REDLINE)).toBeCloseTo(
+      1 + (0.6 / ATMOSPHERIC_BAR) * 0.85, 10,
+    );
+  });
+});

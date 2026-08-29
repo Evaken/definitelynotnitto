@@ -97,8 +97,12 @@ export function purchaseAndFitPart(state:GarageState,id:string):GarageResult{
 export function resolveBuild(build:Build,condition=100):Car{
   const base=getCar(build.carId);
   let tm=1,kg=0,grip=1,eff=0;
-  let boostBar=0,spoolRpm=0,clutchNm=base.gearbox.clutchCapacityNm??0;
-  let induction:InductionType|null=null;
+  // A factory-turbo car starts from the boost its own curve already contains.
+  // Kits add to that, and only the surplus does any work -- see sim/boost.ts.
+  const factory=base.engine.forcedInduction;
+  let boostBar=factory?.peakBoostBar??0,spoolRpm=factory?.spoolRpm??0,clutchNm=base.gearbox.clutchCapacityNm??0;
+  const factoryBoostBar=factory?.factoryBoostBar??0;
+  let induction:InductionType|null=factory?.type??null;
   let nitrous:NitrousSpec|undefined;
 
   for(const id of build.fittedPartIds){
@@ -118,7 +122,7 @@ export function resolveBuild(build:Build,condition=100):Car{
     if(e.nitrousPowerKw&&e.nitrousCapacitySeconds)nitrous={powerKw:e.nitrousPowerKw,capacitySeconds:e.nitrousCapacitySeconds};
   }
 
-  const forcedInduction=induction?{type:induction,peakBoostBar:boostBar,spoolRpm}:undefined;
+  const forcedInduction=induction?{type:induction,peakBoostBar:boostBar,spoolRpm,...(factoryBoostBar?{factoryBoostBar}:{})}:undefined;
   const redline=base.engine.redlineRpm;
 
   const health=Math.max(0,Math.min(100,condition));const damageMultiplier=1-DAMAGE.maximumPowerLoss.value*(1-health/100);

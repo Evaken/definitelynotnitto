@@ -148,6 +148,64 @@ will look like balance problems if they recur:
 
 ---
 
+### Factory-turbocharged cars
+
+Four of the roster are turbocharged from the factory, and their published torque
+figures already contain that boost:
+
+| Car | Factory boost | Gauge reads |
+|---|---|---|
+| Lancer Evo VII | 1.00 bar | 14.5 psi |
+| Neon SRT-4 | 0.95 bar | 13.8 psi |
+| Supra Twin Turbo | 0.72 bar | 10.4 psi |
+| Skyline GT-R | 0.72 bar | 10.4 psi |
+
+They declare it as `factoryBoostBar`, which is **descriptive rather than
+applied**: the multiplier is measured against it, so a standard car's own boost
+multiplies its curve by exactly 1.000 and its dyno figures do not move. What
+changes is that the gauge finally reads something on a turbo car — it used to sit
+at zero — and that a kit fitted on top gains only what it adds:
+
+    multiplier = 1 + ((total − factory) / (ATM + factory)) × 0.85
+
+On a naturally aspirated car `factory` is zero and this collapses to the plain
+ratio against atmosphere, so the Civic — the one car that is actually balanced —
+does not move at all.
+
+**Before this, a turbo kit on an Evo counted the turbo twice**: 383Nm became
+784Nm, past anything the tyres or the clutch could use, and the car walked itself
+into fifth gear at 20mph. It now builds to 597Nm and traps 114mph instead of 86.
+
+### What is still wrong, and why it was not tuned away
+
+The three highest-torque builds are past a cliff and their measurements are
+**chaotic rather than merely bad**:
+
+| Build | Torque | Result |
+|---|---|---|
+| Mustang Cobra | 1083Nm | 13.16 @ 86 or 16.65 @ 62, depending on launch rpm |
+| Viper SRT-10 | 1388Nm | 15.07 @ 68 |
+| Skyline GT-R | 786Nm | does not finish |
+
+Sweeping the clutch multiplier over 1.00–2.05 and a torque cap over 1.45–1.75
+moved these between "fine" and "broken" with no monotonic relationship. That is
+the signature of a car so far past its traction limit that the outcome depends on
+which gear it happens to be in when the tyres finally hook up.
+
+**So `drive()` is not a usable instrument for these cars**, and tuning against it
+would be fitting to noise. Two things follow:
+
+- Any figure measured here for a car above roughly 700Nm should be treated as one
+  sample of an unstable quantity, not as a balance point.
+- A clutch upgrade was tried and reverted. Making clutch capacity scale with the
+  car fixed the Evo and broke the Mustang — whose weak standard clutch had been
+  quietly limiting torque the tyres could not use anyway. Fixing the clutch
+  exposes the traction problem rather than causing it.
+
+The real work is a roster-wide balance pass: bounding what the parts can add
+relative to what each car can put down. That needs a stable measurement first.
+
+
 ## Parts catalogue
 
 Thirty parts, all Civic-only. **Every price is invented** — the only confirmed

@@ -47,6 +47,12 @@ export interface PartEffects {
   /**
    * Torque this clutch can hold, Nm. A clutch replaces rather than adds, so the
    * strongest one fitted is the one that counts.
+   *
+   * An absolute figure does not really serve a thirteen-car roster -- 560Nm is a
+   * large upgrade on a Civic and no upgrade at all on an Evo, whose standard
+   * clutch already holds 517. Making it a multiplier was tried and reverted: it
+   * fixed the Evo and broke the Mustang, whose weak clutch had been quietly
+   * limiting torque the tyres could not use anyway. See BALANCE_NOTES.
    */
   readonly clutchCapacityNm?: number;
   readonly massDeltaKg?: number;

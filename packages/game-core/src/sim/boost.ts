@@ -85,5 +85,12 @@ export function chargeTorqueMultiplier(
   redlineRpm: number,
 ): number {
   if (!spec) return 1;
-  return 1 + (wotBoostBar(spec, rpm, redlineRpm) / ATMOSPHERIC_BAR) * CHARGE_EFFICIENCY;
+
+  // Only the pressure ABOVE what the published curve already contains does any
+  // work here, and it works against a manifold that is already pressurised. On a
+  // naturally aspirated engine the factory figure is zero and this reduces to
+  // the plain ratio against atmosphere.
+  const factory = spec.factoryBoostBar ?? 0;
+  const gained = Math.max(0, wotBoostBar(spec, rpm, redlineRpm) - factory);
+  return 1 + (gained / (ATMOSPHERIC_BAR + factory)) * CHARGE_EFFICIENCY;
 }
