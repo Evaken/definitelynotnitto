@@ -169,3 +169,41 @@ describe('the scripted driver itself', () => {
     expect(result.slip.quarterMileMph).toBeGreaterThan(100);
   });
 });
+
+describe('the driver managing traction', () => {
+  const overpowered: Car = {
+    ...CIVIC_SI,
+    engine: {
+      ...CIVIC_SI.engine,
+      curve: CIVIC_SI.engine.curve.map((point) => ({ ...point, torqueNm: point.torqueNm * 2.4 })),
+    },
+    gearbox: { ...CIVIC_SI.gearbox, clutchCapacityNm: 900 },
+  };
+
+  it('is quicker than driving a traction-limited car flat out', () => {
+    // Flat out, a car with more torque than grip spins, and the tacho reports
+    // wheel speed rather than road speed. Easing off is worth seconds.
+    const plan = { ...goodDrivePlan(7), shiftRpm: CIVIC_SI.engine.redlineRpm - 150 };
+    const flatOut = drive(overpowered, stockTune(overpowered), plan).slip;
+    const managed = drive(overpowered, stockTune(overpowered), { ...plan, tractionControl: true }).slip;
+    expect(managed.quarterMileEt).toBeLessThan(flatOut.quarterMileEt);
+    expect(managed.quarterMileMph).toBeGreaterThan(flatOut.quarterMileMph);
+  });
+
+  it('costs time on a car that is not traction limited', () => {
+    // Not a free win, and worth stating: the stock Civic's best launch
+    // deliberately uses some slip, so a driver who refuses to spin the tyres at
+    // all is slower. That is why this is opt-in rather than simply better.
+    const plan = { ...goodDrivePlan(7), stageAtM: -0.27 };
+    const plain = drive(CIVIC_SI, stockTune(CIVIC_SI), plan).slip;
+    const managed = drive(CIVIC_SI, stockTune(CIVIC_SI), { ...plan, tractionControl: true }).slip;
+    expect(managed.quarterMileEt).toBeGreaterThan(plain.quarterMileEt);
+  });
+
+  it('is off unless asked for', () => {
+    const plan = { ...goodDrivePlan(7), shiftRpm: CIVIC_SI.engine.redlineRpm - 150 };
+    expect(drive(overpowered, stockTune(overpowered), plan).slip.quarterMileEt).toBe(
+      drive(overpowered, stockTune(overpowered), { ...plan, tractionControl: false }).slip.quarterMileEt,
+    );
+  });
+});

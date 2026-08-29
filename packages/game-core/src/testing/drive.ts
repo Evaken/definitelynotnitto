@@ -62,6 +62,17 @@ export interface DrivePlan {
   readonly shiftRpm: number;
   /** Spray from this forward gear onward when the car has nitrous fitted. */
   readonly nitrousFromGear?:number;
+  /**
+   * Ease the throttle when the driven tyres break away, the way a driver with
+   * any sensitivity does.
+   *
+   * Off by default, because every figure in BALANCE_NOTES was measured without
+   * it. Switch it on to measure a car that has more torque than grip: flat out,
+   * such a car spins, the tacho reports wheel speed rather than road speed, and
+   * the result depends on which gear it happens to be in when the tyres finally
+   * hook up -- which makes the measurement noise rather than a balance point.
+   */
+  readonly tractionControl?:boolean;
 }
 
 export interface DriveResult {
@@ -108,6 +119,12 @@ const SHIFT_REARM_RPM = 500;
  */
 const MIN_SHIFT_GAP_MS = 350;
 
+/** Throttle a driver eases back to once the tyres let go. */
+const TRACTION_THROTTLE = 0.55;
+/** Slip either side of the tyre's peak at which the driver reacts, and relaxes. */
+const SLIP_RELEASE = 1.25;
+const SLIP_RESUME = 0.85;
+
 /** How far the revs are allowed to fall before the throttle goes back on. */
 const REV_HOLD_DEADBAND_RPM = 400;
 /** Quantised the same way the slider is, so replays match exactly. */
@@ -135,6 +152,8 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
   let engaged = false;
   /** Hysteresis on the neutral rev hold. */
   let holdingRevs = true;
+  /** Hysteresis on the traction release, so the throttle is not chopped. */
+  let sliding = false;
   /** Hysteresis on the roll-in blips. */
   let creeping = true;
 
@@ -212,6 +231,17 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
       }
     } else {
       throttle = plan.launchThrottle;
+
+      // Ease off when the tyres break away. Hysteresis for the same reason the
+      // rev hold has it: deciding afresh every millisecond would chop the
+      // throttle thousands of times, which no hand on a slider would do.
+      if (plan.tractionControl) {
+        const peak = car.tyres.peakSlipRatio;
+        if (state.slipRatio > peak * SLIP_RELEASE) sliding = true;
+        else if (state.slipRatio < peak * SLIP_RESUME) sliding = false;
+        if (sliding) throttle = Math.min(throttle, TRACTION_THROTTLE);
+      }
+
       if (rpm < plan.shiftRpm - SHIFT_REARM_RPM) readyToShift = true;
       if (
         readyToShift &&

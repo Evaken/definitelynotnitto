@@ -206,6 +206,75 @@ The real work is a roster-wide balance pass: bounding what the parts can add
 relative to what each car can put down. That needs a stable measurement first.
 
 
+### Measuring a car that has more torque than grip
+
+`drive()` takes an opt-in `tractionControl` flag. Off by default, because every
+figure above was measured without it.
+
+Switch it on to measure anything with more torque than its tyres can use. Flat
+out such a car simply spins: the tacho reports wheel speed rather than road
+speed, the driver upshifts on a lie, and the result depends on which gear it
+happens to be in when the tyres finally hook up. That produced measurements that
+flipped between fine and broken on the same code:
+
+> The Mustang read 13.16 @ 86 or 16.65 @ 62 depending only on which launch rpm
+> was sampled. Sweeping the clutch over 1.00–2.05 and a torque cap over
+> 1.45–1.75 moved cars between working and broken with no monotonic response.
+
+With the flag on, the best-of-sweep becomes repeatable — the same figure to
+within a few hundredths across two different launch-rpm grids:
+
+| Car | grid A | grid B | drift |
+|---|---|---|---|
+| civic-si | 12.21 | 12.21 | 0.00 |
+| evo-vii | 12.93 | 12.93 | 0.00 |
+| mustang-cobra | 12.96 | 12.96 | 0.00 |
+| rx8 | 11.00 | 10.96 | 0.04 |
+| nsx | 13.15 | 13.11 | 0.03 |
+| neon-srt4 | 12.53 | 12.54 | 0.01 |
+| rsx-type-s | 12.05 | 12.07 | 0.02 |
+| viper-srt10 | 11.81 | 12.01 | 0.21 |
+| supra-tt | 12.34 | 13.07 | 0.73 |
+
+**It is not a free win.** On the stock Civic it is 0.5s *slower*, because that
+car's best launch deliberately uses some slip. It measures a driver who refuses
+to spin the tyres, which is the right reference for a car that cannot help it and
+the wrong one for a car that can.
+
+### The balance pass this enables, and why it is not done
+
+With a stable instrument, the shape of the problem is legible. A scaling clutch
+— parts holding a multiple of the car's own clutch rather than an absolute
+figure — combined with traction-aware driving makes the whole roster coherent at
+1.5x:
+
+| Car | ET @ trap |
+|---|---|
+| skyline-gtr | 10.24 @ 141 |
+| evo-vii | 10.77 @ 127 |
+| viper-srt10 | 10.83 @ 152 |
+| nsx | 11.03 @ 123 |
+| supra-tt | 11.22 @ 132 |
+| rx8 | 11.63 @ 126 |
+| mustang-cobra | 11.75 @ 139 |
+| neon-srt4 | 12.53 @ 119 |
+| rsx-type-s | 12.71 @ 114 |
+| civic-si | 13.39 @ 112 |
+
+Every car finishes, traps between 112 and 152, and runs 10.2 to 13.4.
+
+**It is not shipped, because the multiplier that suits the roster does not suit
+the Civic.** The roster cars carry a clutch worth 1.35x their peak torque; the
+Civic falls back to a flat 240Nm default, which is 1.58x of its 152Nm. So a
+multiplier that gives the Skyline enough clutch gives the Civic less than the
+560Nm absolute it has now, and the hard CPU opponent — a turbocharged Civic —
+becomes slower than the medium one.
+
+Fixing that means settling what a clutch part actually promises. Scaling it off
+the *built* engine's torque rather than the car's standard clutch would sidestep
+the whole conflict, and is the first thing to try.
+
+
 ## Parts catalogue
 
 Thirty parts, all Civic-only. **Every price is invented** — the only confirmed
