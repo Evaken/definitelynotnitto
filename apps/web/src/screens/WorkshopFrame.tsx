@@ -3,6 +3,7 @@ import { DECAL_CATALOG,stockAppearance,type Appearance,type DecalPlacement,type 
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 import { vehiclePortraitUrl } from '../vehicleArt.js';
 import {useEdgePan} from '../useEdgePan.js';
+import {CivicLayeredPortrait} from '../carRenderer/CivicLayeredPortrait.js';
 
 export const WORKSHOP_GROUPS = [
   { id: 'intake', label: 'Intake', shortLabel: 'IN', categories: ['intake'] },
@@ -111,6 +112,7 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
 export function VehiclePortrait({carId,appearance,className=''}:{carId:string;appearance?:Appearance;className?:string}){
   const src=vehiclePortraitUrl(carId);
   const visual=appearance??{...stockAppearance(),hue:220,saturation:70,brightness:100};
+  if(carId==='civic-si')return <CivicLayeredPortrait appearance={visual} className={className}/>;
   const showGraphics=visual.graphicsId!=='none';
   const style={
     '--vehicle-art':`url("${src}")`,

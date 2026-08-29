@@ -23,6 +23,12 @@ that cost a stage of work: it stated flatly, twice, that the race view was
 a chase camera. Check a claim against the screenshots before building on it, and
 treat the spec's confident sentences with the same suspicion as its hedged ones.
 
+**Before changing car artwork or visual customisation, read
+`docs/CAR_RENDERING_PIPELINE.md`.** The Civic is the layered-rendering pilot.
+Its manifest coordinates are per-car calibration data, and every screen must
+compose the same saved appearance recipe rather than introducing a private
+stock image or pre-rendered combination.
+
 ## Commands
 
 ```bash

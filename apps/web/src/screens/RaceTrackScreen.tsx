@@ -6,6 +6,7 @@ import { ThrottleSlider } from '../race/ThrottleSlider.js';
 import { TimingSlipCard } from '../race/TimingSlipCard.js';
 import { RunHistoryPanel } from '../race/RunHistoryPanel.js';
 import { vehiclePortraitUrl } from '../vehicleArt.js';
+import { CivicLayeredPortrait } from '../carRenderer/CivicLayeredPortrait.js';
 
 /**
  * The Race Track: roll in, stage the car, take the tree, run the quarter.
@@ -103,7 +104,9 @@ export function RaceTrackScreen({
       <div className="race-status" aria-label="Selected car and account status">
         <div className="race-status__car">
           <span>Selected car:</span>
-          <img src={vehiclePortraitUrl(car.id)} alt="" style={appearance?{filter:`hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`}:undefined}/>
+          {car.id==='civic-si'&&appearance
+            ? <CivicLayeredPortrait appearance={appearance} className="race-status__layered-car"/>
+            : <img src={vehiclePortraitUrl(car.id)} alt="" style={appearance?{filter:`hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`}:undefined}/>}
           <strong>{car.displayName}</strong>
           <small>{modified ? `${fittedPartCount} parts fitted` : 'Stock'}</small>
         </div>
