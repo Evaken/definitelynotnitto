@@ -92,9 +92,13 @@ describe('forced induction reaches the car and the gauge',()=>{
 
   it('makes the blower quicker off the line and the turbo faster through the traps',()=>{
     // The reason both exist. Same money, different shape of power.
+    //
+    // Measured with tractionControl on. At this power both cars simply spin when
+    // driven flat out, which buries the difference under wheelspin: 2.603 against
+    // 2.607, a dead heat that says nothing about either compressor.
     const turbo=resolveBuild(build([...TURBO,'race-clutch','race-turbo']).build);
     const blower=resolveBuild(build([...BLOWER,'race-clutch','race-supercharger']).build);
-    const plan=goodDrivePlan(7);
+    const plan={...goodDrivePlan(7),tractionControl:true};
     const t=drive(turbo,stockTune(turbo),plan).slip;
     const b=drive(blower,stockTune(blower),plan).slip;
     expect(b.sixtyFoot).toBeLessThan(t.sixtyFoot);

@@ -11,7 +11,7 @@ import {
   stepPass,
   MAX_PASS_TICKS,
 } from '../sim/pass.js';
-import { forwardGearCount } from '../sim/drivetrain.js';
+import { forwardGearCount, totalRatio } from '../sim/drivetrain.js';
 import { buildTimingSlip } from '../sim/timing.js';
 import { TimelineRecorder } from '../sim/replay.js';
 import { DRIVELINE } from '../config/historical.js';
@@ -119,6 +119,23 @@ const SHIFT_REARM_RPM = 500;
  */
 const MIN_SHIFT_GAP_MS = 350;
 
+/**
+ * How briskly a driver rolls up to the line, m/s^2.
+ *
+ * The plan asks for a throttle fraction, but a fraction is not the same request
+ * on every car: 14% of a stock Civic is a gentle roll, 14% of a built Skyline is
+ * a launch straight through the beams. Torque alone is not the answer either --
+ * it ignores gearing and mass, and aiming at a fixed torque left the standard
+ * Skyline, which is heavy and tall-geared, creeping for nearly five minutes.
+ *
+ * So the driver asks for an acceleration and works back to a throttle through
+ * the car's own first gear, final drive and weight. The plan's figure stays a
+ * ceiling, and there is a floor because the clutch follows the throttle: too
+ * small a number opens the clutch and the car never moves at all.
+ */
+const CREEP_ACCEL_MS2 = 0.62;
+const CREEP_THROTTLE_FLOOR = 0.07;
+
 /** Throttle a driver eases back to once the tyres let go. */
 const TRACTION_THROTTLE = 0.55;
 /** Slip either side of the tyre's peak at which the driver reacts, and relaxes. */
@@ -141,6 +158,15 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
   const zoneStart = stagingZoneStart();
 
   const shiftTicks = msToTicks(DRIVELINE.shiftTimeMs.value);
+
+  // Same roll-up briskness whatever the car, never more than the plan asked for.
+  const enginePeak = Math.max(...car.engine.curve.map((point) => point.torqueNm));
+  const creepForceN = (CREEP_ACCEL_MS2 * car.chassis.massKg * car.tyres.radiusM) /
+    Math.max(totalRatio(car, tune, 1) * car.gearbox.driveEfficiency, 0.001);
+  const creepThrottle = Math.min(
+    plan.creepThrottle,
+    Math.max(CREEP_THROTTLE_FLOOR, creepForceN / Math.max(enginePeak, 1)),
+  );
 
   let shiftUpUntil = -1;
   /** Cleared by taking a shift, restored once the revs have come back down. */
@@ -227,7 +253,7 @@ export function drive(car: Car, tune: Tune, plan: DrivePlan): DriveResult {
         // way to the line, which no hand on a slider would ever do.
         if (state.speedMs < approachSpeed * 0.6) creeping = true;
         else if (state.speedMs > approachSpeed) creeping = false;
-        throttle = creeping ? plan.creepThrottle : 0;
+        throttle = creeping ? creepThrottle : 0;
       }
     } else {
       throttle = plan.launchThrottle;

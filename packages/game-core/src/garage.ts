@@ -100,7 +100,7 @@ export function resolveBuild(build:Build,condition=100):Car{
   // A factory-turbo car starts from the boost its own curve already contains.
   // Kits add to that, and only the surplus does any work -- see sim/boost.ts.
   const factory=base.engine.forcedInduction;
-  let boostBar=factory?.peakBoostBar??0,spoolRpm=factory?.spoolRpm??0,clutchNm=base.gearbox.clutchCapacityNm??0;
+  let boostBar=factory?.peakBoostBar??0,spoolRpm=factory?.spoolRpm??0,clutchRatio=0;
   const factoryBoostBar=factory?.factoryBoostBar??0;
   let induction:InductionType|null=factory?.type??null;
   let nitrous:NitrousSpec|undefined;
@@ -112,7 +112,7 @@ export function resolveBuild(build:Build,condition=100):Car{
     grip*=e.tyreGripMultiplier??1;
     eff+=e.drivelineEfficiencyDelta??0;
     // A clutch replaces rather than stacks: the strongest fitted one holds.
-    clutchNm=Math.max(clutchNm,e.clutchCapacityNm??0);
+    clutchRatio=Math.max(clutchRatio,e.clutchHoldsTorqueRatio??0);
     if(e.peakBoostBar){
       boostBar+=e.peakBoostBar;
       // A bigger compressor stacked on a smaller one spools later, not sooner.
@@ -124,20 +124,28 @@ export function resolveBuild(build:Build,condition=100):Car{
 
   const forcedInduction=induction?{type:induction,peakBoostBar:boostBar,spoolRpm,...(factoryBoostBar?{factoryBoostBar}:{})}:undefined;
   const redline=base.engine.redlineRpm;
-
   const health=Math.max(0,Math.min(100,condition));const damageMultiplier=1-DAMAGE.maximumPowerLoss.value*(1-health/100);
+  const curve=base.engine.curve.map(point=>({...point,
+    torqueNm:point.torqueNm*tm*chargeTorqueMultiplier(forcedInduction,point.rpm,redline)*damageMultiplier}));
+
+  // A fitted clutch holds a share of what the engine now makes, so one figure
+  // means the same thing on every car. Never worse than the standard clutch: an
+  // upgrade cannot be a downgrade.
+  const builtPeak=Math.max(...curve.map(point=>point.torqueNm));
+  const stockClutch=base.gearbox.clutchCapacityNm;
+  const clutchCapacityNm=clutchRatio?Math.max(stockClutch??0,builtPeak*clutchRatio):stockClutch;
+
   return{...base,
     engine:{...base.engine,
       // Spread conditionally: exactOptionalPropertyTypes will not take an
       // explicit undefined for an optional property.
       ...(forcedInduction?{forcedInduction}:{}),
-      curve:base.engine.curve.map(point=>({...point,
-        torqueNm:point.torqueNm*tm*chargeTorqueMultiplier(forcedInduction,point.rpm,redline)*damageMultiplier})),
+      curve,
     },
     chassis:{...base.chassis,massKg:Math.max(500,base.chassis.massKg+kg)},
     tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip},
     gearbox:{...base.gearbox,
-      ...(clutchNm?{clutchCapacityNm:clutchNm}:{}),
+      ...(clutchCapacityNm===undefined?{}:{clutchCapacityNm}),
       driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)},
     ...(nitrous?{nitrous}:{})};
 }

@@ -83,7 +83,7 @@ function effectSummary(effects:PartEffects):string{
   const lines:string[]=[];
   if(effects.torqueMultiplier)lines.push(`Power +${Math.round((effects.torqueMultiplier-1)*100)}%`);
   if(effects.peakBoostBar)lines.push(`Boost +${effects.peakBoostBar.toFixed(2)} bar`);
-  if(effects.clutchCapacityNm)lines.push(`Capacity ${effects.clutchCapacityNm} Nm`);
+  if(effects.clutchHoldsTorqueRatio)lines.push(`Holds ${Math.round(effects.clutchHoldsTorqueRatio*100)}% of peak torque`);
   if(effects.massDeltaKg)lines.push(`Weight ${effects.massDeltaKg>0?'+':''}${effects.massDeltaKg} kg`);
   if(effects.tyreGripMultiplier)lines.push(`Grip +${Math.round((effects.tyreGripMultiplier-1)*100)}%`);
   if(effects.drivelineEfficiencyDelta)lines.push(`Driveline +${Math.round(effects.drivelineEfficiencyDelta*100)}%`);

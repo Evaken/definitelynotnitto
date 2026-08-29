@@ -241,45 +241,78 @@ car's best launch deliberately uses some slip. It measures a driver who refuses
 to spin the tyres, which is the right reference for a car that cannot help it and
 the wrong one for a car that can.
 
-### The balance pass this enables, and why it is not done
+### The clutch holds what you have built
 
-With a stable instrument, the shape of the problem is legible. A scaling clutch
-— parts holding a multiple of the car's own clutch rather than an absolute
-figure — combined with traction-aware driving makes the whole roster coherent at
-1.5x:
+A clutch part promises a share of the **built engine's** peak torque, not a
+figure in newton-metres and not a multiple of the car's standard clutch. Both of
+those were tried and neither survives a thirteen-car roster:
 
-| Car | ET @ trap |
-|---|---|
-| skyline-gtr | 10.24 @ 141 |
-| evo-vii | 10.77 @ 127 |
-| viper-srt10 | 10.83 @ 152 |
-| nsx | 11.03 @ 123 |
-| supra-tt | 11.22 @ 132 |
-| rx8 | 11.63 @ 126 |
-| mustang-cobra | 11.75 @ 139 |
-| neon-srt4 | 12.53 @ 119 |
-| rsx-type-s | 12.71 @ 114 |
-| civic-si | 13.39 @ 112 |
+- **Absolute (340 / 560Nm).** A large upgrade on a Civic, none at all on an Evo
+  whose standard clutch already holds 517. The Skyline could never lock: 560
+  against 786Nm, so the engine ran free — 8002rpm in sixth while the car did
+  81mph — and the pass never finished.
+- **A multiple of the standard clutch.** Starves the Civic, whose fallback is a
+  flat 240Nm default rather than a share of its torque, so the hard CPU opponent
+  — a turbocharged Civic — became slower than the medium one.
 
-Every car finishes, traps between 112 and 152, and runs 10.2 to 13.4.
+Against the engine, one number means the same thing everywhere. Sports holds
+1.08x peak, Race 1.35x, and neither is ever worse than the clutch the car came
+with.
 
-**It is not shipped, because the multiplier that suits the roster does not suit
-the Civic.** The roster cars carry a clutch worth 1.35x their peak torque; the
-Civic falls back to a flat 240Nm default, which is 1.58x of its 152Nm. So a
-multiplier that gives the Skyline enough clutch gives the Civic less than the
-560Nm absolute it has now, and the hard CPU opponent — a turbocharged Civic —
-becomes slower than the medium one.
+| Build | Torque | Clutch | Stock pass | Flat out | Managed |
+|---|---|---|---|---|---|
+| civic-si | 409 | 553 | 15.29 @ 91 | 15.23 @ 113 | 12.21 @ 126 |
+| rsx-type-s | 506 | 683 | 14.99 @ 94 | 12.36 @ 131 | 12.05 @ 131 |
+| evo-vii | 597 | 806 | 12.82 @ 105 | 10.95 @ 127 | 10.79 @ 127 |
+| supra-tt | 700 | 945 | 13.83 @ 106 | 12.81 @ 129 | 11.23 @ 132 |
+| mustang-cobra | 1083 | 1462 | 14.05 @ 109 | 16.66 @ 62 | 11.70 @ 139 |
+| skyline-gtr | 794 | 1073 | 12.95 @ 107 | 9.94 @ 142 | 10.15 @ 142 |
+| neon-srt4 | 533 | 719 | 14.46 @ 101 | 13.53 @ 118 | 12.53 @ 119 |
+| rx8 | 547 | 738 | 14.27 @ 98 | 11.14 @ 138 | 10.90 @ 138 |
+| nsx | 770 | 1039 | 13.20 @ 106 | 10.32 @ 147 | 10.19 @ 147 |
+| viper-srt10 | 1388 | 1873 | 12.60 @ 120 | 15.07 @ 68 | 10.83 @ 151 |
 
-Fixing that means settling what a clutch part actually promises. Scaling it off
-the *built* engine's torque rather than the car's standard clutch would sidestep
-the whole conflict, and is the first thing to try.
+Every car finishes, standard and fully built. Before this the Skyline finished
+neither.
 
+**The Mustang and the Viper still punish being floored** — 62 and 68mph through
+the traps against 139 and 151 when the throttle is managed. That is 1083 and
+1388Nm through the back wheels, and no clutch or gearing change hides it: the
+tyres simply will not take it. Left as it is, because the throttle slider is the
+game's central mechanic and a car that demands it is the point. It is the one
+place where the difference between flooring it and driving it is worth five
+seconds.
+
+### Two things the driver was getting wrong
+
+Both silently, and both looked like broken cars.
+
+**Rolling up to the line at a fixed throttle fraction.** 14% of a stock Civic is
+a gentle creep; 14% of a built Skyline is a launch through the beams, and the
+pass was recorded as "did not finish". Aiming at a fixed *torque* instead only
+moved the problem: it ignores gearing and weight, and the standard Skyline —
+heavy and tall-geared — then crept for 285 of its 300 available seconds before
+it even staged. The driver now asks for an acceleration and works back through
+the car's own first gear, final drive and mass, with the plan's figure as a
+ceiling and a floor beneath it, because the clutch follows the throttle and too
+small a number opens it entirely.
+
+**Driving flat out regardless of grip.** Covered above under the instrument. The
+CPU opponents now use it too: without it, a clutch strong enough to hold a built
+engine made the quick opponents slower than the slow ones.
 
 ## Parts catalogue
 
-Thirty parts, all Civic-only. **Every price is invented** — the only confirmed
-price in the project is $1,500 to apply paint. Starting balance is $10,000 and
-there is no way to earn yet; prize money is Stage 6.
+Thirty-two parts. **Every one currently fits every car** — `compatibleCarIds` is
+empty on all of them, so a Civic panel filter is purchasable for a Funny Car. The
+compatibility system exists and is inert; the practical exploit is closed by part
+ownership living on the vehicle rather than the account, so each car pays for its
+own.
+
+**Every price is invented** — the only confirmed price in the project is $1,500
+to apply paint. The starting balance is a development figure of $1,000,000 so
+every car and part can be reached for testing; the intended economy is Stage 6's
+prize money.
 
 | Part | Category | Price | Requires | Exclusion group |
 |---|---|---|---|---|
@@ -358,10 +391,9 @@ letting the physics enforce it, which it already does: fit a big turbo behind a
 stock clutch and it slips, and the car is slower than standard. The second is
 the smaller change and the better game. Neither is done.
 
-Fully built — every part that can legally be fitted together, 22 of the 30 —
-comes out at **367 hp, 1080 kg, grip 1.30, 12.541 at 122.1mph, $46,460 spent.**
-Against a $10,000 start with no way to earn, so the top of the tree is
-unreachable until Stage 6 pays out. The greedy fit lands on the supercharger: it
+Fully built — every part that can legally be fitted together, 23 of the 32 —
+the Civic comes out at **365 hp, 350Nm, 1080 kg, grip 1.30, clutch 473, and
+12.35 at 121mph, $51,860 spent.** The greedy fit lands on the supercharger: it
 can be fitted before the turbo, and then blocks it.
 
 ---
@@ -379,7 +411,7 @@ validated during research:
 | Viper | low 6s |
 | Special drag cars | much faster |
 
-**The fully-built Civic currently runs 12.5s, not low 8s.** That gap is the
+**The fully-built Civic currently runs 12.35s, not low 8s.** That gap is the
 whole of Stage 15's work and is expected, not a bug — but it is the clearest
 single measure of how far from calibrated the game is.
 

@@ -45,16 +45,20 @@ export interface PartEffects {
   /** Where this compressor comes on song. Turbos only. */
   readonly spoolRpm?: number;
   /**
-   * Torque this clutch can hold, Nm. A clutch replaces rather than adds, so the
-   * strongest one fitted is the one that counts.
+   * How much of the built engine's peak torque this clutch will hold.
    *
-   * An absolute figure does not really serve a thirteen-car roster -- 560Nm is a
-   * large upgrade on a Civic and no upgrade at all on an Evo, whose standard
-   * clutch already holds 517. Making it a multiplier was tried and reverted: it
-   * fixed the Evo and broke the Mustang, whose weak clutch had been quietly
-   * limiting torque the tyres could not use anyway. See BALANCE_NOTES.
+   * Measured against the engine, not as a figure in newton-metres and not as a
+   * multiple of the car's standard clutch. Both were tried and neither serves a
+   * thirteen-car roster: 560Nm is a large upgrade on a Civic and none at all on
+   * an Evo whose standard clutch already holds 517, while a multiple of the
+   * standard clutch starves the Civic, whose fallback is a flat default rather
+   * than a share of its torque. Against the engine, one number means the same
+   * thing on every car -- "this clutch holds what you have built".
+   *
+   * A clutch replaces rather than stacks, so the strongest fitted one counts,
+   * and it is never worse than the clutch the car came with.
    */
-  readonly clutchCapacityNm?: number;
+  readonly clutchHoldsTorqueRatio?: number;
   readonly massDeltaKg?: number;
   readonly tyreGripMultiplier?: number;
   readonly drivelineEfficiencyDelta?: number;

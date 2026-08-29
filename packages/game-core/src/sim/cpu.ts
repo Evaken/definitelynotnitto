@@ -13,7 +13,12 @@ const BUILDS:Readonly<Record<CpuDifficulty,readonly string[]>>={easy:[],medium:[
 function random01(seed:number):number{let x=seed|0;x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296;}
 export function runCpuOpponent(difficulty:CpuDifficulty,seed:number):TimingSlip{
   const car=resolveBuild({carId:'civic-si',fittedPartIds:BUILDS[difficulty]});const base=goodDrivePlan(seed);const jitter=random01(seed)-.5;
-  const plan=difficulty==='easy'?{...base,reactionSeconds:.32+jitter*.24,neutralRevRpm:3200,shiftRpm:6900,launchThrottle:.82}:difficulty==='medium'?{...base,reactionSeconds:.16+jitter*.14,neutralRevRpm:4800,shiftRpm:7700,launchThrottle:.94}: {...base,reactionSeconds:.07+jitter*.08,neutralRevRpm:5700,shiftRpm:8050,launchThrottle:1,nitrousFromGear:2};
+  // The CPU is a person, not a throttle stuck open: it eases off when the tyres
+  // let go. Without that, a clutch strong enough to hold a built engine makes the
+  // quick opponents slower than the slow ones, because on the weaker clutch the
+  // slip was quietly limiting torque the tyres could not use.
+  const tractionControl=true;
+  const plan=difficulty==='easy'?{...base,reactionSeconds:.32+jitter*.24,neutralRevRpm:3200,shiftRpm:6900,launchThrottle:.82,tractionControl}:difficulty==='medium'?{...base,reactionSeconds:.16+jitter*.14,neutralRevRpm:4800,shiftRpm:7700,launchThrottle:.94,tractionControl}: {...base,reactionSeconds:.07+jitter*.08,neutralRevRpm:5700,shiftRpm:8050,launchThrottle:1,nitrousFromGear:2,tractionControl};
   return drive(car,stockTune(car),plan).slip;
 }
 
