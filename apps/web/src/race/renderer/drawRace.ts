@@ -95,15 +95,15 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState,appearanc
 }
 
 function drawRaceCustomization(ctx:CanvasRenderingContext2D,appearance:Appearance,bounceM:number):void{
-  const base=project(-LANE_OFFSET_M,CAR_Z),width=2.35*base.scale,height=width*.55,groundY=base.y-bounceM*base.scale;
+  const laneOffset=-LANE_OFFSET_M,base=project(laneOffset,CAR_Z),width=2.35*base.scale,height=width*.55,groundY=base.y-bounceM*base.scale,orientation=laneOffset<0?-1:1;
   ctx.save();ctx.translate(base.x,groundY);ctx.fillStyle=`hsl(${appearance.graphicsHue} 88% 58%)`;
   if(appearance.graphicsId==='centre-stripe')ctx.fillRect(-width*.07,-height*.92,width*.14,height*.76);
   if(appearance.graphicsId==='twin-stripe'){ctx.fillRect(-width*.12,-height*.92,width*.07,height*.76);ctx.fillRect(width*.05,-height*.92,width*.07,height*.76);}
   if(appearance.graphicsId==='side-sweep'){ctx.beginPath();ctx.moveTo(-width*.45,-height*.45);ctx.lineTo(width*.4,-height*.56);ctx.lineTo(width*.38,-height*.46);ctx.lineTo(-width*.44,-height*.36);ctx.fill();}
   if(appearance.components.spoiler!=='spoiler-none'){ctx.fillStyle='#26343a';ctx.fillRect(-width*.39,-height*.82,width*.78,height*.055);if(appearance.components.spoiler==='spoiler-gt'){ctx.fillRect(-width*.34,-height*.86,width*.025,height*.12);ctx.fillRect(width*.315,-height*.86,width*.025,height*.12);}}
-  if(appearance.components.exhaustTip!=='exhaust-stock'){ctx.strokeStyle=appearance.components.exhaustTip==='exhaust-titanium'?'#7184da':'#d8e3e7';ctx.lineWidth=Math.max(2,width*.025);ctx.beginPath();ctx.arc(width*.29,-height*.07,width*.045,0,Math.PI*2);ctx.stroke();}
+  if(appearance.components.exhaustTip!=='exhaust-stock'){ctx.strokeStyle=appearance.components.exhaustTip==='exhaust-titanium'?'#7184da':'#d8e3e7';ctx.lineWidth=Math.max(2,width*.025);ctx.beginPath();ctx.arc(width*.29*orientation,-height*.07,width*.045,0,Math.PI*2);ctx.stroke();}
   if(appearance.components.headlights==='lights-smoked'){ctx.fillStyle='#05080a88';ctx.fillRect(-width*.43,-height*.49,width*.86,height*.16);}
-  ctx.font=`900 ${Math.max(7,width*.09)}px Impact`;ctx.textAlign='center';ctx.textBaseline='middle';for(const decal of appearance.decals.filter(item=>item.surface==='rear-quarter').slice(0,3)){ctx.fillStyle=`hsl(${decal.colorHue} 90% 62%)`;ctx.fillText(decal.decalId==='decal-star'?'★':decal.decalId==='decal-bolt'?'ϟ':'1320',(decal.x-.5)*width*.7,-height*(.25+decal.y*.35));}
+  ctx.font=`900 ${Math.max(7,width*.09)}px Impact`;ctx.textAlign='center';ctx.textBaseline='middle';for(const decal of appearance.decals.filter(item=>item.surface==='rear-quarter').slice(0,3)){ctx.fillStyle=`hsl(${decal.colorHue} 90% 62%)`;ctx.fillText(decal.decalId==='decal-star'?'★':decal.decalId==='decal-bolt'?'ϟ':'1320',(decal.x-.5)*width*.7*orientation,-height*(.25+decal.y*.35));}
   ctx.restore();
 }
 

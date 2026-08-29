@@ -143,9 +143,15 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
     ctx.ellipse(0, -height * 0.025, width * 0.43, height * 0.055, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    ctx.save();
     ctx.filter=options.filter??'none';
+    // The source rear-three-quarter portraits point to image-left. In the
+    // player's left lane the vanishing point is inward, to image-right, so the
+    // body must be mirrored around its projected centre. A future right-lane
+    // opponent naturally keeps the source orientation.
+    if(options.laneOffsetM<0)ctx.scale(-1,1);
     ctx.drawImage(image, -width * 0.5, -height, width, height);
-    ctx.filter='none';
+    ctx.restore();
 
     if (options.braking) {
       ctx.fillStyle = 'rgba(255, 42, 20, 0.5)';
