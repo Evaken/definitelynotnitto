@@ -14,6 +14,11 @@ The web client uses `VITE_API_URL` in a production build. GitHub Pages cannot
 run this process; deploy `apps/server` on a Node host with persistent storage,
 HTTPS and backups before enabling public accounts.
 
+Read [`docs/OWNERSHIP_AND_DEPLOYMENT.md`](../../docs/OWNERSHIP_AND_DEPLOYMENT.md)
+before configuring either deployment. It records the ownership identity chain,
+the current public/offline limitation and the checks required before calling a
+deployment server-authoritative.
+
 ## Production boundary
 
 - Build the root `Dockerfile`, mount durable storage at `/data`, and terminate

@@ -8,6 +8,14 @@ current, lists all sixteen at a glance, and records the known limitations.
 `PROJECT_SPEC.md` then gives the build list and completion criteria for whichever
 stage you are picking up (section 8).
 
+**Before changing hosting, environment variables, accounts, persistence or the
+GitHub Pages workflow, read `docs/OWNERSHIP_AND_DEPLOYMENT.md` in full.** The
+public Pages build is currently an offline client: without a deployed API and a
+build-time `VITE_API_URL`, cars and cash live in browser `localStorage` and are
+not tied to an account id. Do not describe a Pages-only deployment as
+server-authoritative, and do not remove the account → garage → vehicle-instance
+identity chain when changing configuration.
+
 **`docs/reference/` holds surviving screenshots of the original.** They outrank
 everything else, the spec included. The spec has already been wrong once in a way
 that cost a stage of work: it stated flatly, twice, that the race view was
