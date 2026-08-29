@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buyCar, buyPart, createEmptyGarageState, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild, selectCar } from './garage.js';
+import { buyCar, buyPart, createEmptyGarageState, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild, selectCar , type GarageState } from './garage.js';
+import { getPart } from './data/parts/index.js';
 import { CARS } from './data/cars/index.js';
 import { stockTune } from './types/tune.js';
 import { drive, goodDrivePlan } from './testing/drive.js';
@@ -98,5 +99,33 @@ describe('forced induction reaches the car and the gauge',()=>{
     const b=drive(blower,stockTune(blower),plan).slip;
     expect(b.sixtyFoot).toBeLessThan(t.sixtyFoot);
     expect(t.quarterMileMph).toBeGreaterThan(b.quarterMileMph);
+  });
+});
+
+describe('parts belong to the car that bought them',()=>{
+  it('does not carry a part across to another vehicle',()=>{
+    // A panel filter bought for a Civic is not a panel filter for a Viper. Part
+    // ownership lives on the vehicle, not on the account, so swapping cars must
+    // not hand the new one a free set of the old one's hardware.
+    let state:GarageState={...createEmptyGarageState(),cash:500_000};
+    state=succeed(buyCar(state,'civic-si','civic')).state;
+    state=succeed(buyCar(state,'viper-srt10','viper')).state;
+    if(state.selectedVehicleId!=='civic')state=succeed(selectCar(state,'civic')).state;
+
+    state=succeed(purchaseAndFitPart(state,'panel-filter')).state;
+    expect(state.ownedPartIds).toContain('panel-filter');
+
+    const onViper=succeed(selectCar(state,'viper')).state;
+    expect(onViper.ownedPartIds).not.toContain('panel-filter');
+    expect(onViper.build.fittedPartIds).toEqual([]);
+    // ...and it has to be bought again rather than fitted for nothing.
+    expect(fitPart(onViper,'panel-filter')).toMatchObject({ok:false});
+    const bought=succeed(purchaseAndFitPart(onViper,'panel-filter'));
+    expect(onViper.cash-bought.state.cash).toBe(getPart('panel-filter').price);
+
+    // Going back, the first car still has its own.
+    const backHome=succeed(selectCar(bought.state,'civic')).state;
+    expect(backHome.ownedPartIds).toContain('panel-filter');
+    expect(backHome.build.fittedPartIds).toContain('panel-filter');
   });
 });

@@ -117,6 +117,73 @@ function loadedRearImage(url:string):HTMLImageElement|null {
   return image.complete&&image.naturalWidth>0?image:null;
 }
 
+
+/**
+ * Where a car's tyres meet the road, as a fraction of its artwork's height.
+ *
+ * The renderer used to put each image's *bottom edge* on the ground line, which
+ * assumes the bottom row of pixels is the contact patch. None of the artwork is
+ * drawn that way: every car carries transparent space and a soft shadow under
+ * its wheels, and the amount differs per car -- 11.8% on the Skyline, 19.8% on
+ * the Evo, 23.1% on the Supra. So every car floated, by a different amount, and
+ * the Civic looked least wrong only because its gap is the smallest.
+ *
+ * Measured from the image rather than tabulated, so new artwork lands on the
+ * road without anyone remembering to add a number. Solid pixels only: the soft
+ * shadow beneath the tyres reaches the bottom edge on some cars and would
+ * otherwise be mistaken for the car itself.
+ */
+const SOLID_ALPHA = 200;
+/** Ignore a row that is only a few stray pixels of antialiasing. */
+const MIN_ROW_COVERAGE = 0.005;
+
+/**
+ * Lowest row carrying real bodywork, as a fraction of the image height.
+ *
+ * Pure so it can be tested without a canvas: the thresholds and the direction
+ * of the scan are the parts that can be wrong, and a soft shadow reaching the
+ * bottom edge is exactly what a naive scan mistakes for the car.
+ */
+export function solidContactFraction(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+): number {
+  const needed = Math.max(1, Math.round(width * MIN_ROW_COVERAGE));
+  for (let y = height - 1; y >= 0; y--) {
+    let solid = 0;
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3]! > SOLID_ALPHA && ++solid >= needed) return (y + 1) / height;
+    }
+  }
+  return 1;
+}
+
+const contactFractions = new Map<string, number>();
+
+function contactFraction(url: string, image: HTMLImageElement): number {
+  const cached = contactFractions.get(url);
+  if (cached !== undefined) return cached;
+
+  let fraction = 1;
+  try {
+    const probe = document.createElement('canvas');
+    probe.width = image.naturalWidth;
+    probe.height = image.naturalHeight;
+    const ctx = probe.getContext('2d', { willReadFrequently: true });
+    if (ctx) {
+      ctx.drawImage(image, 0, 0);
+      const { data } = ctx.getImageData(0, 0, probe.width, probe.height);
+      fraction = solidContactFraction(data, probe.width, probe.height);
+    }
+  } catch {
+    // A canvas that will not surrender its pixels leaves the car where it was.
+  }
+
+  contactFractions.set(url, fraction);
+  return fraction;
+}
+
 export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}|null {
   const art=raceRearArt(carId);if(!art)return null;
   return {baseHue:art.baseHue,artwork:{drawRear(ctx,options){
@@ -127,6 +194,8 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
     }
 
     const base = project(options.laneOffsetM, options.z);
+    // Where the tyres are in this image, not where its bottom edge happens to be.
+    const contact = contactFraction(art.url, image);
     const width = 2.35 * base.scale;
     const height = width * (image.naturalHeight / image.naturalWidth);
     const groundY = base.y - options.bounceM * base.scale;
@@ -148,7 +217,7 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
     // Each source portrait records which way its nose points. Match that to the
     // inward vanishing point of whichever lane the car occupies.
     if(shouldMirrorRaceArtwork(art.sourceNose,options.laneOffsetM))ctx.scale(-1,1);
-    ctx.drawImage(image, -width * 0.5, -height, width, height);
+    ctx.drawImage(image, -width * 0.5, -height * contact, width, height);
     ctx.restore();
 
     if (options.braking) {
@@ -156,8 +225,11 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
       ctx.shadowColor = '#ff321f';
       ctx.shadowBlur = Math.max(4, width * 0.05);
       ctx.beginPath();
-      ctx.ellipse(-width * 0.34, -height * 0.54, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
-      ctx.ellipse(width * 0.34, -height * 0.54, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
+      // 0.46 down from the image's top edge -- the same place they sat when the
+      // bottom edge was assumed to be the contact patch.
+      const lampY = height * (0.46 - contact);
+      ctx.ellipse(-width * 0.34, lampY, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
+      ctx.ellipse(width * 0.34, lampY, width * 0.042, height * 0.095, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 
