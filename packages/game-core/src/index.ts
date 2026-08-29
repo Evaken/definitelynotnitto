@@ -57,7 +57,7 @@ export {
 export { CARS, CIVIC_SI, CORE_ROSTER, SPECIAL_ROSTER, getCar } from './data/cars/index.js';
 export { PARTS, getPart } from './data/parts/index.js';
 export type { Appearance, CpuDifficulty, GarageResult, GarageState, OwnedCarState, PlayerRecord, PurchaseInstallPlan, PurchaseInstallPreview, Transaction } from './garage.js';
-export { CPU_PRIZES, applyAppearance, applyPassStress, applyTune, buyCar, buyPart, canFit, carUnlockReason, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, selectCar, settleCpuRace, stockAppearance } from './garage.js';
+export { CPU_PRIZES, applyAppearance, applyPassStress, applyTune, buyCar, buyPart, canFit, carUnlockReason, createEmptyGarageState, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, selectCar, settleCpuRace, stockAppearance } from './garage.js';
 
 // Simulation
 export {

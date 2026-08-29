@@ -4,7 +4,7 @@ import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, Ve
 import { PerformancePreview } from './PerformancePreview.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
 
-export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemove,onTune,onRepair,onAppearance,onSelect}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void}){
+export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:()=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void}){
   const [view,setView]=useState<'overview'|'setup'|'tune'|'paint'|'maintenance'>('overview');
   const [group,setGroup]=useState<WorkshopGroupId>('intake');
   const [category,setCategory]=useState<PartCategory>('intake');
@@ -21,7 +21,7 @@ export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemo
   for(let rpm=car.engine.idleRpm;rpm<=car.engine.redlineRpm;rpm+=100)peakHp=Math.max(peakHp,kwToHp(powerKwAtRpm(car.engine.curve,rpm)));
   const torque=peakTorque(car.engine.curve);
   const activeCar:OwnedCarState={build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};
-  const garageCars=state.ownedCars.length?[state.ownedCars[0]!,activeCar,...state.ownedCars.slice(1)]:[activeCar];
+  const garageCars=state.hasSelectedCar?[activeCar,...state.ownedCars]:[];
 
   /**
    * Open Vehicle Setup on a system the player owns something in.
@@ -39,6 +39,7 @@ export function GarageScreen({state,car,history,message,onVisitShop,onFit,onRemo
   };
 
   const carLabel=`${car.manufacturer} ${car.displayName}`;
+  if(!state.hasSelectedCar)return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash}><section className="garage-overview garage-overview--empty"><header><span>Your Garage</span><h2>No Vehicles Owned</h2><p>Your first purchase becomes the selected car. Keep buying cars and switch between every build stored here.</p></header><div className="empty-garage-bay"><strong>0 CARS GARAGED</strong><p>Every car keeps its own parts, tune, paint, wheels, ride height and condition.</p><button type="button" onClick={onVisitShowroom}>Visit Car Showroom</button></div></section></WorkshopFrame></div>;
   if(view==='overview')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} carLabel={carLabel}>
     <section className="garage-overview">
       <header><span>Your Garage</span><h2>Garage Vehicles</h2><p>Select a garaged vehicle or enter Vehicle Setup for the active car.</p></header>

@@ -1,6 +1,7 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import type { Appearance, Part, PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
+import { vehiclePortraitUrl } from '../vehicleArt.js';
 
 export const WORKSHOP_GROUPS = [
   { id: 'intake', label: 'Intake', shortLabel: 'IN', categories: ['intake'] },
@@ -112,25 +113,8 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
   </div>;
 }
 
-const VEHICLE_ART: Readonly<Record<string,string>> = {
-  'civic-si':'garage-civic-ek.webp',
-  'rsx-type-s':'garage-rsx-type-s.webp',
-  'evo-vii':'garage-evo-vii.webp',
-  'supra-tt':'garage-supra-tt.webp',
-  'mustang-cobra':'garage-mustang-cobra.webp',
-  'skyline-gtr':'garage-skyline-gtr.webp',
-  'neon-srt4':'garage-neon-srt4.webp',
-  rx8:'garage-rx8.webp',
-  nsx:'garage-nsx.webp',
-  'viper-srt10':'garage-viper-srt10.webp',
-  'mopar-drag':'special-mopar-drag.webp',
-  'f-type-drag':'special-f-type-drag.webp',
-  'funny-car':'special-funny-car.webp',
-};
-
 export function VehiclePortrait({carId,appearance,className=''}:{carId:string;appearance?:Appearance;className?:string}){
-  const asset=VEHICLE_ART[carId]??VEHICLE_ART['civic-si']!;
-  const src=`${import.meta.env.BASE_URL}assets/${asset}`;
+  const src=vehiclePortraitUrl(carId);
   const visual=appearance??{hue:220,saturation:70,brightness:100,graphicsHue:195,wheelStyle:0,rideHeight:0};
   const showGraphics=appearance!==undefined&&appearance.graphicsHue!==195;
   const style={

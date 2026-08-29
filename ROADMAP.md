@@ -137,12 +137,12 @@ status-bar thumbnail, rear three-quarter for the strip. Ten cars makes twenty
 renders, each tintable in three separate zones because the paint shop is HSB
 sliders rather than preset colours.
 
-The garage side of that pipeline is now solved with clean-room front
-three-quarter portraits for all ten normal cars plus the three special cars.
-`VehiclePortrait` maps model id to art and applies each owned car's persisted
-paint, graphics, wheel and ride-height state at runtime. The strip side remains
-less complete: `CarArtwork` in `renderer/carSprite.ts` has a dedicated Civic
-rear render while other models retain the data-driven path fallback.
+The pipeline now has clean-room front three-quarter portraits for all ten normal
+cars plus the three special cars, and model-specific rear strip portraits for
+all ten normal cars. `VehiclePortrait` maps model id to art and applies each
+owned car's persisted paint, graphics, wheel and ride-height state at runtime;
+the race renderer reads the same selected build and paint state. Career-special
+cars still use the data-driven rear fallback until dedicated rear art exists.
 
 ## Stage 2 — Nitto Driving Feel
 
@@ -297,11 +297,14 @@ Completion criteria met:
   simulator and prove distinct elapsed times.
 - Car Showroom is a complete browse/spec/purchase flow with horizontal roster,
   ownership state, balance validation and garage selection.
+- New test profiles begin with no car and $1,000,000. The garage is a collection,
+  not a single slot: the full ten-car normal roster can be owned at once and the
+  active vehicle can be switched without discarding any stored build.
 - Each owned car retains its own fitted build, stored parts, tune, condition and
   appearance when another car is selected. Universal clean-room parts make the
   whole normal roster upgradeable while per-car catalog data remains unknown.
-- Non-Civic race rendering uses the existing data-driven path artwork seam; no
-  physics or simulation branch checks a car id.
+- All ten normal cars have model-specific rear race portraits; no physics or
+  simulation branch checks a car id.
 
 ### Stage 8 — Visual Customisation
 
@@ -319,7 +322,8 @@ Completion criteria met:
 - [x] Ten normal cars can be bought, selected, upgraded, tuned and raced.
 - [x] The first four cars produce measurably distinct passes.
 - [x] Simulator logic contains no Civic-specific performance branch.
-- [x] Two copies of a model can be visually distinct without separate renders.
+- [x] Each owned model retains an independent visual setup without separate
+      paint-specific renders.
 
 ### Stages 9–12 — Online Beta
 
@@ -486,10 +490,9 @@ that asserts an exact ET now means rewriting it later.
 - **The throttle slider is pointer-only.** It carries ARIA roles for screen
   readers but no key bindings, because the obvious keys are taken by the gear
   selector and brake.
-- **Strip artwork still has one dedicated road-car raster.** The garage and
-  workshop now have model-specific clean-room portraits for the full roster,
-  but only the Civic has a dedicated rear three-quarter strip render. Other
-  models still use the data-driven path fallback during a pass.
+- **Career-special strip art remains generic.** All ten normal showroom cars now
+  have model-specific clean-room rear portraits during a pass. The three
+  career-unlocked specials still use the data-driven path fallback.
 - **No opponent.** Single car against the clock until Stage 6, so the right lane
   and the right-hand timing board stay empty. That is a solo pass, which is a
   real thing on a real strip — not a bug.

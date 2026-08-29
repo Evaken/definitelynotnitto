@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buyPart, createGarageState, fitPart, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild } from './garage.js';
+import { buyCar, buyPart, createEmptyGarageState, createGarageState, fitPart, ownedCarIds, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, resolveBuild, selectCar } from './garage.js';
+import { CARS } from './data/cars/index.js';
 import { stockTune } from './types/tune.js';
 import { drive, goodDrivePlan } from './testing/drive.js';
 import { barToPsi, boostBar } from './sim/boost.js';
@@ -7,6 +8,8 @@ import { createPassState } from './sim/pass.js';
 
 function succeed<T extends { ok:boolean }>(result:T):Extract<T,{ok:true}>{expect(result.ok).toBe(true);return result as Extract<T,{ok:true}>;}
 describe('Stage 3 garage',()=>{
+  it('starts the test account empty with one million dollars',()=>{const state=createEmptyGarageState();expect(state.hasSelectedCar).toBe(false);expect(state.cash).toBe(1_000_000);expect(ownedCarIds(state)).toEqual([]);expect(buyPart(state,'panel-filter')).toMatchObject({ok:false});});
+  it('stores the complete normal roster as independent owned cars',()=>{let state=createEmptyGarageState();const normal=[...CARS.values()].filter(car=>!car.special);for(const car of normal)state=succeed(buyCar(state,car.id)).state;expect(normal.length).toBeGreaterThanOrEqual(10);expect(ownedCarIds(state)).toHaveLength(normal.length);expect(new Set(ownedCarIds(state)).size).toBe(normal.length);expect(state.hasSelectedCar).toBe(true);const last=normal.at(-1)!;state=succeed(selectCar(state,last.id)).state;expect(state.build.carId).toBe(last.id);expect(state.ownedCars).toHaveLength(normal.length-1);});
   it('contains 25-40 unique universal upgrade parts',()=>{const parts=partList();expect(parts.length).toBeGreaterThanOrEqual(25);expect(parts.length).toBeLessThanOrEqual(40);expect(new Set(parts.map(p=>p.id)).size).toBe(parts.length);expect(parts.every(p=>p.compatibleCarIds.length===0)).toBe(true);});
   it('charges for, fits, and removes a part',()=>{let state=createGarageState();state=succeed(buyPart(state,'panel-filter')).state;expect(state.cash).toBe(9820);state=succeed(fitPart(state,'panel-filter')).state;expect(state.build.fittedPartIds).toContain('panel-filter');state=succeed(removePart(state,'panel-filter')).state;expect(state.build.fittedPartIds).not.toContain('panel-filter');});
   it('enforces ownership, requirements, and exclusions',()=>{

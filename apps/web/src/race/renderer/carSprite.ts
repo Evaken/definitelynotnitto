@@ -1,4 +1,5 @@
 import { project } from './projection.js';
+import { raceRearArt } from '../../vehicleArt.js';
 
 /**
  * The car, seen from behind.
@@ -47,6 +48,8 @@ export interface RearViewOptions {
   readonly braking: boolean;
   /** Kicks tyre smoke out from behind the car. */
   readonly wheelspin: boolean;
+  /** CSS canvas filter applied only to isolated raster artwork. */
+  readonly filter?: string;
 }
 
 export interface CarArtwork {
@@ -105,23 +108,19 @@ export const PLACEHOLDER_CAR: CarArtwork = {
  * extracted client asset. Loading stays lazy so importing the renderer in the
  * Node test environment never requires a DOM global.
  */
-let civicRearImage: HTMLImageElement | null = null;
+const rearImages=new Map<string,HTMLImageElement>();
 
-function loadedCivicRearImage(): HTMLImageElement | null {
-  if (typeof Image === 'undefined') return null;
-
-  if (civicRearImage === null) {
-    civicRearImage = new Image();
-    civicRearImage.decoding = 'async';
-    civicRearImage.src = `${import.meta.env.BASE_URL}assets/race-civic-ek-rear-v2.webp`;
-  }
-
-  return civicRearImage.complete && civicRearImage.naturalWidth > 0 ? civicRearImage : null;
+function loadedRearImage(url:string):HTMLImageElement|null {
+  if(typeof Image==='undefined')return null;
+  let image=rearImages.get(url);
+  if(!image){image=new Image();image.decoding='async';image.src=url;rearImages.set(url,image);}
+  return image.complete&&image.naturalWidth>0?image:null;
 }
 
-export const CIVIC_RACE_ART: CarArtwork = {
-  drawRear(ctx, options) {
-    const image = loadedCivicRearImage();
+export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}|null {
+  const art=raceRearArt(carId);if(!art)return null;
+  return {baseHue:art.baseHue,artwork:{drawRear(ctx,options){
+    const image = loadedRearImage(art.url);
     if (image === null) {
       PLACEHOLDER_CAR.drawRear(ctx, options);
       return;
@@ -144,12 +143,9 @@ export const CIVIC_RACE_ART: CarArtwork = {
     ctx.ellipse(0, -height * 0.025, width * 0.43, height * 0.055, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    ctx.filter=options.filter??'none';
     ctx.drawImage(image, -width * 0.5, -height, width, height);
-
-    // Do not tint directly on the scene canvas. `source-atop` would composite
-    // against the road already behind the sprite and reveal the bitmap's whole
-    // rectangular bounds. Stage 8's paint system needs isolated body masks or
-    // an offscreen layer; the present asset already carries the stock yellow.
+    ctx.filter='none';
 
     if (options.braking) {
       ctx.fillStyle = 'rgba(255, 42, 20, 0.5)';
@@ -162,8 +158,8 @@ export const CIVIC_RACE_ART: CarArtwork = {
     }
 
     ctx.restore();
-  },
-};
+  }}};
+}
 
 function body(
   ctx: CanvasRenderingContext2D,

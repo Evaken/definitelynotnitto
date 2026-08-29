@@ -5,6 +5,7 @@ import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
 import { TimingSlipCard } from '../race/TimingSlipCard.js';
 import { RunHistoryPanel } from '../race/RunHistoryPanel.js';
+import { vehiclePortraitUrl } from '../vehicleArt.js';
 
 /**
  * The Race Track: roll in, stage the car, take the tree, run the quarter.
@@ -102,7 +103,7 @@ export function RaceTrackScreen({
       <div className="race-status" aria-label="Selected car and account status">
         <div className="race-status__car">
           <span>Selected car:</span>
-          <img src={`${import.meta.env.BASE_URL}assets/race-civic-ek-rear-v2.webp`} alt="" />
+          <img src={vehiclePortraitUrl(car.id)} alt="" style={appearance?{filter:`hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`}:undefined}/>
           <strong>{car.displayName}</strong>
           <small>{modified ? `${fittedPartCount} parts fitted` : 'Stock'}</small>
         </div>
