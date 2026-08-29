@@ -228,6 +228,10 @@ fair game.
   a physical workshop-bay treatment, requirements link directly to the missing
   part or stored inventory, and a completed installation retains its before/after
   results with direct Garage, Dyno and Test Track actions.
+- Garage Setup now reveals only the hierarchy needed for the current decision:
+  single-option subsystem bars and duplicate fitted/empty panels are omitted,
+  stock systems collapse into one clear Speedshop action, and owned systems show
+  one compact component selector and comparison beside the car.
 
 ### Stage 4 — Tuning and Dyno
 

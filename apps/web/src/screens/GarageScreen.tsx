@@ -25,6 +25,7 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
   const torque=peakTorque(car.engine.curve);
   const activeCar:OwnedCarState={vehicleId:state.selectedVehicleId??'selected',build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};
   const garageCars=state.hasSelectedCar?[activeCar,...state.ownedCars]:[];
+  const actionMessage=message==='Selected vehicle changed.'?'':message;
   const [pendingSetup,setPendingSetup]=useState<string|null>(null);
   const garagePan=useEdgePan<HTMLDivElement>(),categoryPan=useEdgePan<HTMLElement>(),subcategoryPan=useEdgePan<HTMLElement>();
 
@@ -81,27 +82,27 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
     <nav className="setup-category-strip edge-pan" aria-label="Installed-part categories" {...categoryPan}>
       {WORKSHOP_GROUPS.filter(item=>!('lockedStage' in item)).map(item=><button key={item.id} data-sound="select" type="button" aria-pressed={group===item.id} className={group===item.id?'active':''} onClick={()=>chooseGroup(item.id)}>{item.label}</button>)}
     </nav>
-    <nav className="setup-subcategory-strip edge-pan" aria-label={`${WORKSHOP_GROUPS.find(item=>item.id===group)?.label} systems`} {...subcategoryPan}>
+    {categories.length>1&&<nav className="setup-subcategory-strip setup-subcategory-strip--compact edge-pan" aria-label={`${WORKSHOP_GROUPS.find(item=>item.id===group)?.label} systems`} {...subcategoryPan}>
       {categories.map(item=><button key={item} data-sound="select" type="button" className={category===item?'active':''} aria-pressed={category===item} onClick={()=>{setCategory(item);setSelectedId('');}}>{categoryLabel(item)}</button>)}
-    </nav>
-    <div className="workshop__stage">
+    </nav>}
+    <div className="workshop__stage workshop__stage--simple">
       <div className="workshop__visual">
         <CarBay key={group} carId={car.id} title={`${car.year} ${car.manufacturer} ${car.displayName}`} subtitle={`${car.engine.code} · ${car.drivetrain} · ${state.build.fittedPartIds.length ? `${state.build.fittedPartIds.length} upgrade${state.build.fittedPartIds.length===1?'':'s'} fitted` : 'factory specification'}`} badge={WORKSHOP_GROUPS.find(item=>item.id===group)?.label.toUpperCase()??'MODIFICATIONS'} fittedParts={fittedParts} appearance={state.appearance} focusGroup={group}/>
         <dl className="workshop-stats"><div><dt>Power</dt><dd>{Math.round(peakHp)}<small> hp</small></dd></div><div><dt>Torque</dt><dd>{Math.round(torque.torqueNm)}<small> Nm</small></dd></div><div><dt>Weight</dt><dd>{Math.round(car.chassis.massKg)}<small> kg</small></dd></div><div><dt>Grip</dt><dd>{car.tyres.peakGrip.toFixed(2)}<small> μ</small></dd></div></dl>
       </div>
-      <section className="workshop__inventory garage-components">
-        <header><span>{categoryLabel(category)}</span><small>{owned.length} here · {owned.filter(part=>state.build.fittedPartIds.includes(part.id)).length} fitted · {state.ownedPartIds.length} total</small></header>
-        <div className="garage-slot-summary"><span>Currently fitted</span><strong>{fittedHere.length?fittedHere.map(part=>part.displayName).join(' + '):`Factory ${categoryLabel(category)}`}</strong><small>{fittedHere.length?'Select a stored component below to compare or swap.':'Original equipment remains on the car.'}</small></div>
-        <div className="garage-component-browser">
-          <div className="garage-component-list" role="listbox" aria-label="Owned components">
-            {owned.length===0?<div className="empty-slot"><strong>Nothing owned in {categoryLabel(category)}</strong><span>{state.ownedPartIds.length>0?`You own ${state.ownedPartIds.length} part${state.ownedPartIds.length===1?'':'s'} in other systems — pick another tab above.`:'Factory equipment fitted. Visit the Speedshop to buy a component.'}</span></div>:owned.map(part=>{
+      <section className="workshop__inventory workshop__inventory--simple garage-components">
+        <header><span>{categoryLabel(category)}</span><small>{fittedHere.length?`${fittedHere.length} fitted`:'Factory fitted'}{owned.length?` · ${owned.length} owned`:''}</small></header>
+        {owned.length===0?<FactoryComponent category={category} onVisitShop={()=>onVisitShop(group)}/>:<>
+          <div className="garage-component-list garage-component-list--simple" role="listbox" aria-label="Owned components">
+            {owned.map(part=>{
               const fitted=state.build.fittedPartIds.includes(part.id);
               return <button key={part.id} type="button" role="option" aria-selected={selected?.id===part.id} className={selected?.id===part.id?'active':''} onClick={()=>setSelectedId(part.id)}><span><strong>{part.displayName}</strong><small>{partBrand(part)}</small></span><b className={fitted?'installed':'stored'}>{fitted?'Installed':'Stored'}</b></button>;
             })}
           </div>
-          {selected?<GaragePartDetail key={selected.id} state={state} car={car} part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>:<FactoryComponent category={category} onVisitShop={()=>onVisitShop(group)}/>}
-        </div>
-        <p className={`workshop-message${message?' workshop-message--active':''}`} aria-live="polite">{message||'Owned parts remain in storage when removed and can be reinstalled later.'}</p>
+          {selected&&<GaragePartDetail key={selected.id} state={state} car={car} part={selected} installed={state.build.fittedPartIds.includes(selected.id)} onFit={onFit} onRemove={onRemove}/>}
+          <button type="button" className="garage-shop-link" onClick={()=>onVisitShop(group)}>Browse More {categoryLabel(category)} Parts</button>
+        </>}
+        {actionMessage&&<p className="workshop-message workshop-message--active" aria-live="polite">{actionMessage}</p>}
       </section>
     </div>
   </WorkshopFrame></div>;
@@ -115,12 +116,12 @@ function GaragePartDetail({state,car,part,installed,onFit,onRemove}:{state:Garag
     <p>{effectSummary(part)}</p>
     <small>{part.requires.length?'Supporting hardware must be fitted first.':`Direct fit for the selected ${car.displayName}.`}</small>
     <PerformancePreview current={car} next={projected}/>
-    <div className="garage-part-detail__actions"><button type="button" className="workshop-action workshop-action--secondary" data-sound="engine">Start Engine</button><button type="button" className="workshop-action" data-sound="install" onClick={()=>installed?onRemove(part.id):onFit(part.id)}>{installed?'Uninstall Part':'Install Part'}</button></div>
+    <div className="garage-part-detail__actions"><button type="button" className="workshop-action" data-sound="install" onClick={()=>installed?onRemove(part.id):onFit(part.id)}>{installed?'Move to Storage':'Install Part'}</button></div>
   </article>;
 }
 
 function FactoryComponent({category,onVisitShop}:{category:PartCategory;onVisitShop:()=>void}){
-  return <article className="garage-part-detail factory-component"><span className="part-detail__eyebrow">Original Equipment</span><h2>Factory {categoryLabel(category)}</h2><div className="factory-component__diagram"><i/><i/><i/><span>OEM</span></div><p>Stock component currently fitted</p><small>Browse compatible upgrades and compare their projected effect before buying.</small><button type="button" className="workshop-action" data-sound="select" onClick={onVisitShop}>Visit Speedshop</button></article>;
+  return <article className="garage-part-detail factory-component factory-component--simple"><span className="part-detail__eyebrow">Currently fitted</span><h2>Factory {categoryLabel(category)}</h2><p>Original equipment</p><small>No upgrade is owned for this system yet. Visit the Speedshop to see compatible parts for this exact car.</small><button type="button" className="workshop-action" data-sound="select" onClick={onVisitShop}>Browse {categoryLabel(category)} Parts</button></article>;
 }
 
 function PaintShop({car,appearance,fittedParts,message,onApply}:{car:Car;appearance:Appearance;fittedParts:readonly Part[];message:string;onApply:(appearance:Appearance)=>void}){
