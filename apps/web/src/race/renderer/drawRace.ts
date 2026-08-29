@@ -75,7 +75,7 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState,appearanc
   ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
   ctx.clip();
 
-  const raceArt=raceArtworkFor(state.car.id);
+  const raceArt=raceArtworkFor(state.car.id,appearance);
   const artwork=raceArt?.artwork??PLACEHOLDER_CAR;
   const paint=appearance?{body:`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(20,Math.min(75,appearance.brightness*.58))}%)`,graphics:`hsl(${appearance.graphicsHue} 80% 55%)`,glass:'#182733'}:DEFAULT_PAINT;
   artwork.drawRear(ctx, {
@@ -87,9 +87,9 @@ function drawPlayerCar(ctx: CanvasRenderingContext2D, state: PassState,appearanc
     pitch: Math.max(-0.03, Math.min(0.03, -state.accelMs2 * 0.0035)) + ride.pitchWobble,
     braking: state.prevInput.brake,
     wheelspin: shaken,
-    ...(appearance&&raceArt?{filter:`hue-rotate(${appearance.hue-raceArt.baseHue}deg) saturate(${Math.max(.15,appearance.saturation/78)}) brightness(${appearance.brightness/88})`}:{}),
+    ...(appearance&&raceArt&&!raceArt.composited?{filter:`hue-rotate(${appearance.hue-raceArt.baseHue}deg) saturate(${Math.max(.15,appearance.saturation/78)}) brightness(${appearance.brightness/88})`}:{}),
   });
-  if(appearance)drawRaceCustomization(ctx,appearance,ride.bounceM);
+  if(appearance&&!raceArt?.composited)drawRaceCustomization(ctx,appearance,ride.bounceM);
 
   ctx.restore();
 }
