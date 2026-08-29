@@ -1,5 +1,5 @@
 import { project } from './projection.js';
-import { raceRearArt } from '../../vehicleArt.js';
+import { raceRearArt,type RaceArtworkDirection } from '../../vehicleArt.js';
 
 /**
  * The car, seen from behind.
@@ -145,11 +145,9 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
 
     ctx.save();
     ctx.filter=options.filter??'none';
-    // The source rear-three-quarter portraits point to image-left. In the
-    // player's left lane the vanishing point is inward, to image-right, so the
-    // body must be mirrored around its projected centre. A future right-lane
-    // opponent naturally keeps the source orientation.
-    if(options.laneOffsetM<0)ctx.scale(-1,1);
+    // Each source portrait records which way its nose points. Match that to the
+    // inward vanishing point of whichever lane the car occupies.
+    if(shouldMirrorRaceArtwork(art.sourceNose,options.laneOffsetM))ctx.scale(-1,1);
     ctx.drawImage(image, -width * 0.5, -height, width, height);
     ctx.restore();
 
@@ -165,6 +163,12 @@ export function raceArtworkFor(carId:string):{artwork:CarArtwork;baseHue:number}
 
     ctx.restore();
   }}};
+}
+
+export function shouldMirrorRaceArtwork(sourceNose:RaceArtworkDirection,laneOffsetM:number):boolean{
+  if(sourceNose==='centre')return false;
+  const desiredNose=laneOffsetM<0?'right':'left';
+  return sourceNose!==desiredNose;
 }
 
 function body(
