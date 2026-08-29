@@ -17,6 +17,7 @@ import { drawChristmasTree, drawStageIndicators } from './christmasTree.js';
 import { drawCluster } from './cluster.js';
 import { drawBoards, drawStagingBar } from './boards.js';
 import { drawBoardBezel, drawDashCowl, drawSidePanels } from './chrome.js';
+import {pixelateRegion} from '../../carRenderer/pixelArt.js';
 
 /**
  * Draws one frame of the race.
@@ -46,6 +47,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState,appeara
   drawDistanceMarks(ctx, cameraM);
   drawChristmasTree(ctx, state, cameraM);
   drawPlayerCar(ctx, state,appearance);
+  pixelateRegion(ctx,VIEW.x,VIEW.y,VIEW.w,VIEW.h,3,32);
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);
 

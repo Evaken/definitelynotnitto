@@ -352,6 +352,10 @@ Completion criteria met:
   in the photographed master and aftermarket rims align inside those tyres.
   Unsupported lip artwork now falls back to the photographed body instead of
   drawing an uncalibrated shape.
+- The Civic and drag-strip scene now pass through a shared palette-limited,
+  nearest-neighbour pixel renderer after all appearance layers are composed.
+  This is the pixel-art direction pilot: custom paint and physical parts remain
+  independent data instead of multiplying into pre-rendered combinations.
 
 Completion criteria met:
 

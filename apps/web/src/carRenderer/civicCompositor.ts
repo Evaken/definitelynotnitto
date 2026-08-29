@@ -1,5 +1,6 @@
 import type {Appearance,DecalPlacement} from '@nitto/game-core';
 import {CIVIC_ASSET_PACK,civicAssetUrl,type CivicViewId,type Point,type Quad,type WheelSlot} from './civicPack.js';
+import {pixelateCanvas} from './pixelArt.js';
 
 const imageCache=new Map<string,HTMLImageElement>();
 const loadCache=new Map<string,Promise<HTMLImageElement>>();
@@ -49,6 +50,7 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   drawPanelComponents(ctx,view,appearance,bodyOffset);
   drawDecals(ctx,view,appearance,bodyOffset);
   drawSpoiler(ctx,view,appearance,bodyOffset,false);
+  if(view==='garage')pixelateCanvas(canvas,3,32);
 }
 
 function layerCanvas(width:number,height:number):[HTMLCanvasElement,CanvasRenderingContext2D]{
