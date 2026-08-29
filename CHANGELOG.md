@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased - Driveability
+
+- Made full throttle the quickest way down the strip on eleven of the thirteen
+  cars, by fixing a shift re-arm that could never fire against the limiter's own
+  hysteresis, deriving clutch capacity from built torque, and scaling the grip
+  parts against what the engine parts actually do.
+- Fixed a fully built car being impossible to stop or stage. The tyre force
+  swung the wheel past road speed inside a single 1ms step, so slip changed sign
+  every tick and the average deceleration came out at 0.13m/s2 with the SLIP
+  lamp lit. The wheel and the car are now integrated together across the
+  slip crossing, the same way the clutch already resolves its own. Measured
+  effect on the quarter mile is at most 0.03s on any car.
+- Added `sim/braking.test.ts`: every car, fully built, must stop inside the
+  staging window from walking pace without its contact patch chattering.
+
 ## Stages 7–8 — Multi-car garage and customisation
 
 - Added the complete ten-car normal roster with individual engine, gearbox,

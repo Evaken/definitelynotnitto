@@ -270,7 +270,7 @@ function driveOneTick(state: PassState, input: RaceInput): void {
   // Resolved before the clutch solution below, which needs to know what the
   // contact patch is doing this step.
   const slip = slipRatio(state.wheelOmega, radius, state.speedMs);
-  const force = tractiveForce(car, slip, state.accelMs2);
+  let force = tractiveForce(car, slip, state.accelMs2);
 
   state.slipRatio = slip;
   state.tractiveForceN = force;
@@ -356,11 +356,51 @@ function driveOneTick(state: PassState, input: RaceInput): void {
   }
 
   // --- Integrate ---------------------------------------------------------
-  const wheelAlpha = (wheelDriveTorque + brakeTorque - force * radius) / wheelInertia;
-  state.wheelOmega += wheelAlpha * SIM_DT;
-
+  // The wheel and the car are integrated together, because the tyre force
+  // couples them and a 1ms explicit step cannot survive the moment the contact
+  // patch stops sliding.
+  //
+  // Third instance of the same trap, after the brakes and the clutch: a tyre at
+  // 1.8g on a 1.55kgm2 wheel swings the wheel by more than road speed inside a
+  // single tick, so the wheel shoots past the car, slip changes sign, the force
+  // reverses, and the two states alternate every millisecond with the average
+  // coming out at nothing. A built car on the brakes chattered between +2.2 and
+  // -0.3 rad/s at 0.5m/s and decelerated at 0.13m/s2 -- it could not be stopped
+  // at all, and the SLIP lamp sat on because half of those ticks read as locked.
+  // Grip made it worse, so the cars it hit hardest were the well built ones.
+  //
+  // The fix is the one the clutch already uses. Detect the crossing, then solve
+  // for the tyre force that lands exactly on the rolling condition
+  // (wheelOmega * radius === speed) at the end of the step and clamp it to what
+  // the contact patch can actually transmit. Below the grip limit the wheel
+  // rolls; above it, it genuinely slides and the slip model carries on as
+  // before. Nothing changes on either side of the crossing.
+  const mass = car.chassis.massKg;
   const previousSpeed = state.speedMs;
-  let speed = previousSpeed + (force / car.chassis.massKg) * SIM_DT;
+
+  const applyStep = (tyreForce: number) => ({
+    omega:
+      state.wheelOmega +
+      ((wheelDriveTorque + brakeTorque - tyreForce * radius) / wheelInertia) * SIM_DT,
+    speed: previousSpeed + (tyreForce / mass) * SIM_DT,
+  });
+
+  let stepped = applyStep(force);
+  const slidingBefore = state.wheelOmega * radius - previousSpeed;
+  const slidingAfter = stepped.omega * radius - stepped.speed;
+
+  if (slidingBefore !== 0 && Math.sign(slidingAfter) !== Math.sign(slidingBefore)) {
+    const coupling = SIM_DT * (1 / mass + (radius * radius) / wheelInertia);
+    const rolling =
+      (slidingBefore + ((wheelDriveTorque + brakeTorque) * radius * SIM_DT) / wheelInertia) /
+      coupling;
+    force = clamp(rolling, -state.gripLimitN, state.gripLimitN);
+    stepped = applyStep(force);
+    state.tractiveForceN = force;
+  }
+
+  state.wheelOmega = stepped.omega;
+  let speed = stepped.speed;
 
   // Losses are applied as a decrement that cannot carry the car through zero,
   // so a stationary car is not slowly dragged backwards by its own drag.

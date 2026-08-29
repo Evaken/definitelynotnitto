@@ -112,7 +112,7 @@ related. You cannot tell which moved by reading.
 
 ## Traps this codebase has already fallen into
 
-Worth knowing before touching the simulation. All three produced behaviour that
+Worth knowing before touching the simulation. All of them produced behaviour that
 looked plausible and was completely wrong.
 
 **Quantising inside an accumulating loop deadlocks it.** The throttle spring
@@ -127,6 +127,17 @@ had effectively no brakes. Same class of bug bit the clutch. The fix in both
 cases: solve for the torque that would bring the two sides to the target state
 this step, then clamp it to capacity. Lock-up and static hold then fall out of
 the arithmetic instead of needing a guessed tolerance.
+
+**The same trap again, in the tyre.** The brake and clutch fixes above solve
+for the end-of-step state; the tyre force did not, and it is the stiffest term
+of the three. A built car on the brakes at walking pace had its wheel reverse
+relative to the road *every millisecond*, slip alternating sign with it, and
+decelerated at 0.13m/s2 -- it could not be stopped or staged at all. Grip is
+what decides whether a car crosses the threshold, so raising the grip parts for
+throttle feel is what exposed it. Fixed the same way: detect the crossing, solve
+for the force that lands exactly on the rolling condition, clamp to the grip
+limit. `sim/braking.test.ts` guards it. **If you change grip, tyre inertia or
+the timestep, run that file** -- it is the one that notices.
 
 **A free-rolling wheel never reaches exactly zero.** The only thing slowing it
 is a tyre force proportional to the slip causing it, so it approaches rest

@@ -261,20 +261,23 @@ with.
 
 | Build | Grip | Stock pass | Flat out | Managed | Gap |
 |---|---|---|---|---|---|
-| skyline-gtr | 1.81 | 12.95 @ 107 | **9.57 @ 143** | 10.07 @ 142 | −0.50 |
-| nsx | 1.78 | 13.20 @ 106 | **9.58 @ 149** | 9.72 @ 149 | −0.14 |
-| viper-srt10 | 1.75 | 12.60 @ 120 | 10.25 @ 155 | 9.32 @ 157 | 0.93 |
-| rx8 | 1.73 | 14.27 @ 98 | **10.29 @ 140** | 10.41 @ 139 | −0.12 |
-| evo-vii | 1.80 | 12.82 @ 105 | **10.54 @ 128** | 10.66 @ 128 | −0.12 |
-| supra-tt | 1.72 | 13.83 @ 106 | 11.02 @ 133 | 10.69 @ 133 | 0.33 |
+| skyline-gtr | 1.81 | 12.90 @ 107 | **9.56 @ 143** | 10.03 @ 142 | −0.47 |
+| nsx | 1.78 | 13.20 @ 106 | **9.58 @ 149** | 9.68 @ 149 | −0.09 |
+| viper-srt10 | 1.75 | 12.60 @ 120 | 10.27 @ 155 | 9.33 @ 157 | 0.94 |
+| rx8 | 1.73 | 14.27 @ 98 | **10.30 @ 140** | 10.34 @ 139 | −0.04 |
+| evo-vii | 1.80 | 12.81 @ 105 | **10.55 @ 128** | 10.66 @ 128 | −0.11 |
+| supra-tt | 1.72 | 13.83 @ 106 | 11.02 @ 133 | 10.68 @ 133 | 0.35 |
 | rsx-type-s | 1.68 | 14.99 @ 94 | 11.52 @ 134 | 11.39 @ 133 | 0.13 |
-| civic-si | 1.67 | 15.29 @ 91 | **11.61 @ 129** | 11.68 @ 128 | −0.07 |
-| mustang-cobra | 1.68 | 14.05 @ 109 | 12.47 @ 138 | 10.22 @ 143 | 2.25 |
+| civic-si | 1.67 | 15.29 @ 91 | **11.61 @ 129** | 11.67 @ 128 | −0.06 |
+| mustang-cobra | 1.68 | 14.06 @ 109 | 12.50 @ 138 | 10.23 @ 143 | 2.27 |
 | neon-srt4 | 1.65 | 14.46 @ 101 | 13.33 @ 118 | 11.88 @ 121 | 1.45 |
+| mopar-drag | 2.62 | 9.10 @ 166 | 7.52 @ 168 | 7.01 @ 168 | 0.51 |
+| f-type-drag | 2.94 | 8.17 @ 168 | **6.54 @ 168** | 6.48 @ 168 | 0.06 |
+| funny-car | 3.42 | 7.09 @ 215 | **5.24 @ 219** | 5.16 @ 219 | 0.09 |
 
 A negative gap means **flooring it is the quickest way down the track**, which is
-how the game should feel: the driver sees green and pins it. Eight of the ten are
-at or inside a third of a second either way.
+how the game should feel: the driver sees green and pins it. Eleven of the
+thirteen are at or inside half a second either way.
 
 Getting there took three separate fixes, and only one of them was about grip.
 
@@ -454,3 +457,62 @@ Money is called `Account Balance` in the original.
 Everything else — the thirty part prices above, the Civic at $12,000, the
 $10,000 starting balance — is invented. Repair costs, prize money and
 progression pacing arrive in Stages 5 and 6 and want their own research pass.
+
+## Stopping a built car
+
+Staging a fully built Evo or Skyline was impossible: the car would not come to a
+stop at any throttle setting, and the SLIP lamp stayed lit with the throttle
+shut, which read as the brakes having no effect. It was not the brakes.
+
+Traced tick by tick, a built Evo creeping at 0.5m/s on the brakes looked like
+this:
+
+| tick | speed | wheel omega | slip |
+|---|---|---|---|
+| 900ms | 0.517 | +2.19 | −0.36 |
+| 901ms | 0.532 | −0.06 | +0.09 |
+| 902ms | 0.515 | +2.81 | −0.28 |
+| 903ms | 0.532 | −0.19 | +0.19 |
+
+The wheel reversed relative to the road **every millisecond**. Slip changed sign
+with it, so the tyre force alternated between hard braking and hard driving and
+averaged out to 0.13m/s2 of deceleration. Half of those ticks read as locked,
+which is why the lamp stayed on.
+
+This is the third instance of the trap `CLAUDE.md` records for the clutch and the
+brakes, one level further down. A tyre at 1.8g acting on a 1.55kgm2 wheel swings
+that wheel by more than road speed inside a single 1ms step, so an explicit step
+shoots past the rolling condition instead of settling on it. Grip is the term
+that decides it, which is why the cars it broke were the well built ones and why
+raising the grip parts for throttle feel is what pushed them over the line. Every
+car chattered to some degree; most were just far enough under the threshold to
+still stop.
+
+The fix is the one the clutch already uses: detect the crossing, then solve for
+the tyre force that lands exactly on the rolling condition at the end of the
+step, and clamp it to what the contact patch can transmit. Below the grip limit
+the wheel rolls; above it, it slides and the slip model carries on untouched.
+Nothing changes on either side of the crossing, and the measured effect on the
+quarter mile is at most 0.03s on any car in the roster -- it only ever bites at
+low speed, which is where the step was invalid.
+
+`sim/braking.test.ts` holds it: every car, fully built, has to stop inside the
+staging window from walking pace without its contact patch crossing on more than
+5% of ticks. With the fix removed, 14 of its 41 assertions fail.
+
+### What staging feels like now
+
+Stopping distance from a creep, fully built, and whether the car can be brought
+to rest inside the 1.2m window:
+
+| Build | 1% throttle | 6% | 12% | 25% |
+|---|---|---|---|---|
+| mopar-drag | 0.35m | 0.89m | 1.16m | 1.81m |
+| f-type-drag | 0.44m | 1.16m | 1.48m | 2.24m |
+| funny-car | 1.50m | 1.83m | 2.30m | 3.35m |
+
+The ten showroom cars all stage comfortably at anything up to about 20% throttle.
+The three career specials demand a deliberate blip and an early lift -- the Funny
+Car cannot simply be driven into the window at all, and has to be braked well
+before it. That is left as it is: it is the fastest thing in the game by three
+seconds and asking for precision on the line is a fair price.
