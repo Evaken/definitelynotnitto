@@ -1036,6 +1036,7 @@ body {
 .garage-overview--cars .garage-vehicle-card .vehicle-setup-button{top:auto;left:28px;bottom:26px;width:142px;height:38px;border-radius:2px;font:12px Impact,"Arial Narrow",sans-serif}
 .garage-overview--cars .garage-vehicle-card .garage-records{top:31px;right:28px;width:168px;padding:7px 10px;border:1px solid #4d7380;background:#050b0fc7}
 .garage-overview--cars .garage-vehicle-card__portrait{inset:62px 7px 38px 76px}
+.garage-overview--cars .garage-vehicle-card__portrait:before{content:"";position:absolute;z-index:1;left:16%;right:9%;bottom:13%;height:7%;border-radius:50%;background:#0009;filter:blur(3px);transform:skewX(-8deg)}
 .garage-overview--cars .garage-vehicle-card__portrait img,.garage-overview--cars .garage-vehicle-card__portrait .garage-car-art__graphics{transform:translateY(var(--ride-offset,0)) scale(1.13)}
 .garage-overview--cars .garage-vehicle-card__portrait canvas{transform:translateX(-12px) scale(1.22);filter:drop-shadow(0 13px 7px #000c)}
 .garage-overview--cars .selected-car-button{right:28px;bottom:26px}

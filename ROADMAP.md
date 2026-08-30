@@ -357,6 +357,10 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   environments. Scene plates contain no vehicle: the selected owned-car render
   is composited into the parking bay and raised on the two-post hoist, keeping
   body colour and vehicle identity consistent across both screens.
+- Civic garage pack v3 replaces the patchwork experimental master with one
+  closed-bonnet red sprite and a true-alpha body mask. Factory rendering no
+  longer paints guessed bonnet or headlight polygons, and the detached canvas
+  shadow is replaced with a tight Garage-only tyre-contact shadow.
 
 Completion criteria met:
 

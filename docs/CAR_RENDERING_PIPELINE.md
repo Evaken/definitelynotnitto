@@ -51,32 +51,35 @@ bonnets, roofs, wheelbases and boot lines are per-car data.
 
 ## Preparing the Civic pack
 
-The original pilot remains in `v1`; the corrected current pack lives at:
+The original pilot remains in `v1`. The production Garage sprite is `v3`; the
+rear race view and dormant wheel experiment remain in `v2`:
 
 ```
-apps/web/public/assets/cars/civic-si/v2/
+apps/web/public/assets/cars/civic-si/v3/
   garage-body.webp
   garage-paint-mask.png
+
+apps/web/public/assets/cars/civic-si/v2/
   race-body.webp
   race-paint-mask.png
   wheel-mesh.webp
 ```
 
-Rebuild them from clean masters with:
+Rebuild the Garage sprite from a clean, saturated-red master with:
 
 ```powershell
-python tools/prepare_civic_asset_pack.py `
-  --garage-master path/to/civic-garage-master.png `
-  --race-master path/to/civic-race-master.png
+python scripts/build_civic_sprite.py `
+  path/to/civic-red-master.png `
+  apps/web/public/assets/cars/civic-si/v3
 ```
 
-The tool removes the authoring background, fits the fixed 768×512 canvas,
-neutralises baked paint and derives the paint masks. The current stock Civic
-keeps its photographed tyres and factory wheels. An aftermarket choice overlays
-only a perspective-scaled rim face inside the existing tyre; do not cut guessed
-elliptical holes through the body again. Mask polygons are calibration data for
-this exact Civic and camera view. Change them only after inspecting a full-size
-composite.
+The tool preserves true alpha when present, can extract a light checkerboard
+authoring background, fits the fixed 768×512 canvas and derives an alpha paint
+mask from the red panels. The v3 master has an opaque closed bonnet and neutral
+glass, lights, grille and wheels. The production compositor adds no replacement
+bonnet, headlight polygon, artificial cyan sheen or floor shadow. A small
+screen-specific CSS contact shadow grounds the car in the Garage; the raised
+hoist view has no floor shadow.
 
 ## Adding another car
 

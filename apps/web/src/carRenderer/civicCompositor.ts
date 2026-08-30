@@ -40,7 +40,7 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   const manifest=CIVIC_ASSET_PACK.views[view],body=image(civicAssetUrl(manifest.bodyAsset)),mask=image(civicAssetUrl(manifest.paintMaskAsset));
   canvas.width=manifest.width;canvas.height=manifest.height;const ctx=canvas.getContext('2d');if(!ctx)return;
   const bodyOffset=view==='garage'?-appearance.rideHeight*.18:0;
-  ctx.clearRect(0,0,canvas.width,canvas.height);drawShadow(ctx,view);
+  ctx.clearRect(0,0,canvas.width,canvas.height);if(view==='race-rear')drawShadow(ctx,view);
   drawSpoiler(ctx,view,appearance,bodyOffset,true);
   ctx.drawImage(body,0,bodyOffset,manifest.width,manifest.height);
   drawPaint(ctx,body,mask,manifest.baseHue,appearance,bodyOffset);
@@ -50,7 +50,7 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   drawPanelComponents(ctx,view,appearance,bodyOffset);
   drawDecals(ctx,view,appearance,bodyOffset);
   drawSpoiler(ctx,view,appearance,bodyOffset,false);
-  if(view==='garage')pixelateCanvas(canvas,3,32);
+  if(view==='garage')pixelateCanvas(canvas,2,16);
 }
 
 function layerCanvas(width:number,height:number):[HTMLCanvasElement,CanvasRenderingContext2D]{
@@ -59,11 +59,7 @@ function layerCanvas(width:number,height:number):[HTMLCanvasElement,CanvasRender
 
 function drawPaint(ctx:CanvasRenderingContext2D,body:HTMLImageElement,mask:HTMLImageElement,baseHue:number,appearance:Appearance,offset:number):void{
   const [layer,paint]=layerCanvas(ctx.canvas.width,ctx.canvas.height);
-  void baseHue;paint.filter=`brightness(${Math.max(.72,appearance.brightness/52)}) contrast(.92)`;paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);paint.filter='none';paint.globalCompositeOperation='color';paint.fillStyle=`hsl(${appearance.hue} ${appearance.saturation}% ${Math.max(27,Math.min(74,appearance.brightness*.61))}%)`;paint.fillRect(0,0,paint.canvas.width,paint.canvas.height);paint.globalCompositeOperation='destination-in';paint.drawImage(mask,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='source-over';ctx.drawImage(layer,0,0);
-  const [finish,finishCtx]=layerCanvas(ctx.canvas.width,ctx.canvas.height);
-  if(appearance.finishId==='matte'){finishCtx.fillStyle='rgba(88,102,110,.2)';finishCtx.fillRect(0,0,finish.width,finish.height);}
-  else {const shine=finishCtx.createLinearGradient(0,0,finish.width,finish.height);shine.addColorStop(0,'rgba(255,255,255,.26)');shine.addColorStop(.36,'rgba(255,255,255,0)');shine.addColorStop(.68,appearance.finishId==='metallic'?'rgba(100,210,255,.1)':'rgba(255,255,255,.04)');shine.addColorStop(1,'rgba(255,255,255,0)');finishCtx.fillStyle=shine;finishCtx.fillRect(0,0,finish.width,finish.height);}
-  finishCtx.globalCompositeOperation='destination-in';finishCtx.drawImage(mask,0,offset,finish.width,finish.height);ctx.drawImage(finish,0,0);
+  void baseHue;paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='color';paint.fillStyle=`hsl(${appearance.hue} ${appearance.saturation}% 50%)`;paint.fillRect(0,0,paint.canvas.width,paint.canvas.height);paint.globalCompositeOperation='destination-in';paint.drawImage(mask,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='source-over';ctx.drawImage(layer,0,0);
 }
 
 function drawGraphics(ctx:CanvasRenderingContext2D,mask:HTMLImageElement,view:CivicViewId,appearance:Appearance,offset:number):void{
@@ -104,7 +100,7 @@ function drawSpoiler(ctx:CanvasRenderingContext2D,view:CivicViewId,appearance:Ap
 }
 
 function drawHood(ctx:CanvasRenderingContext2D,view:CivicViewId,appearance:Appearance,offset:number):void{
-  if(view!=='garage')return;const hood=surfacePolygon(CIVIC_ASSET_PACK.views.garage.surfaces.hood,ctx.canvas.width,ctx.canvas.height);ctx.save();ctx.translate(0,offset);polygon(ctx,hood);ctx.clip();
+  if(view!=='garage'||appearance.components.hood==='hood-stock')return;const hood=surfacePolygon(CIVIC_ASSET_PACK.views.garage.surfaces.hood,ctx.canvas.width,ctx.canvas.height);ctx.save();ctx.translate(0,offset);polygon(ctx,hood);ctx.clip();
   if(appearance.components.hood==='hood-carbon'){
     ctx.fillStyle='#10171b';ctx.fillRect(70,180,420,125);ctx.strokeStyle='#46565d';ctx.lineWidth=1;for(let x=40;x<560;x+=9){ctx.beginPath();ctx.moveTo(x,174);ctx.lineTo(x-140,320);ctx.stroke();}
   }else{
@@ -120,7 +116,6 @@ function drawPanelComponents(ctx:CanvasRenderingContext2D,view:CivicViewId,appea
   if(view==='garage'){
     const headlights:CivicPolygon[]=[[[49,252],[84,240],[99,250],[101,287],[74,300],[50,289]],[[227,269],[278,260],[332,266],[350,283],[341,310],[296,320],[244,309]]];
     if(appearance.components.roof==='roof-sunroof'){ctx.fillStyle='rgba(4,11,17,.72)';polygon(ctx,[[411,84],[566,82],[616,92],[450,98]]);ctx.fill();ctx.strokeStyle='rgba(143,170,181,.7)';ctx.lineWidth=1;ctx.stroke();}
-    ctx.save();ctx.globalCompositeOperation='color';ctx.fillStyle='rgba(155,155,155,.86)';for(const light of headlights){polygon(ctx,light);ctx.fill();}ctx.restore();
     if(appearance.components.headlights==='lights-smoked'){
       ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgba(14,16,18,.42)';for(const light of headlights){polygon(ctx,light);ctx.fill();}ctx.restore();
       ctx.strokeStyle='rgba(180,195,201,.3)';ctx.lineWidth=1;for(const light of headlights){polygon(ctx,light);ctx.stroke();}
