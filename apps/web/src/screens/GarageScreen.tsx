@@ -2,7 +2,7 @@ import { useEffect,useMemo,useRef,useState } from 'react';
 import { factoryPaintAppearance, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, repairCost, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, VehiclePortrait, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
-import {garageBrowseDirection,garageGlideProgress,nextGarageIndex,type GarageBrowseDirection} from '../garageCarousel.js';
+import {GARAGE_EDGE_DWELL_MS,GARAGE_EDGE_REPEAT_MS,GARAGE_GLIDE_MS,garageBrowseDirection,garageGlideProgress,nextGarageIndex,type GarageBrowseDirection} from '../garageCarousel.js';
 import {firstModificationSystem,MODIFICATION_DEPARTMENTS,modificationDepartmentFor,type ModificationSystemSlot} from '../modificationDepartments.js';
 
 type GarageView='overview'|'setup'|'tune'|'paint'|'maintenance';
@@ -40,7 +40,6 @@ export function GarageScreen({state,car,message,onVisitShop,onVisitShowroom,onFi
   const setBrowseDirection=(direction:GarageBrowseDirection)=>{
     if(browseIntentRef.current===direction)return;
     browseIntentRef.current=direction;setBrowseIntent(direction);
-    if(direction!==0)browseGarage(direction);
   };
   const onGaragePointerMove=(event:React.PointerEvent<HTMLDivElement>)=>{
     if(event.pointerType==='touch')return;const bounds=event.currentTarget.getBoundingClientRect();
@@ -68,11 +67,11 @@ export function GarageScreen({state,car,message,onVisitShop,onVisitShowroom,onFi
   };
   useEffect(()=>{if(!pendingSetup||state.selectedVehicleId!==pendingSetup)return;setPendingSetup(null);openSetup();},[pendingSetup,state.selectedVehicleId]);
   useEffect(()=>{if(!garageCars.some(item=>item.vehicleId===focusedVehicleId))setFocusedVehicleId(state.selectedVehicleId??garageCars[0]?.vehicleId??'');},[focusedVehicleId,garageCars,state.selectedVehicleId]);
-  useEffect(()=>{if(browseIntent===0)return;const delay=window.setTimeout(()=>{browseGarage(browseIntent);const repeat=window.setInterval(()=>browseGarage(browseIntent),1300);browseRepeat.current=repeat;},950);return()=>{window.clearTimeout(delay);if(browseRepeat.current!==null){window.clearInterval(browseRepeat.current);browseRepeat.current=null;}};},[browseIntent,garageCars]);
+  useEffect(()=>{if(browseIntent===0)return;const delay=window.setTimeout(()=>{browseGarage(browseIntent);const repeat=window.setInterval(()=>browseGarage(browseIntent),GARAGE_EDGE_REPEAT_MS);browseRepeat.current=repeat;},GARAGE_EDGE_DWELL_MS);return()=>{window.clearTimeout(delay);if(browseRepeat.current!==null){window.clearInterval(browseRepeat.current);browseRepeat.current=null;}};},[browseIntent,garageCars]);
   useEffect(()=>{if(view!=='overview')return;const begin=requestAnimationFrame(()=>{
     const node=garageCarousel.current,focusedCard=node?.querySelector<HTMLElement>('[data-focused="true"]');if(!node||!focusedCard)return;
     if(garageScrollFrame.current!==null)cancelAnimationFrame(garageScrollFrame.current);
-    const start=node.scrollLeft,target=focusedCard.offsetLeft-(node.clientWidth-focusedCard.clientWidth)/2,distance=target-start,started=performance.now(),duration=1050;
+    const start=node.scrollLeft,target=focusedCard.offsetLeft-(node.clientWidth-focusedCard.clientWidth)/2,distance=target-start,started=performance.now(),duration=GARAGE_GLIDE_MS;
     const move=(now:number)=>{const progress=Math.min(1,(now-started)/duration),eased=garageGlideProgress(progress);node.scrollLeft=start+distance*eased;if(progress<1)garageScrollFrame.current=requestAnimationFrame(move);else{node.scrollLeft=target;garageScrollFrame.current=null;}};
     garageScrollFrame.current=requestAnimationFrame(move);
   });return()=>{cancelAnimationFrame(begin);if(garageScrollFrame.current!==null){cancelAnimationFrame(garageScrollFrame.current);garageScrollFrame.current=null;}};},[focusedVehicleId,view,garageCars.length]);

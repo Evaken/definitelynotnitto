@@ -2,6 +2,10 @@
 
 ## Unreleased - Garage presentation
 
+- Replaced the owned-car browser's competing scroll, scale and stepped-settle
+  animations with one 920ms sinusoidal glide, a restrained depth transition and
+  a short edge-hover dwell. Pointer browsing now completes each bay movement
+  before repeating instead of cancelling and restarting mid-transition.
 - Unified the entire Garage into one compact pixel-era workshop language. The
   overview, Modification Bay, Dyno Cell, Paint Booth and Service Bay now share
   the same steel shell, square controls, cyan/gold hierarchy, scene lighting,
@@ -22,9 +26,8 @@
 - Added one focused-vehicle console for identity, build condition, performance
   and selection actions, while retaining the selected vehicle's immutable
   ownership id and existing setup flow.
-- Added mouse-edge browsing, keyboard controls and a deliberate 1.05-second
-  eased bay glide with a short visual settle so browsing feels like moving
-  through a garage rather than switching UI panels.
+- Added mouse-edge browsing, keyboard controls and direct bay buttons so the
+  owned-car garage can be navigated without a scrollbar.
 - Removed the dashboard-style garage statistics/action strip. The focused bay
   now has one `Modify Car` action, which selects that vehicle when necessary
   before opening its workshop.

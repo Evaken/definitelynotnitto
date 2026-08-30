@@ -371,10 +371,11 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   shadow is replaced with a tight Garage-only tyre-contact shadow.
 - The owned-car overview now presents one focused physical bay, with adjacent
   vehicles visible behind foreground structure and a single `Modify Car`
-  action. Mouse-edge browsing, arrow keys and direct car selection all use a
-  deliberate eased glide and settle. Opening the workshop selects the focused
-  vehicle when necessary, keeping its vehicle id as the ownership source of
-  truth without a dashboard-style statistics strip.
+  action. Mouse-edge browsing waits briefly before using a single 920ms
+  sinusoidal glide; arrow keys and direct car selection use the same motion,
+  without the old competing scale-and-settle animation. Opening the workshop
+  selects the focused vehicle when necessary, keeping its vehicle id as the
+  ownership source of truth without a dashboard-style statistics strip.
 - Modifications is now a physical five-department workshop rather than two
   nested menu bars. Engine Bay, Power Adders, Running Gear, Chassis and Exhaust
   expose flat system slots beside one stable hoist-mounted car; stepped work
