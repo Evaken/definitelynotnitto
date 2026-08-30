@@ -59,7 +59,7 @@ export { PARTS, getPart } from './data/parts/index.js';
 export type { CpuDifficulty, GarageResult, GarageState, OwnedCarState, PlayerRecord, PurchaseInstallPlan, PurchaseInstallPreview, Transaction } from './garage.js';
 export { CPU_PRIZES, applyAppearance, applyPassStress, applyTune, buyCar, buyPart, canFit, carUnlockReason, createEmptyGarageState, createGarageState, fitPart, ownedCarIds, ownedVehicles, partList, previewPurchaseAndFit, purchaseAndFitPart, removePart, repairCar, repairCost, resolveBuild, selectCar, settleCpuRace } from './garage.js';
 export type { Appearance,CustomizationItem,DecalItem,DecalPlacement,DecalSurface,GraphicsId,PaintFinishId,VisualComponents,VisualSlot } from './customization.js';
-export { CUSTOMIZATION_CATALOG,CUSTOMIZATION_SCHEMA_VERSION,DECAL_CATALOG,WHEEL_IDS,catalogForSlot,migrateAppearance,stockAppearance,validateAppearance } from './customization.js';
+export { CUSTOMIZATION_CATALOG,CUSTOMIZATION_SCHEMA_VERSION,DECAL_CATALOG,WHEEL_IDS,catalogForSlot,factoryPaintAppearance,migrateAppearance,stockAppearance,validateAppearance } from './customization.js';
 
 // Simulation
 export {

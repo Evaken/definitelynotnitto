@@ -54,6 +54,18 @@ export const CUSTOMIZATION_CATALOG:readonly CustomizationItem[]=[
 export const DECAL_CATALOG:readonly DecalItem[]=[{id:'decal-1320',label:'1320 Number',glyph:'1320'},{id:'decal-bolt',label:'Lightning Bolt',glyph:'ϟ'},{id:'decal-star',label:'Race Star',glyph:'★'}];
 
 export function stockAppearance():Appearance{return{schemaVersion:1,hue:48,saturation:78,brightness:88,finishId:'metallic',graphicsId:'none',graphicsHue:195,wheelStyle:0,rideHeight:0,components:{wheels:'wheel-stock',spoiler:'spoiler-none',exhaustTip:'exhaust-stock',hood:'hood-stock',roof:'roof-stock',headlights:'lights-stock'},decals:[]};}
+
+/**
+ * Current production boundary: a factory car with body-colour choice only.
+ *
+ * The richer schema remains versioned so a future art pipeline can re-enable
+ * individual categories without another ownership migration. Until then no
+ * old recipe is allowed to leak a guessed visual component into another view.
+ */
+export function factoryPaintAppearance(value?:Partial<Appearance>):Appearance{
+  const stock=stockAppearance();
+  return{...stock,hue:clamp(typeof value?.hue==='number'&&Number.isFinite(value.hue)?value.hue:stock.hue,0,360)};
+}
 export function catalogForSlot(slot:VisualSlot,carId:string):readonly CustomizationItem[]{return CUSTOMIZATION_CATALOG.filter(item=>item.slot===slot&&(!item.compatibleCarIds.length||item.compatibleCarIds.includes(carId)));}
 
 /** Strict normalization used by authoritative state transitions. */
@@ -75,7 +87,7 @@ export function migrateAppearance(value:unknown):Appearance{
   const wheelStyle=Math.round(number(item.wheelStyle,stock.wheelStyle,0,3));const components={...stock.components,...(item.components&&typeof item.components==='object'?item.components:{})};components.wheels=WHEEL_IDS[wheelStyle]??stock.components.wheels;
   const candidate:Appearance={...stock,...item,schemaVersion:1,hue:number(item.hue,stock.hue,0,360),saturation:number(item.saturation,stock.saturation,0,100),brightness:number(item.brightness,stock.brightness,35,115),graphicsHue:number(item.graphicsHue,stock.graphicsHue,0,360),wheelStyle,rideHeight:number(item.rideHeight,stock.rideHeight,-35,25),components,decals:Array.isArray(item.decals)?item.decals:[]};
   const validated=validateAppearance(candidate,'civic-si');
-  return validated.ok?validated.appearance:stock;
+  return validated.ok?factoryPaintAppearance(validated.appearance):stock;
 }
 function clamp(value:number,min:number,max:number){return Math.max(min,Math.min(max,value));}
 function number(value:unknown,fallback:number,min:number,max:number):number{return typeof value==='number'&&Number.isFinite(value)?clamp(value,min,max):fallback;}

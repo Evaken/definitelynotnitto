@@ -6,7 +6,7 @@ import { chargeTorqueMultiplier } from './sim/boost.js';
 import type { InductionType, NitrousSpec } from './types/car.js';
 import { stockTune, validateTune, type Tune } from './types/tune.js';
 import { DAMAGE } from './config/historical.js';
-import { stockAppearance,validateAppearance,type Appearance } from './customization.js';
+import { factoryPaintAppearance,stockAppearance,validateAppearance,type Appearance } from './customization.js';
 export interface Transaction { readonly id:string; readonly kind:'cpu-prize'|'repair'|'part'|'car'; readonly amount:number; readonly description:string; }
 export interface PlayerRecord { readonly wins:number; readonly losses:number; readonly races:number; }
 export interface OwnedCarState {readonly vehicleId:string;readonly build:Build;readonly ownedPartIds:readonly string[];readonly tune:Tune;readonly condition:number;readonly appearance:Appearance;}
@@ -23,7 +23,7 @@ export function applyTune(state:GarageState,tune:Tune):GarageResult{if(!state.ha
 export function repairCost(state:GarageState):number{return state.hasSelectedCar?Math.ceil(Math.max(0,100-state.condition)*DAMAGE.repairDollarsPerPoint.value):0;}
 export function repairCar(state:GarageState):GarageResult{if(!state.hasSelectedCar)return noCar();const cost=repairCost(state);if(cost===0)return{ok:false,reason:'No repairs required.'};if(state.cash<cost)return{ok:false,reason:'Not enough cash for repairs.'};return{ok:true,state:{...state,cash:state.cash-cost,condition:100,transactions:transaction(state,'repair',-cost,'Vehicle repairs')}};}
 export function applyPassStress(state:GarageState,stress:number):GarageState{return state.hasSelectedCar?{...state,condition:Math.max(0,state.condition-Math.max(0,stress))}:state;}
-export function applyAppearance(state:GarageState,appearance:Appearance):GarageResult{if(!state.hasSelectedCar)return noCar();const validated=validateAppearance(appearance,state.build.carId);return validated.ok?{ok:true,state:{...state,appearance:validated.appearance}}:validated;}
+export function applyAppearance(state:GarageState,appearance:Appearance):GarageResult{if(!state.hasSelectedCar)return noCar();const validated=validateAppearance(appearance,state.build.carId);return validated.ok?{ok:true,state:{...state,appearance:factoryPaintAppearance(validated.appearance)}}:validated;}
 export function ownedCarIds(state:GarageState):readonly string[]{return[...(state.hasSelectedCar?[state.build.carId]:[]),...state.ownedCars.map(car=>car.build.carId)];}
 export function ownedVehicles(state:GarageState):readonly OwnedCarState[]{return state.hasSelectedCar?[activeVehicle(state),...state.ownedCars]:[];}
 export function carUnlockReason(state:GarageState,carId:string):string|null{const car=getCar(carId);return car.unlockWins!==undefined&&state.record.wins<car.unlockWins?`Requires ${car.unlockWins} career wins (${state.record.wins}/${car.unlockWins}).`:null;}

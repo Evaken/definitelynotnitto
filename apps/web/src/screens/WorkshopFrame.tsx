@@ -1,5 +1,5 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
-import { DECAL_CATALOG,stockAppearance,type Appearance,type DecalPlacement,type Part,type PartCategory } from '@nitto/game-core';
+import { DECAL_CATALOG,factoryPaintAppearance,stockAppearance,type Appearance,type DecalPlacement,type Part,type PartCategory } from '@nitto/game-core';
 import { useWorkshopAudio,type WorkshopSound } from './useWorkshopAudio.js';
 import { vehiclePortraitUrl } from '../vehicleArt.js';
 import {useEdgePan} from '../useEdgePan.js';
@@ -111,7 +111,7 @@ export function CategoryCarousel({ activeGroup, onSelect, showAll = true }: {
 
 export function VehiclePortrait({carId,appearance,className=''}:{carId:string;appearance?:Appearance;className?:string}){
   const src=vehiclePortraitUrl(carId);
-  const visual=appearance??{...stockAppearance(),hue:220,saturation:70,brightness:100};
+  const visual=factoryPaintAppearance(appearance??{...stockAppearance(),hue:220});
   if(carId==='civic-si')return <CivicLayeredPortrait appearance={visual} className={className}/>;
   const showGraphics=visual.graphicsId!=='none';
   const style={

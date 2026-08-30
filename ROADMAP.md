@@ -326,50 +326,44 @@ Completion criteria met:
 
 ### Stage 8 — Visual Customisation
 
-- Paint Shop is enabled with body hue, saturation, brightness, graphics hue,
-  four wheel designs and adjustable ride height.
-- Appearance is persistent per owned car, visible in the garage and workshop
-  and used by the strip renderer. Garage portraits are recoloured at runtime,
-  with optional masked graphics and wheel treatments, without multiplying
-  full-car raster assets for every saved appearance.
+Current scope reset: the production Garage exposes body colour only. All cars
+render with factory wheels, bonnet, roof, lights, exhaust, aero and ride height;
+legacy recipes are normalised at load and authoritative save. The richer schema
+is retained as dormant scaffolding until calibrated art exists for each option.
+
+- Paint Shop exposes only body hue and seven colour presets. Saturation,
+  brightness, graphics, wheels, panels, attachments and ride height are not
+  production controls.
+- Body colour is persistent per owned car and is read by the garage, workshop,
+  selected-car rail and strip renderer. Every view starts from the same factory
+  portrait instead of reconstructing a different visual build per screen.
 - Ownership now uses immutable vehicle-instance ids rather than model ids. A
   player can own multiple copies of the same model, each retaining an
-  independent performance build and versioned visual recipe.
-- The recipe is catalogue-driven and server-validated: paint finish, graphic
-  style, wheels, spoiler, exhaust tip, hood, roof/sunroof, lights and up to 24
-  positioned decals. Adding a category grows the catalogue and renderer layers,
-  not a matrix of pre-rendered combinations.
+  independent performance build and body colour.
+- The richer catalogue-driven appearance schema remains dormant for an
+  art-led rebuild. Load and save boundaries normalise accepted recipes to body
+  hue plus factory components so old browser data cannot re-enable broken art.
 - Community member results can open a public garage showcase built from the
   same authoritative recipes; private inventory and tune data are not exposed.
 - Cosmetics are isolated from build and vehicle performance and cost no money
   until historical pricing evidence exists.
-- The Civic is the first calibrated layered-car pack: neutral body and paint
-  masks, wheel slots, perspective decal surfaces and physical-part anchors are
-  composed from the same saved recipe in garage-facing views and on the strip.
-  This is the mechanical production pilot; its generated wheel/attachment art
-  remains replaceable per layer. See `docs/CAR_RENDERING_PIPELINE.md`.
-- Civic pack v2 corrects the failed wheel-hole experiment: factory wheels stay
-  in the photographed master and aftermarket rims align inside those tyres.
-  Unsupported lip artwork now falls back to the photographed body instead of
-  drawing an uncalibrated shape.
-- The Civic and drag-strip scene now pass through a shared palette-limited,
-  nearest-neighbour pixel renderer after all appearance layers are composed.
-  This is the pixel-art direction pilot: custom paint and physical parts remain
-  independent data instead of multiplying into pre-rendered combinations.
-- Civic surface calibration now shares one authored geometry map across its
-  bonnet, graphics and decals. Factory, vented and carbon bonnets cover the
-  engine bay; spoilers, sunroof and neutral/smoked lamps stay registered to the
-  car; clipped pixel badges replace the unbounded text-glyph decals.
+- The dormant Civic layered-car pack, compositor and authored geometry remain
+  available as an experiment, but no non-paint layer is selectable in the live
+  Garage. See `docs/CAR_RENDERING_PIPELINE.md`.
+- The Civic and drag-strip scene retain the shared palette-limited,
+  nearest-neighbour pixel renderer. Pixel conversion is presentation only and
+  does not change ownership, colour or vehicle performance data.
 
 Completion criteria met:
 
 - [x] Ten normal cars can be bought, selected, upgraded, tuned and raced.
 - [x] The first four cars produce measurably distinct passes.
 - [x] Simulator logic contains no Civic-specific performance branch.
-- [x] Each owned model retains an independent visual setup without separate
+- [x] Each owned vehicle retains an independent body colour without separate
       paint-specific renders.
-- [x] Multiple copies of one model have distinct ids and independent recipes.
-- [x] The server rejects unknown components and invalid decal placement.
+- [x] Multiple copies of one model have distinct ids and independent colours.
+- [x] The server rejects invalid appearance input and normalises valid input to
+      factory specification plus body hue.
 
 ### Stages 9–12 — Online Beta
 

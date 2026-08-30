@@ -1,4 +1,4 @@
-import { TRACK_MARKS, stagingZoneStart, type Appearance, type PassState } from '@nitto/game-core';
+import { factoryPaintAppearance,TRACK_MARKS, stagingZoneStart, type Appearance, type PassState } from '@nitto/game-core';
 import {
   BOARD_LEFT,
   BOARD_RIGHT,
@@ -32,6 +32,7 @@ import {pixelateRegion} from '../../carRenderer/pixelArt.js';
  * behind this one function is what made swapping the camera affordable at all.
  */
 export function drawRace(ctx: CanvasRenderingContext2D, state: PassState,appearance?:Appearance): void {
+  const visual=appearance?factoryPaintAppearance(appearance):undefined;
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.fillStyle = COLORS.frame;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -46,7 +47,7 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState,appeara
   drawStagingLines(ctx, cameraM);
   drawDistanceMarks(ctx, cameraM);
   drawChristmasTree(ctx, state, cameraM);
-  drawPlayerCar(ctx, state,appearance);
+  drawPlayerCar(ctx, state,visual);
   pixelateRegion(ctx,VIEW.x,VIEW.y,VIEW.w,VIEW.h,3,32);
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);

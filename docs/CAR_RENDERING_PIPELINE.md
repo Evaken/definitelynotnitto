@@ -1,10 +1,14 @@
 # Layered car rendering
 
-The Honda Civic is the production pilot for a scalable visual-customisation
-pipeline. It replaces the old whole-image CSS treatment for that car. The aim
-is **not** to store one complete image for every possible build. The server
-saves one versioned appearance recipe against a vehicle instance, and every
-screen composes that recipe over the same versioned car pack.
+> Current production scope: factory car plus body colour only. The layered
+> schema and compositor remain dormant scaffolding for a later art-led rebuild;
+> loading or saving a vehicle currently resets wheels, aero, panels, graphics,
+> decals and ride height to factory values while preserving its chosen hue.
+
+The Honda Civic was the production pilot for a scalable visual-customisation
+pipeline. The experiment is retained for future art development, but the
+current production renderer uses only the factory portrait plus a saved body
+hue. Every screen derives that view from the same vehicle instance.
 
 ## Runtime contract
 
@@ -15,21 +19,19 @@ screen composes that recipe over the same versioned car pack.
 - wheel slots and physical-part anchor data;
 - perspective quads for paint graphics and positioned decals.
 
-`civicCompositor.ts` renders in a fixed order: shadow, wheels, rear attachments,
-body, paint, graphics, panel replacements, decals, then foreground attachments.
-The Garage, Vehicle Setup, Paint Shop, Showroom, Community showcase, selected-
-car rail and race renderer all read the same `Appearance` recipe. A category is
-added by adding a catalogue id plus its layer/geometry implementation; it must
-not add a matrix of complete-car variants.
+`civicCompositor.ts` retains the experimental fixed layer order, but only its
+factory portrait and paint stage are active in production. The Garage, Vehicle
+Setup, Paint Shop, Showroom, Community showcase, selected-car rail and race
+renderer all normalise the saved `Appearance` to factory specification plus
+body hue before drawing it.
 
-The display style is now a final renderer stage rather than a second set of car
+The display style is a final renderer stage rather than a second set of car
 assets. `pixelArt.ts` downsamples the completed frame, restricts its palette and
 scales it back with nearest-neighbour sampling. The garage applies this after
-the Civic layer stack is complete; the strip applies it once to the complete
-world and car scene. Prompts, gauges and the Nitto-inspired interface remain
-sharp and readable above it. This order is deliberate: paint, decals, wheels,
-spoilers and future turbo hardware stay independently selectable and every
-combination automatically receives the same arcade-pixel treatment.
+the factory car and paint are composed; the strip applies it once to the
+complete world and car scene. Prompts, gauges and the Nitto-inspired interface
+remain sharp and readable above it. Dormant layers must not be exposed again
+until replacement art is calibrated and approved.
 
 Pixel conversion is presentation only. It must never change the saved
 `Appearance`, vehicle-instance ownership, installed-part ids or performance

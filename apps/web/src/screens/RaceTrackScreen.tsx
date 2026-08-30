@@ -1,5 +1,5 @@
-import { useEffect,useState } from 'react';
-import { lastRunWasBestEt, type Appearance, type Car, type InputTimeline, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
+import { useEffect,useMemo,useState } from 'react';
+import { factoryPaintAppearance,lastRunWasBestEt, type Appearance, type Car, type InputTimeline, type RacePhase, type TimingSlip, type Tune } from '@nitto/game-core';
 import { useRaceSession } from '../race/useRaceSession.js';
 import { DebugPanel } from '../race/DebugPanel.js';
 import { ThrottleSlider } from '../race/ThrottleSlider.js';
@@ -58,6 +58,7 @@ export function RaceTrackScreen({
    * standard, and the slip is the thing players share.
    */
   const modified = fittedPartCount > 0;
+  const visual=useMemo(()=>appearance?factoryPaintAppearance(appearance):undefined,[appearance]);
   const buildLabel = modified
     ? `MODIFIED — ${fittedPartCount} PART${fittedPartCount === 1 ? '' : 'S'} FITTED`
     : 'STOCK — NO PARTS FITTED';
@@ -75,7 +76,7 @@ export function RaceTrackScreen({
     setThrottle,
     releaseThrottle,
     setNitrous,
-  } = useRaceSession(car, tune, initialHistory,onPassStress,onCompleted,appearance,onRecorded);
+  } = useRaceSession(car, tune, initialHistory,onPassStress,onCompleted,visual,onRecorded);
 
   useEffect(()=>{onHistoryChange?.(history);},[history,onHistoryChange]);
 
@@ -104,9 +105,9 @@ export function RaceTrackScreen({
       <div className="race-status" aria-label="Selected car and account status">
         <div className="race-status__car">
           <span>Selected car:</span>
-          {car.id==='civic-si'&&appearance
-            ? <CivicLayeredPortrait appearance={appearance} className="race-status__layered-car"/>
-            : <img src={vehiclePortraitUrl(car.id)} alt="" style={appearance?{filter:`hue-rotate(${appearance.hue-220}deg) saturate(${appearance.saturation/70}) brightness(${appearance.brightness/100})`}:undefined}/>}
+          {car.id==='civic-si'&&visual
+            ? <CivicLayeredPortrait appearance={visual} className="race-status__layered-car"/>
+            : <img src={vehiclePortraitUrl(car.id)} alt="" style={visual?{filter:`hue-rotate(${visual.hue-220}deg) saturate(${visual.saturation/70}) brightness(${visual.brightness/100})`}:undefined}/>}
           <strong>{car.displayName}</strong>
           <small>{modified ? `${fittedPartCount} parts fitted` : 'Stock'}</small>
         </div>
