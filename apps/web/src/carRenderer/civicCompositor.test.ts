@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import {CIVIC_ASSET_PACK} from './civicPack.js';
-import {isRaceBodyColourPixel,quadPoint} from './civicCompositor.js';
+import {canonicalPaintRgb,isRaceBodyColourPixel,quadPoint} from './civicCompositor.js';
 
 describe('Civic layered asset pack',()=>{
   it('is versioned and has independent fixed views',()=>{expect(CIVIC_ASSET_PACK).toMatchObject({id:'civic-si',schemaVersion:1,assetVersion:4});expect(Object.keys(CIVIC_ASSET_PACK.views)).toEqual(['garage','race-rear']);expect(CIVIC_ASSET_PACK.views.garage.bodyAsset).toContain('/v4/garage-body.webp');expect(CIVIC_ASSET_PACK.views.garage.paintMaskAsset).toContain('/v4/garage-paint-mask.png');});
@@ -13,5 +13,14 @@ describe('Civic layered asset pack',()=>{
     expect(isRaceBodyColourPixel(224,176,20,255,194,230)).toBe(true);
     expect(isRaceBodyColourPixel(224,176,20,255,145,230)).toBe(false);
     expect(isRaceBodyColourPixel(220,38,25,255,350,75)).toBe(false);
+  });
+  it('builds every hue from one source-independent paint ramp',()=>{
+    const red=canonicalPaintRgb(0,78,.5),purple=canonicalPaintRgb(285,78,.5),wrappedPurple=canonicalPaintRgb(-75,78,.5);
+    expect(red[0]).toBeGreaterThan(red[1]);expect(red[1]).toBe(red[2]);
+    expect(purple[0]).toBeGreaterThan(purple[1]);expect(purple[2]).toBeGreaterThan(purple[1]);
+    expect(wrappedPurple).toEqual(purple);
+    expect(canonicalPaintRgb(285,78,-2)).toEqual(canonicalPaintRgb(285,78,0));
+    expect(canonicalPaintRgb(285,78,3)).toEqual(canonicalPaintRgb(285,78,1));
+    for(let hue=0;hue<=360;hue++)for(const channel of canonicalPaintRgb(hue,78,.5)){expect(channel).toBeGreaterThanOrEqual(0);expect(channel).toBeLessThanOrEqual(255);}
   });
 });

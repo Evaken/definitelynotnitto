@@ -18,6 +18,10 @@
   edges and bumper so a red car no longer retains yellow body trim. Amber lamp
   centres remain untinted, and the race scene now uses a finer unsmoothed pixel
   pass for clearer, brighter sprite detail.
+- Replaced source-image tinting with a canonical eleven-level Civic paint
+  palette. Every hue now shares the same shadow, mid-tone and highlight ramp in
+  the Garage, Paint Shop, Maintenance, workshop and race views, and the old
+  Garage-only brightness and saturation filters have been removed.
 
 ## Unreleased - Driveability
 

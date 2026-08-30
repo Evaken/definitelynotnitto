@@ -1040,7 +1040,7 @@ body {
   radial-gradient(ellipse at 55% 55%,#000e 0 4%,#000a 7%,transparent 15%),
   radial-gradient(ellipse at 88% 47%,#000e 0 3.5%,#0009 6.5%,transparent 13%);filter:blur(1.5px)}
 .garage-overview--cars .garage-vehicle-card__portrait img,.garage-overview--cars .garage-vehicle-card__portrait .garage-car-art__graphics{transform:translateY(var(--ride-offset,0)) scale(1.13)}
-.garage-overview--cars .garage-vehicle-card__portrait canvas{transform:translate(-8px,9px) scale(1.14);filter:brightness(.76) saturate(.72) contrast(1.08) drop-shadow(0 5px 3px #000b)}
+.garage-overview--cars .garage-vehicle-card__portrait canvas{transform:translate(-8px,9px) scale(1.14);filter:drop-shadow(0 5px 3px #000b)}
 .garage-overview--cars .selected-car-button{right:28px;bottom:26px}
 
 .screen--garage-setup .workshop__visual--hoist{overflow:hidden;background:#05090c}
@@ -1051,7 +1051,7 @@ body {
 .screen--garage-setup .workshop__visual--hoist .car-bay:before,.screen--garage-setup .workshop__visual--hoist .car-bay:after{display:none}
 .screen--garage-setup .workshop__visual--hoist .car-bay>.garage-car-art{z-index:4;inset:48px 53px 74px 53px;transform:translateY(8px);animation:hoist-car-rise .62s cubic-bezier(.2,.72,.22,1) both}
 .screen--garage-setup .workshop__visual--hoist .car-bay>.garage-car-art img{transform:translateY(var(--ride-offset,0)) scale(1.06);filter:brightness(.74) saturate(.72) contrast(1.08) drop-shadow(0 5px 3px #000b)}
-.screen--garage-setup .workshop__visual--hoist .car-bay>.layered-car-portrait canvas{transform:translate(-10px,5px) scale(1.1);filter:brightness(.72) saturate(.7) contrast(1.1) drop-shadow(0 4px 3px #000c)}
+.screen--garage-setup .workshop__visual--hoist .car-bay>.layered-car-portrait canvas{transform:translate(-10px,5px) scale(1.1);filter:drop-shadow(0 4px 3px #000c)}
 .screen--garage-setup .workshop__visual--hoist .car-bay__identity{z-index:9;left:16px;bottom:12px;padding:5px 9px;border-left:3px solid #d6ab27;background:linear-gradient(90deg,#050a0edb,transparent)}
 .garage-hoist-foreground{position:absolute;inset:0;pointer-events:none}
 .garage-hoist-foreground i{position:absolute;z-index:3;top:61%;height:7px;border:2px solid #050b0f;border-radius:2px;background:linear-gradient(#324b59,#0d202b 48%,#050a0d 52%);box-shadow:inset 0 1px #647d88,0 3px 3px #000c}
@@ -1077,7 +1077,7 @@ body {
 .garage-overview--focused .garage-vehicle-card[data-focused="true"]>header{opacity:1;transform:translateX(8px)}
 .garage-overview--focused .garage-vehicle-card>header span{font-size:8px;color:#69dff2}.garage-overview--focused .garage-vehicle-card>header strong{font-size:23px}
 .garage-overview--focused .garage-vehicle-card__portrait{inset:58px 6px 60px 60px}
-.garage-overview--focused .garage-vehicle-card__portrait canvas{transform:translate(-8px,10px) scale(1.21);filter:brightness(.73) saturate(.69) contrast(1.1) drop-shadow(0 5px 3px #000b)}
+.garage-overview--focused .garage-vehicle-card__portrait canvas{transform:translate(-8px,10px) scale(1.21);filter:drop-shadow(0 5px 3px #000b)}
 .garage-overview--focused .garage-vehicle-card[data-focused="true"] .garage-vehicle-card__portrait{animation:garage-bay-settle 1.02s steps(11,end)}
 .garage-bay-number,.garage-current-ribbon{position:absolute;z-index:9;pointer-events:none;text-transform:uppercase}
 .garage-bay-number{right:43px;top:33px;color:#7f9ba7;font:8px var(--font-data);letter-spacing:.14em}

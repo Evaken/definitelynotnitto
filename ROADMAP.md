@@ -357,6 +357,10 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   edges and bumper as body paint while protecting the lamp centres. Its saved
   body hue now renders consistently in the Garage and on track, and the race
   scene uses a finer unsmoothed palette pass for clearer pixel detail.
+- Civic body paint is generated from one source-independent eleven-level
+  palette ramp. Arbitrary hues therefore retain the same shadows, mid-tones and
+  highlights across the front garage sprite and rear race sprite instead of
+  inheriting the brightness or saturation of either source image.
 - The member Garage and Modifications bay now use original pixel-art physical
   environments. Scene plates contain no vehicle: the selected owned-car render
   is composited into the parking bay and raised on the two-post hoist, keeping

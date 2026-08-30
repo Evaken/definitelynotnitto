@@ -59,7 +59,30 @@ function drawPaint(ctx:CanvasRenderingContext2D,body:HTMLImageElement,mask:HTMLI
   const [layer,paint]=layerCanvas(ctx.canvas.width,ctx.canvas.height),[coverage,coverageCtx]=layerCanvas(ctx.canvas.width,ctx.canvas.height);
   coverageCtx.drawImage(mask,0,offset,coverage.width,coverage.height);
   if(view==='race-rear')extendRacePaintCoverage(coverageCtx,body);
-  paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='color';paint.fillStyle=`hsl(${appearance.hue} ${appearance.saturation}% 50%)`;paint.fillRect(0,0,paint.canvas.width,paint.canvas.height);paint.globalCompositeOperation='destination-in';paint.drawImage(coverage,0,0);paint.globalCompositeOperation='source-over';ctx.drawImage(layer,0,0);
+  paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);
+  const source=paint.getImageData(0,0,paint.canvas.width,paint.canvas.height),coveragePixels=coverageCtx.getImageData(0,0,coverage.width,coverage.height),output=paint.createImageData(paint.canvas.width,paint.canvas.height),histogram=new Uint32Array(256);
+  let paintedPixelCount=0;
+  for(let index=0;index<source.data.length;index+=4){
+    if(source.data[index+3]!<8||coveragePixels.data[index+3]!<8)continue;
+    const luminance=paintLuminance(source.data[index]!,source.data[index+1]!,source.data[index+2]!);histogram[luminance]=(histogram[luminance]??0)+1;paintedPixelCount++;
+  }
+  const cumulative=new Uint32Array(256);let running=0;for(let index=0;index<histogram.length;index++){running+=histogram[index]!;cumulative[index]=running;}
+  for(let index=0;index<source.data.length;index+=4){
+    const sourceAlpha=source.data[index+3]!,maskAlpha=coveragePixels.data[index+3]!;if(sourceAlpha<8||maskAlpha<8)continue;
+    const luminance=paintLuminance(source.data[index]!,source.data[index+1]!,source.data[index+2]!),rank=paintedPixelCount?((cumulative[luminance]!-histogram[luminance]!*0.5)/paintedPixelCount):.5,[red,green,blue]=canonicalPaintRgb(appearance.hue,appearance.saturation,rank);
+    output.data[index]=red;output.data[index+1]=green;output.data[index+2]=blue;output.data[index+3]=Math.round(sourceAlpha*maskAlpha/255);
+  }
+  paint.clearRect(0,0,paint.canvas.width,paint.canvas.height);paint.putImageData(output,0,0);ctx.drawImage(layer,0,0);
+}
+
+function paintLuminance(red:number,green:number,blue:number):number{return Math.max(0,Math.min(255,Math.round(red*.2126+green*.7152+blue*.0722)));}
+
+/** A source-independent 11-level paint ramp shared by every Civic view. */
+export function canonicalPaintRgb(hue:number,saturation:number,brightnessRank:number):readonly[number,number,number]{
+  const rank=Math.max(0,Math.min(1,brightnessRank)),lightness=Math.round((18+rank*60)/6)*6,sat=Math.max(0,Math.min(100,saturation))*(1-Math.max(0,lightness-60)/110),h=((hue%360)+360)%360/360,s=sat/100,l=lightness/100;
+  if(s===0){const grey=Math.round(l*255);return[grey,grey,grey];}
+  const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q,toChannel=(offset:number)=>{let t=h+offset;if(t<0)t+=1;if(t>1)t-=1;const value=t<1/6?p+(q-p)*6*t:t<1/2?q:t<2/3?p+(q-p)*(2/3-t)*6:p;return Math.round(value*255);};
+  return[toChannel(1/3),toChannel(0),toChannel(-1/3)];
 }
 
 /**
