@@ -36,11 +36,11 @@ export const CIVIC_ASSET_PACK:CivicAssetPack={
       width:768,height:512,bodyAsset:'assets/cars/civic-si/v2/garage-body.webp',paintMaskAsset:'assets/cars/civic-si/v2/garage-paint-mask.png',wheelAsset:'assets/cars/civic-si/v2/wheel-mesh.webp',baseHue:220,contactY:.86,
       wheels:[{x:.548,y:.696,radius:.126,squash:.75,rotation:0},{x:.922,y:.58,radius:.096,squash:.73,rotation:0}],
       surfaces:{
-        hood:[[.12,.55],[.52,.39],[.61,.51],[.31,.66]],
-        'left-door':[[.61,.43],[.84,.39],[.88,.61],[.61,.67]],
+        hood:[[.128,.523],[.365,.383],[.612,.393],[.453,.563]],
+        'left-door':[[.623,.426],[.838,.397],[.858,.596],[.608,.642]],
         'right-door':hidden,
-        roof:[[.43,.2],[.78,.18],[.86,.3],[.54,.31]],
-        'rear-quarter':[[.84,.36],[.96,.34],[.98,.54],[.88,.58]],
+        roof:[[.535,.164],[.744,.158],[.803,.184],[.582,.191]],
+        'rear-quarter':[[.838,.355],[.956,.34],[.976,.535],[.874,.574]],
       },
     },
     'race-rear':{

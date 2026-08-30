@@ -356,6 +356,10 @@ Completion criteria met:
   nearest-neighbour pixel renderer after all appearance layers are composed.
   This is the pixel-art direction pilot: custom paint and physical parts remain
   independent data instead of multiplying into pre-rendered combinations.
+- Civic surface calibration now shares one authored geometry map across its
+  bonnet, graphics and decals. Factory, vented and carbon bonnets cover the
+  engine bay; spoilers, sunroof and neutral/smoked lamps stay registered to the
+  car; clipped pixel badges replace the unbounded text-glyph decals.
 
 Completion criteria met:
 
