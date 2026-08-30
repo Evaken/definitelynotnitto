@@ -375,6 +375,12 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   deliberate eased glide and settle. Opening the workshop selects the focused
   vehicle when necessary, keeping its vehicle id as the ownership source of
   truth without a dashboard-style statistics strip.
+- Modifications is now a physical five-department workshop rather than two
+  nested menu bars. Engine Bay, Power Adders, Running Gear, Chassis and Exhaust
+  expose flat system slots beside one stable hoist-mounted car; stepped work
+  lights and restrained camera shifts identify the active zone without flashing
+  or replacing the selected vehicle render. Garage installs share the
+  Speedshop's atomic conflict-replacement transaction.
 
 Completion criteria met:
 

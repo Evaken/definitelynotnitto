@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CPU_OPPONENTS, applyAppearance, applyPassStress, applyTune, buyCar, fitPart, playerBeatCpu, purchaseAndFitPart, removePart, repairCar, resolveBuild, runCpuOpponent, selectCar, settleCpuRace, type Appearance, type CpuDifficulty, type GarageResult, type GarageState, type InputTimeline, type TimingSlip, type Tune } from '@nitto/game-core';
+import { CPU_OPPONENTS, applyAppearance, applyPassStress, applyTune, buyCar, playerBeatCpu, purchaseAndFitPart, removePart, repairCar, resolveBuild, runCpuOpponent, selectCar, settleCpuRace, type Appearance, type CpuDifficulty, type GarageResult, type GarageState, type InputTimeline, type TimingSlip, type Tune } from '@nitto/game-core';
 import { NavBar } from './nav/NavBar.js';
 import type { ScreenId } from './nav/screens.js';
 import { PlaceholderScreen } from './screens/PlaceholderScreen.js';
@@ -62,7 +62,7 @@ export function App() {
   const logout=useCallback(()=>{window.localStorage.removeItem('nitto1320.session');setOnlineToken('');setOnlineProfile(null);setGarage(loadWorkshopState());setAccountMessage('Signed out. Offline profile restored.');},[]);
   const accountPanel=<AccountPanel profile={onlineProfile} busy={accountBusy} message={accountMessage} onLogin={(u,p)=>void authenticate('login',u,p)} onRegister={(u,p)=>void authenticate('register',u,p)} onLogout={logout}/>;
   const performGarageAction=(action:{type:string;id?:string;tune?:Tune;appearance?:Appearance},fallback:GarageResult,success:string)=>{if(!onlineToken){apply(fallback,success);return;}setShopMessage('Saving to online garage…');void api.garage(onlineToken,action).then(state=>{setGarage(state);setRaceHistory([]);setShopMessage(success);}).catch(error=>setShopMessage(error instanceof Error?error.message:'Online action failed.'));};
-  const fit=(id:string)=>performGarageAction({type:'fit-part',id},fitPart(garage,id),'Component installed.');
+  const fit=(id:string)=>performGarageAction({type:'purchase-part',id},purchaseAndFitPart(garage,id),'Component installed.');
   const remove=(id:string)=>performGarageAction({type:'remove-part',id},removePart(garage,id),'Component moved to storage.');
   const tune=(value:Tune)=>performGarageAction({type:'tune',tune:value},applyTune(garage,value),'Transmission setup saved.');
   const repair=()=>performGarageAction({type:'repair'},repairCar(garage),'Repairs complete. Vehicle condition restored.');

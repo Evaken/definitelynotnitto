@@ -2,6 +2,12 @@
 
 ## Unreleased - Garage presentation
 
+- Rebuilt Modifications as five physical workshop departments with flat system
+  slots, a stable hoist-mounted car and stepped pixel-art work lights that move
+  to the relevant zone without remounting or flashing the vehicle render.
+- Garage installation now uses the same atomic swap transaction as the
+  Speedshop, so owned upgrades can replace conflicting fitted hardware while
+  preserving prerequisites, ownership and server-authoritative saves.
 - Rebuilt the owned-car browser as a centre-focused physical garage bay with
   adjacent cars receding behind foreground pillars instead of a scrollbar of
   repeated interface cards.
