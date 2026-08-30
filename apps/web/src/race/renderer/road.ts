@@ -85,6 +85,10 @@ export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
   ctx.fillStyle = ground;
   ctx.fillRect(VIEW.x, HORIZON_Y, VIEW.w, VIEW_BOTTOM - HORIZON_Y);
 
+  // The photographic/pixel scenery plate contains its own verge pixels. It
+  // belongs behind the projected strip; drawing it last lets those pixels cut
+  // across the asphalt at the horizon as the road narrows.
+  drawSceneryPlate(ctx);
   smoothRoad(ctx);
 
   // Stepped from the far plane inwards so nearer bands paint over further ones
@@ -123,8 +127,6 @@ export function drawRoad(ctx: CanvasRenderingContext2D, cameraM: number): void {
       ctx.fill();
     }
   }
-
-  drawSceneryPlate(ctx);
 }
 
 function smoothRoad(ctx: CanvasRenderingContext2D): void {
