@@ -50,7 +50,10 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   drawPanelComponents(ctx,view,appearance,bodyOffset);
   drawDecals(ctx,view,appearance,bodyOffset);
   drawSpoiler(ctx,view,appearance,bodyOffset,false);
-  if(view==='garage')pixelateCanvas(canvas,2,16);
+  // The garage is a deliberately low-resolution scene. A three-pixel sample
+  // grid and restrained palette keep the owned-car render in the same visual
+  // language instead of reading as a photograph pasted over pixel artwork.
+  if(view==='garage')pixelateCanvas(canvas,3,24);
 }
 
 function layerCanvas(width:number,height:number):[HTMLCanvasElement,CanvasRenderingContext2D]{
