@@ -353,6 +353,10 @@ is retained as dormant scaffolding until calibrated art exists for each option.
 - The Civic and drag-strip scene retain the shared palette-limited,
   nearest-neighbour pixel renderer. Pixel conversion is presentation only and
   does not change ownership, colour or vehicle performance data.
+- The member Garage and Modifications bay now use original pixel-art physical
+  environments. Scene plates contain no vehicle: the selected owned-car render
+  is composited into the parking bay and raised on the two-post hoist, keeping
+  body colour and vehicle identity consistent across both screens.
 
 Completion criteria met:
 

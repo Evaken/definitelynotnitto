@@ -82,8 +82,9 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
       {WORKSHOP_GROUPS.filter(item=>!('lockedStage' in item)).map(item=><button key={item.id} data-sound="select" type="button" aria-pressed={group===item.id} className={group===item.id?'active':''} onClick={()=>chooseGroup(item.id)}>{item.label}</button>)}
     </nav>
     <div className="workshop__stage workshop__stage--simple">
-      <div className="workshop__visual">
+      <div className="workshop__visual workshop__visual--hoist">
         <CarBay key={group} carId={car.id} title={`${car.manufacturer} ${car.displayName}`} subtitle={`${Math.round(peakHp)} HP · ${Math.round(torque.torqueNm)} NM · ${Math.round(car.chassis.massKg)} KG · ${state.build.fittedPartIds.length?`${state.build.fittedPartIds.length} MODIFIED`:'STOCK'}`} badge="" fittedParts={fittedParts} appearance={state.appearance}/>
+        <div className="garage-hoist-foreground" aria-hidden="true"><i/><i/><b/><b/></div>
       </div>
       <section className="workshop__inventory workshop__inventory--simple garage-components">
         <header><span>{WORKSHOP_GROUPS.find(item=>item.id===group)?.label}</span><small>{categoryLabel(category)}</small></header>

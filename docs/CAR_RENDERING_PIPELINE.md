@@ -5,6 +5,12 @@
 > loading or saving a vehicle currently resets wheels, aero, panels, graphics,
 > decals and ride height to factory values while preserving its chosen hue.
 
+Garage environments follow the same separation rule. The pixel-art parking bay
+and two-post hoist are car-free scene plates stored under
+`apps/web/src/assets/scenes/`; `VehiclePortrait` is layered over those plates at
+runtime. Never bake a vehicle into a workshop background, because doing so
+would break owned-car identity and saved paint consistency.
+
 The Honda Civic was the production pilot for a scalable visual-customisation
 pipeline. The experiment is retained for future art development, but the
 current production renderer uses only the factory portrait plus a saved body

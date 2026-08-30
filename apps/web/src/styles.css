@@ -1019,6 +1019,44 @@ body {
 .screen--garage-setup .workshop-message{position:absolute;left:0;right:0;bottom:0;min-height:27px;padding:6px 9px;background:#11191e;color:#e7c33a;font-size:8px}
 .screen--garage-setup .workshop-status div{padding-block:6px}
 @media(max-width:760px){.screen--garage-department .workshop__modes{overflow-x:auto}.screen--garage-department .workshop-tab{flex:0 0 145px}.screen--garage-setup .workshop__stage--simple{grid-template-columns:1fr}.screen--garage-setup .workshop__visual{border-right:0;border-bottom:1px solid #82939a}.screen--garage-setup .workshop__inventory--simple{min-height:300px}}
+
+/* Physical pixel-art garage environments. The scene plates never contain a
+   vehicle: the owned-car renderer remains the single visual source of truth. */
+.garage-overview--cars{padding-top:25px;background:#05080b}
+.garage-overview--cars .garage-carousel{min-height:430px;background:
+  linear-gradient(180deg,#02070c99 0 14%,transparent 34% 68%,#02060999 100%),
+  url('./assets/scenes/garage-bay-v1.webp') center/cover no-repeat;
+  box-shadow:inset 0 15px 34px #0009,inset 0 -35px 45px #0008;image-rendering:pixelated}
+.garage-overview--cars .garage-carousel::before,.garage-overview--cars .garage-carousel::after{min-width:12%}
+.garage-overview--cars .garage-vehicle-card{flex-basis:620px;min-height:426px;border:0;background:transparent}
+.garage-overview--cars .garage-vehicle-card--selected{background:radial-gradient(ellipse at 57% 73%,#57cfe51f,transparent 52%)}
+.garage-overview--cars .garage-vehicle-card>header{top:28px;left:28px;padding:7px 12px;border-left:3px solid #d6aa25;background:linear-gradient(90deg,#071017d9,transparent);text-align:left}
+.garage-overview--cars .garage-vehicle-card>header span{font-size:9px;color:#69dff2}
+.garage-overview--cars .garage-vehicle-card>header strong{font:italic 900 24px Impact,"Arial Narrow",sans-serif}
+.garage-overview--cars .garage-vehicle-card .vehicle-setup-button{top:auto;left:28px;bottom:26px;width:142px;height:38px;border-radius:2px;font:12px Impact,"Arial Narrow",sans-serif}
+.garage-overview--cars .garage-vehicle-card .garage-records{top:31px;right:28px;width:168px;padding:7px 10px;border:1px solid #4d7380;background:#050b0fc7}
+.garage-overview--cars .garage-vehicle-card__portrait{inset:62px 7px 38px 76px}
+.garage-overview--cars .garage-vehicle-card__portrait img,.garage-overview--cars .garage-vehicle-card__portrait .garage-car-art__graphics{transform:translateY(var(--ride-offset,0)) scale(1.13)}
+.garage-overview--cars .garage-vehicle-card__portrait canvas{transform:translateX(-12px) scale(1.22);filter:drop-shadow(0 13px 7px #000c)}
+.garage-overview--cars .selected-car-button{right:28px;bottom:26px}
+
+.screen--garage-setup .workshop__visual--hoist{overflow:hidden;background:#05090c}
+.screen--garage-setup .workshop__visual--hoist .car-bay{background:
+  linear-gradient(180deg,#02060940,#02060912 58%,#02060980),
+  url('./assets/scenes/modification-hoist-v1.webp') center/cover no-repeat;
+  image-rendering:pixelated}
+.screen--garage-setup .workshop__visual--hoist .car-bay:before,.screen--garage-setup .workshop__visual--hoist .car-bay:after{display:none}
+.screen--garage-setup .workshop__visual--hoist .car-bay>.garage-car-art{z-index:4;inset:48px 53px 74px 53px;transform:translateY(-19px);animation:hoist-car-rise .62s cubic-bezier(.2,.72,.22,1) both}
+.screen--garage-setup .workshop__visual--hoist .car-bay>.garage-car-art img{transform:translateY(var(--ride-offset,0)) scale(1.06);filter:drop-shadow(0 12px 7px #000c) saturate(.9) brightness(.98)}
+.screen--garage-setup .workshop__visual--hoist .car-bay>.layered-car-portrait canvas{transform:translateX(-12px) scale(1.13);filter:drop-shadow(0 12px 7px #000c)}
+.screen--garage-setup .workshop__visual--hoist .car-bay__identity{z-index:9;left:16px;bottom:12px;padding:5px 9px;border-left:3px solid #d6ab27;background:linear-gradient(90deg,#050a0edb,transparent)}
+.garage-hoist-foreground{position:absolute;z-index:7;inset:0;pointer-events:none}
+.garage-hoist-foreground i{position:absolute;top:61%;width:24%;height:9px;border:2px solid #0b1115;border-radius:2px;background:linear-gradient(#d9b63d,#765814 48%,#201705 52%);box-shadow:0 3px 4px #000a}
+.garage-hoist-foreground i:first-child{left:21%;transform:rotate(10deg);transform-origin:left center}.garage-hoist-foreground i:nth-child(2){right:21%;transform:rotate(-10deg);transform-origin:right center}
+.garage-hoist-foreground b{position:absolute;z-index:2;top:59%;width:28px;height:10px;border:2px solid #090d10;border-radius:2px;background:#1d2930;box-shadow:inset 0 2px #697e87}
+.garage-hoist-foreground b:nth-child(3){left:42%}.garage-hoist-foreground b:nth-child(4){right:42%}
+@keyframes hoist-car-rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(-19px)}}
+@media(max-width:760px){.garage-overview--cars .garage-vehicle-card{flex-basis:480px}.screen--garage-setup .workshop__visual--hoist .car-bay>.garage-car-art{inset:48px 35px 74px}.garage-hoist-foreground i:first-child{left:18%}.garage-hoist-foreground i:nth-child(2){right:18%}}
 .showroom-car__portrait{position:absolute;z-index:2;inset:28px 2% 52px}.showroom-car__portrait img{width:100%;height:100%;object-fit:contain}.showroom-car--rsx-type-s .showroom-car__portrait img,.showroom-car--evo-vii .showroom-car__portrait img,.showroom-car--supra-tt .showroom-car__portrait img,.showroom-car--mustang-cobra .showroom-car__portrait img,.showroom-car--skyline-gtr .showroom-car__portrait img,.showroom-car--neon-srt4 .showroom-car__portrait img,.showroom-car--rx8 .showroom-car__portrait img,.showroom-car--nsx .showroom-car__portrait img,.showroom-car--viper-srt10 .showroom-car__portrait img{filter:drop-shadow(0 18px 14px #000) saturate(.9)}
 .main-empty-garage{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px 16px 0;padding:12px 15px;border:1px solid #2d7b91;background:#07141bcc}.main-empty-garage p{margin:0;color:#a9c3ce;font-size:10px}.cpu-card button:disabled{cursor:not-allowed;filter:grayscale(1);opacity:.45}.no-car-screen{display:grid;place-items:center;min-height:560px;background:radial-gradient(circle at 50% 58%,#253f51,#071018 62%,#020507)}.no-car-screen section{width:min(580px,82%);padding:46px;border:1px solid #3b6e84;background:linear-gradient(#142835e8,#071017f2);box-shadow:0 18px 50px #000;text-align:center}.no-car-screen span{color:#50dff7;font-size:10px;letter-spacing:.32em;text-transform:uppercase}.no-car-screen h2{margin:7px 0;color:#fff;font:italic 34px Impact,Arial Narrow,sans-serif;text-transform:uppercase}.no-car-screen p{color:#9ab1bc;line-height:1.6}.no-car-screen strong{display:block;margin:22px;color:#edc633;font:18px Consolas}.no-car-screen button{font-size:12px}
 .community-center{min-height:570px;padding:14px;background:radial-gradient(circle at 50% 15%,#254a61,#071018 58%,#020506);color:#d7e8ee}.community-center>header{display:flex;align-items:end;gap:13px;padding:12px 17px;border:1px solid #6d8997;border-bottom:2px solid #d1a522;background:linear-gradient(#385769,#142531)}.community-center>header span{color:#56def5;font-size:9px;letter-spacing:.18em;text-transform:uppercase}.community-center>header h2{flex:1;margin:0;font:italic 900 25px Arial;text-transform:uppercase}.community-center>header b{color:#f0c638;text-transform:uppercase}.community-gate,.community-search{margin:18px;padding:18px;border:1px solid #557585;background:linear-gradient(#172c38,#091116)}.community-search>div{display:flex;gap:8px}.community-search input{flex:1;padding:10px;background:#050a0d;color:#fff;border:1px solid #75a6b9}.community-search button,.community-results button{padding:9px 18px}.community-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 18px}.community-results article{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #416170;background:linear-gradient(90deg,#142936,#081017)}.community-results article i{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 40% 32%,#f1d45f,#83590e 45%,#0a0c0e 48%);border:2px solid #af8a21}.community-results article div{display:flex;flex:1;flex-direction:column}.community-results article span,.community-results article small{color:#7895a2;font-size:8px;text-transform:uppercase}.community-results article strong{color:#5fe4f7}.community-results article>b{color:#efc53c;font:900 18px Consolas}
