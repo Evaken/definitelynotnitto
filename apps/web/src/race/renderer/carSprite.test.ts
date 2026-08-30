@@ -1,5 +1,9 @@
 import {describe,expect,it} from 'vitest';
-import {shouldMirrorRaceArtwork,solidContactFraction} from './carSprite.js';
+import {CIVIC_RACE_DISPLAY_WIDTH_M,shouldMirrorRaceArtwork,solidContactFraction} from './carSprite.js';
+
+describe('player-car staging scale',()=>{
+  it('gives the Civic the larger foreground footprint required by the chase camera',()=>expect(CIVIC_RACE_DISPLAY_WIDTH_M).toBe(3.5));
+});
 
 describe('race artwork orientation',()=>{
   it('turns left-pointing source art inward in the player left lane',()=>expect(shouldMirrorRaceArtwork('left',-1.8)).toBe(true));

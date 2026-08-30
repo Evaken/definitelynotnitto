@@ -23,6 +23,12 @@ const BODY_HEIGHT_M = 1.36;
 const TRACK_WIDTH_M = 1.5;
 const WHEEL_DIAMETER_M = 0.6;
 /**
+ * Display width for the authored Civic rear sprite. The camera projection is
+ * intentionally arcade-like rather than a physical lens, so the player car
+ * needs a larger foreground footprint than its literal body width.
+ */
+export const CIVIC_RACE_DISPLAY_WIDTH_M = 3.5;
+/**
  * Tyre section width, derived so the outer wall lines up with the flank rather
  * than standing proud of it. Falls out at 0.22m, which is a real tyre.
  */
@@ -189,7 +195,7 @@ function contactFraction(url: string, image: HTMLImageElement): number {
 export function raceArtworkFor(carId:string,appearance?:Appearance):{artwork:CarArtwork;baseHue:number;composited?:boolean}|null {
   if(carId==='civic-si'&&appearance)return{baseHue:appearance.hue,composited:true,artwork:{drawRear(ctx,options){
     const frame=civicFrame('race-rear',appearance);if(frame===null){PLACEHOLDER_CAR.drawRear(ctx,options);return;}
-    const base=project(options.laneOffsetM,options.z),width=2.5*base.scale,height=width*(frame.height/frame.width),groundY=base.y-options.bounceM*base.scale;
+    const base=project(options.laneOffsetM,options.z),width=CIVIC_RACE_DISPLAY_WIDTH_M*base.scale,height=width*(frame.height/frame.width),groundY=base.y-options.bounceM*base.scale;
     if(options.wheelspin)smoke(ctx,base.x,groundY,width*.72);ctx.save();ctx.translate(base.x,groundY);ctx.drawImage(frame,-width*.5,-height*.86,width,height);
     if(options.braking){ctx.fillStyle='rgba(255,35,22,.52)';ctx.shadowColor='#ff2d1c';ctx.shadowBlur=Math.max(5,width*.055);ctx.beginPath();ctx.ellipse(-width*.3,-height*.5,width*.047,height*.09,0,0,Math.PI*2);ctx.ellipse(width*.3,-height*.5,width*.047,height*.09,0,0,Math.PI*2);ctx.fill();}ctx.restore();
   }}};
