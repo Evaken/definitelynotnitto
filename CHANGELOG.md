@@ -11,6 +11,9 @@
 - Added mouse-edge browsing, keyboard controls and a deliberate 1.05-second
   eased bay glide with a short visual settle so browsing feels like moving
   through a garage rather than switching UI panels.
+- Removed the dashboard-style garage statistics/action strip. The focused bay
+  now has one `Modify Car` action, which selects that vehicle when necessary
+  before opening its workshop.
 
 ## Unreleased - Driveability
 

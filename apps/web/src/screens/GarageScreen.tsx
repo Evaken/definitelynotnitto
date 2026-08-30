@@ -1,12 +1,12 @@
 import { useEffect,useMemo,useRef,useState } from 'react';
-import { averageQuarterMileEt,factoryPaintAppearance, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, repairCost, resolveBuild, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
+import { factoryPaintAppearance, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, repairCost, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, VehiclePortrait, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
 import {useEdgePan} from '../useEdgePan.js';
 import {garageBrowseDirection,garageGlideProgress,nextGarageIndex,type GarageBrowseDirection} from '../garageCarousel.js';
 
 type GarageView='overview'|'setup'|'tune'|'paint'|'maintenance';
-export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect,initialView='overview',initialGroup='intake'}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:(group:WorkshopGroupId)=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void;initialView?:GarageView;initialGroup?:WorkshopGroupId}){
+export function GarageScreen({state,car,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect,initialView='overview',initialGroup='intake'}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:(group:WorkshopGroupId)=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void;initialView?:GarageView;initialGroup?:WorkshopGroupId}){
   const [view,setView]=useState<GarageView>(initialView);
   const [group,setGroup]=useState<WorkshopGroupId>(initialGroup);
   const [category,setCategory]=useState<PartCategory>(categoriesForGroup(initialGroup)[0]??'intake');
@@ -33,14 +33,7 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
   const categoryPan=useEdgePan<HTMLElement>(),subcategoryPan=useEdgePan<HTMLElement>();
   const focusedIndex=Math.max(0,garageCars.findIndex(item=>item.vehicleId===focusedVehicleId));
   const focusedVehicle=garageCars[focusedIndex]??garageCars[0];
-  const focusedCar=focusedVehicle?getCar(focusedVehicle.build.carId):car;
-  const focusedBuild=focusedVehicle?resolveBuild(focusedVehicle.build,focusedVehicle.condition):car;
   const focusedIsSelected=focusedVehicle?.vehicleId===state.selectedVehicleId;
-  const focusedCompleted=focusedIsSelected?history.filter(slip=>!slip.incomplete):[];
-  const focusedAverage=focusedIsSelected?averageQuarterMileEt(history):null;
-  const focusedBest=focusedCompleted.length?Math.min(...focusedCompleted.map(slip=>slip.quarterMileEt)):null;
-  let focusedPeakHp=0;
-  for(let rpm=focusedBuild.engine.idleRpm;rpm<=focusedBuild.engine.redlineRpm;rpm+=100)focusedPeakHp=Math.max(focusedPeakHp,kwToHp(powerKwAtRpm(focusedBuild.engine.curve,rpm)));
 
   const browseGarage=(direction:-1|1)=>setFocusedVehicleId(current=>{
     const currentIndex=Math.max(0,garageCars.findIndex(item=>item.vehicleId===current));
@@ -107,22 +100,8 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
       <button type="button" data-sound="select" className="garage-browse garage-browse--previous" aria-label="Previous garage bay" disabled={focusedIndex===0} onClick={()=>browseGarage(-1)}>◀</button>
       <button type="button" data-sound="select" className="garage-browse garage-browse--next" aria-label="Next garage bay" disabled={focusedIndex===garageCars.length-1} onClick={()=>browseGarage(1)}>▶</button>
       <div className="garage-bay-occlusion" aria-hidden="true"><i/><i/></div>
-      <section key={focusedVehicle.vehicleId} className="garage-focus-console" aria-label={`Focused vehicle: ${focusedCar.manufacturer} ${focusedCar.displayName}`}>
-        <header><span>Bay {focusedIndex+1} of {garageCars.length} · {focusedCar.year}</span><strong>{focusedCar.manufacturer} {focusedCar.displayName}</strong><small>Vehicle ID {focusedVehicle.vehicleId.toUpperCase()}</small></header>
-        <dl>
-          <div><dt>Power</dt><dd>{Math.round(focusedPeakHp)} HP</dd></div>
-          <div><dt>Condition</dt><dd>{focusedVehicle.condition.toFixed(0)}%</dd></div>
-          <div><dt>Modified</dt><dd>{focusedVehicle.build.fittedPartIds.length}</dd></div>
-          <div><dt>Best ET</dt><dd>{focusedBest===null?'--.---':focusedBest.toFixed(3)}</dd></div>
-          <div><dt>Average</dt><dd>{focusedAverage===null?'--.---':focusedAverage.toFixed(3)}</dd></div>
-        </dl>
-        <div className="garage-focus-actions">
-          <button type="button" data-sound="select" onClick={()=>{if(focusedIsSelected)openSetup();else{setPendingSetup(focusedVehicle.vehicleId);onSelect(focusedVehicle.vehicleId);}}}>Vehicle Setup</button>
-          <button type="button" data-sound="select" className="primary" disabled={focusedIsSelected} onClick={()=>onSelect(focusedVehicle.vehicleId)}>{focusedIsSelected?'Current Car':'Select Car'}</button>
-          <button type="button" data-sound="select" onClick={onVisitShowroom}>+ Add Vehicle</button>
-        </div>
-      </section>
-      {garageCars.length>1&&<p className="garage-pan-instruction">Move pointer toward either edge · Arrow keys browse · Select from the centre bay</p>}
+      <button type="button" data-sound="select" className="garage-modify-car" onClick={()=>{if(focusedIsSelected)openSetup();else{setPendingSetup(focusedVehicle.vehicleId);onSelect(focusedVehicle.vehicleId);}}}>Modify Car</button>
+      {garageCars.length>1&&<p className="garage-pan-instruction">Move pointer toward either edge · Arrow keys browse</p>}
     </section>
   </WorkshopFrame></div>;
 
