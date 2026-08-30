@@ -48,7 +48,10 @@ export function drawRace(ctx: CanvasRenderingContext2D, state: PassState,appeara
   drawDistanceMarks(ctx, cameraM);
   drawChristmasTree(ctx, state, cameraM);
   drawPlayerCar(ctx, state,visual);
-  pixelateRegion(ctx,VIEW.x,VIEW.y,VIEW.w,VIEW.h,3,32);
+  // Keep the strip deliberately pixel-authored without throwing away the
+  // Civic's lamp, glass and body-panel definition at its relatively small
+  // racing size.
+  pixelateRegion(ctx,VIEW.x,VIEW.y,VIEW.w,VIEW.h,2,24);
   drawStageIndicators(ctx, state);
   drawPrompt(ctx, state);
 

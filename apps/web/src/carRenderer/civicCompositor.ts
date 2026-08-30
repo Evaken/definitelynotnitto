@@ -42,7 +42,7 @@ function drawCivic(canvas:HTMLCanvasElement,view:CivicViewId,appearance:Appearan
   ctx.clearRect(0,0,canvas.width,canvas.height);if(view==='race-rear')drawShadow(ctx,view);
   drawSpoiler(ctx,view,appearance,bodyOffset,true);
   ctx.drawImage(body,0,bodyOffset,manifest.width,manifest.height);
-  drawPaint(ctx,body,mask,manifest.baseHue,appearance,bodyOffset);
+  drawPaint(ctx,body,mask,view,appearance,bodyOffset);
   if(view==='garage'&&manifest.wheelAsset&&appearance.components.wheels!=='wheel-stock')for(const slot of manifest.wheels)drawWheel(ctx,slot,appearance.components.wheels,image(civicAssetUrl(manifest.wheelAsset)));
   drawHood(ctx,view,appearance,bodyOffset);
   drawGraphics(ctx,mask,view,appearance,bodyOffset);
@@ -55,9 +55,34 @@ function layerCanvas(width:number,height:number):[HTMLCanvasElement,CanvasRender
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas 2D is required for the car compositor.');return[canvas,ctx];
 }
 
-function drawPaint(ctx:CanvasRenderingContext2D,body:HTMLImageElement,mask:HTMLImageElement,baseHue:number,appearance:Appearance,offset:number):void{
-  const [layer,paint]=layerCanvas(ctx.canvas.width,ctx.canvas.height);
-  void baseHue;paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='color';paint.fillStyle=`hsl(${appearance.hue} ${appearance.saturation}% 50%)`;paint.fillRect(0,0,paint.canvas.width,paint.canvas.height);paint.globalCompositeOperation='destination-in';paint.drawImage(mask,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='source-over';ctx.drawImage(layer,0,0);
+function drawPaint(ctx:CanvasRenderingContext2D,body:HTMLImageElement,mask:HTMLImageElement,view:CivicViewId,appearance:Appearance,offset:number):void{
+  const [layer,paint]=layerCanvas(ctx.canvas.width,ctx.canvas.height),[coverage,coverageCtx]=layerCanvas(ctx.canvas.width,ctx.canvas.height);
+  coverageCtx.drawImage(mask,0,offset,coverage.width,coverage.height);
+  if(view==='race-rear')extendRacePaintCoverage(coverageCtx,body);
+  paint.drawImage(body,0,offset,ctx.canvas.width,ctx.canvas.height);paint.globalCompositeOperation='color';paint.fillStyle=`hsl(${appearance.hue} ${appearance.saturation}% 50%)`;paint.fillRect(0,0,paint.canvas.width,paint.canvas.height);paint.globalCompositeOperation='destination-in';paint.drawImage(coverage,0,0);paint.globalCompositeOperation='source-over';ctx.drawImage(layer,0,0);
+}
+
+/**
+ * The recovered rear sprite was authored as neutral panels with yellow trim,
+ * but its old mask covered only the neutral panels. Add only the yellow body
+ * pixels that belong to the roof, mirrors, panel edges and bumper. The amber
+ * lamp centres deliberately remain outside this extension.
+ */
+function extendRacePaintCoverage(coverage:CanvasRenderingContext2D,body:HTMLImageElement):void{
+  const [source,sourceCtx]=layerCanvas(coverage.canvas.width,coverage.canvas.height);sourceCtx.drawImage(body,0,0,source.width,source.height);
+  const sourcePixels=sourceCtx.getImageData(0,0,source.width,source.height),maskPixels=coverage.getImageData(0,0,coverage.canvas.width,coverage.canvas.height),width=source.width;
+  for(let index=0;index<sourcePixels.data.length;index+=4){
+    const pixel=index/4,x=pixel%width,y=Math.floor(pixel/width),red=sourcePixels.data[index]!,green=sourcePixels.data[index+1]!,blue=sourcePixels.data[index+2]!,alpha=sourcePixels.data[index+3]!;
+    if(!isRaceBodyColourPixel(red,green,blue,alpha,x,y))continue;
+    maskPixels.data[index]=255;maskPixels.data[index+1]=255;maskPixels.data[index+2]=255;maskPixels.data[index+3]=255;
+  }
+  coverage.putImageData(maskPixels,0,0);
+}
+
+export function isRaceBodyColourPixel(red:number,green:number,blue:number,alpha:number,x:number,y:number):boolean{
+  const isYellowPaint=alpha>80&&red>125&&green>65&&blue<120&&red>green*1.05&&green>blue*1.25;
+  if(!isYellowPaint)return false;
+  return y<198||y>320||(x>=186&&x<=201)||(x>=564&&x<=580);
 }
 
 function drawGraphics(ctx:CanvasRenderingContext2D,mask:HTMLImageElement,view:CivicViewId,appearance:Appearance,offset:number):void{

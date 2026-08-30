@@ -14,6 +14,10 @@
 - Removed the dashboard-style garage statistics/action strip. The focused bay
   now has one `Modify Car` action, which selects that vehicle when necessary
   before opening its workshop.
+- Extended the Civic's rear race paint coverage across its roof, mirrors, panel
+  edges and bumper so a red car no longer retains yellow body trim. Amber lamp
+  centres remain untinted, and the race scene now uses a finer unsmoothed pixel
+  pass for clearer, brighter sprite detail.
 
 ## Unreleased - Driveability
 

@@ -24,7 +24,7 @@ export function pixelateRegion(ctx:CanvasRenderingContext2D,x:number,y:number,wi
   const transform=ctx.getTransform(),scaleX=Math.abs(transform.a)||1,scaleY=Math.abs(transform.d)||1;
   const sourceX=Math.round(x*scaleX+transform.e),sourceY=Math.round(y*scaleY+transform.f),sourceWidth=Math.max(1,Math.round(width*scaleX)),sourceHeight=Math.max(1,Math.round(height*scaleY));
   const lowWidth=Math.max(1,Math.round(width/pixelSize)),lowHeight=Math.max(1,Math.round(height/pixelSize)),buffer=bufferFor(ctx.canvas,lowWidth,lowHeight);if(!buffer)return;
-  const low=buffer.ctx;low.setTransform(1,0,0,1,0,0);low.clearRect(0,0,lowWidth,lowHeight);low.imageSmoothingEnabled=true;low.drawImage(ctx.canvas,sourceX,sourceY,sourceWidth,sourceHeight,0,0,lowWidth,lowHeight);
+  const low=buffer.ctx;low.setTransform(1,0,0,1,0,0);low.clearRect(0,0,lowWidth,lowHeight);low.imageSmoothingEnabled=false;low.drawImage(ctx.canvas,sourceX,sourceY,sourceWidth,sourceHeight,0,0,lowWidth,lowHeight);
   const pixels=low.getImageData(0,0,lowWidth,lowHeight),data=pixels.data;
   for(let py=0;py<lowHeight;py++)for(let px=0;px<lowWidth;px++){
     const offset=(py*lowWidth+px)*4;if(data[offset+3]===0)continue;const threshold=(BAYER_4X4[(py&3)*4+(px&3)]!-7.5)*.22;

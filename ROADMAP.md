@@ -353,6 +353,10 @@ is retained as dormant scaffolding until calibrated art exists for each option.
 - The Civic and drag-strip scene retain the shared palette-limited,
   nearest-neighbour pixel renderer. Pixel conversion is presentation only and
   does not change ownership, colour or vehicle performance data.
+- The Civic rear-race mask includes its yellow-authored roof, mirrors, panel
+  edges and bumper as body paint while protecting the lamp centres. Its saved
+  body hue now renders consistently in the Garage and on track, and the race
+  scene uses a finer unsmoothed palette pass for clearer pixel detail.
 - The member Garage and Modifications bay now use original pixel-art physical
   environments. Scene plates contain no vehicle: the selected owned-car render
   is composited into the parking bay and raised on the two-post hoist, keeping
