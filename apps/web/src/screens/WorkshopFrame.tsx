@@ -48,6 +48,7 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
   carLabel?:string;
 }) {
   const audio=useWorkshopAudio();
+  const locationLabel=shop?'Motorsport Speedshop':showDepartments?({modifications:'Modification Bay',tune:'Dyno Cell',paint:'Paint Booth',maintenance:'Service Bay'} as const)[activeDepartment]:'Member Garage';
   const playButton=(event:ReactPointerEvent<HTMLDivElement>)=>{
     const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button');
     if(!button||button.dataset.sound==='silent'||button.disabled)return;
@@ -57,15 +58,15 @@ export function WorkshopFrame({ cash, children, showDepartments = false, onBack,
     <div className="workshop" onPointerDownCapture={playButton}>
       <div className="workshop__brandbar">
         <div><strong>1320</strong><span>{shop ? 'MOTORSPORT SPEEDSHOP' : 'PERFORMANCE WORKS'}</span></div>
-        <div className="workshop__account"><button type="button" className="workshop-sound" data-sound="silent" aria-pressed={audio.enabled} onClick={audio.toggle}>{audio.enabled?'Sound on':'Sound off'}</button><span>MEMBER GARAGE</span><strong>${cash.toLocaleString()}</strong></div>
+        <div className="workshop__account"><button type="button" className="workshop-sound" data-sound="silent" aria-pressed={audio.enabled} onClick={audio.toggle}>{audio.enabled?'Sound on':'Sound off'}</button><span>{locationLabel}</span><strong>${cash.toLocaleString()}</strong></div>
       </div>
       {(showDepartments || onBack) && <div className="workshop__toolbar">
         {onBack && <button className="workshop-back" data-sound="select" type="button" onClick={onBack}><span aria-hidden="true">◀</span> Back</button>}
         {showDepartments && <nav className="workshop__modes" aria-label="Garage departments">
-          <button className={`workshop-tab${activeDepartment==='modifications'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('modifications')}>Modifications</button>
-          <button className={`workshop-tab${activeDepartment==='tune'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('tune')}>Tune &amp; Dyno</button>
-          <button className={`workshop-tab${activeDepartment==='paint'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('paint')}>Paint Shop</button>
-          <button className={`workshop-tab${activeDepartment==='maintenance'?' workshop-tab--active':''}`} type="button" onClick={()=>onDepartmentChange?.('maintenance')}>Maintenance</button>
+          <button className={`workshop-tab${activeDepartment==='modifications'?' workshop-tab--active':''}`} aria-current={activeDepartment==='modifications'?'page':undefined} type="button" onClick={()=>onDepartmentChange?.('modifications')}>Modifications</button>
+          <button className={`workshop-tab${activeDepartment==='tune'?' workshop-tab--active':''}`} aria-current={activeDepartment==='tune'?'page':undefined} type="button" onClick={()=>onDepartmentChange?.('tune')}>Tune &amp; Dyno</button>
+          <button className={`workshop-tab${activeDepartment==='paint'?' workshop-tab--active':''}`} aria-current={activeDepartment==='paint'?'page':undefined} type="button" onClick={()=>onDepartmentChange?.('paint')}>Paint Shop</button>
+          <button className={`workshop-tab${activeDepartment==='maintenance'?' workshop-tab--active':''}`} aria-current={activeDepartment==='maintenance'?'page':undefined} type="button" onClick={()=>onDepartmentChange?.('maintenance')}>Maintenance</button>
         </nav>}
       </div>}
       {children}
@@ -134,11 +135,11 @@ function decalPosition(surface:DecalPlacement['surface'],x:number,y:number):{lef
   return{left:bounds[0]+x*(bounds[1]-bounds[0]),top:bounds[2]+y*(bounds[3]-bounds[2])};
 }
 
-export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance,focusGroup }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance;focusGroup?:WorkshopGroupId }) {
+export function CarBay({ title, subtitle, badge, carId, fittedParts=[],appearance,focusGroup,className='' }: { title: string; subtitle: string; badge: string; carId:string; fittedParts?:readonly Part[];appearance?:Appearance;focusGroup?:WorkshopGroupId;className?:string }) {
   const fitted=new Set(fittedParts.map(part=>part.category));
   const fittedClasses=[...fitted].map(category=>`car-bay--fitted-${category}`).concat(fittedParts.map(part=>`car-bay--part-${part.id}`),focusGroup?`car-bay--focus-${focusGroup}`:'').join(' ');
   return (
-    <div className={`car-bay ${fittedClasses}`} aria-label={`${title}, ${subtitle}`}>
+    <div className={`car-bay ${fittedClasses} ${className}`.trim()} aria-label={`${title}, ${subtitle}`}>
       <div className="car-bay__scanlines" />
       <div className="car-bay__sweep" />
       <div className="car-bay__scene" aria-hidden="true"><i/><i/><b/></div>

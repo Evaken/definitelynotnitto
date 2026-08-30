@@ -381,6 +381,11 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   lights and restrained camera shifts identify the active zone without flashing
   or replacing the selected vehicle render. Garage installs share the
   Speedshop's atomic conflict-replacement transaction.
+- The complete Garage now reads as one location: the owned-car overview,
+  Modification Bay, Dyno Cell, Paint Booth and Service Bay use one compact
+  pixel-era shell and render the selected vehicle with its saved colour at a
+  consistent scale. Each department is distinguished by physical equipment and
+  purpose-built controls rather than a different dashboard style.
 
 Completion criteria met:
 

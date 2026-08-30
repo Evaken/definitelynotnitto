@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { TUNING, runDyno, stockTune, type Car, type DynoResult, type Tune } from '@nitto/game-core';
+import { TUNING, runDyno, stockTune, type Appearance, type Car, type DynoResult, type Tune } from '@nitto/game-core';
+import { VehiclePortrait } from './WorkshopFrame.js';
 
-export function TuneDynoPanel({car,tune,message,onApply}:{car:Car;tune:Tune;message:string;onApply:(tune:Tune)=>void}){
+export function TuneDynoPanel({car,tune,appearance,message,onApply}:{car:Car;tune:Tune;appearance:Appearance;message:string;onApply:(tune:Tune)=>void}){
   const [draft,setDraft]=useState<Tune>(tune);
   const [current,setCurrent]=useState<DynoResult|null>(null);
   const [previous,setPrevious]=useState<DynoResult|null>(null);
@@ -10,7 +11,9 @@ export function TuneDynoPanel({car,tune,message,onApply}:{car:Car;tune:Tune;mess
   const setGear=(index:number,value:number)=>setDraft(old=>({ ...old,gearRatios:old.gearRatios.map((ratio,i)=>i===index?value:ratio)}));
   const run=()=>{setPrevious(current);setCurrent(runDyno(car));};
   const maxSpeed=useMemo(()=>draft.gearRatios.map(ratio=>car.engine.redlineRpm*2*Math.PI/60*car.tyres.radiusM/(ratio*draft.finalDrive)*2.236936),[car,draft]);
-  return <div className="tune-dyno">
+  return <section className="garage-service-view garage-service-view--tune">
+    <header className="garage-service-header"><div><span>Dyno Cell 02</span><h2>Transmission &amp; Power</h2></div><small>Live fitted build · {car.year} {car.displayName}</small></header>
+    <div className="tune-dyno">
     <section className="tune-console">
       <header><span>Transmission Setup</span><h2>Gear Ratio Control</h2><p>Short ratios accelerate harder but run out of road sooner. A bad setup can lose a race.</p></header>
       <div className="gear-stack">
@@ -22,10 +25,11 @@ export function TuneDynoPanel({car,tune,message,onApply}:{car:Car;tune:Tune;mess
     </section>
     <section className="dyno-console">
       <header><span>Chassis Dynamometer</span><h2>Power Run</h2><button type="button" className="dyno-run" data-sound="engine" onClick={run}>Run Dyno</button></header>
-      {current?<><DynoGraph current={current} previous={previous}/><div className="dyno-readout"><Metric label="Peak power" value={`${Math.round(current.peakHorsepower)} hp`} rpm={current.peakHorsepowerRpm}/><Metric label="Peak torque" value={`${Math.round(current.peakTorqueNm)} Nm`} rpm={current.peakTorqueRpm}/>{previous&&<Metric label="Power change" value={`${signed(current.peakHorsepower-previous.peakHorsepower)} hp`} rpm={null}/>}</div></>:<div className="dyno-idle"><div className="dyno-idle__rollers"><i/><i/></div><strong>Dyno standing by</strong><span>Run the fitted build to record its power and torque curves.</span></div>}
+      {current?<><DynoGraph current={current} previous={previous}/><div className="dyno-readout"><Metric label="Peak power" value={`${Math.round(current.peakHorsepower)} hp`} rpm={current.peakHorsepowerRpm}/><Metric label="Peak torque" value={`${Math.round(current.peakTorqueNm)} Nm`} rpm={current.peakTorqueRpm}/>{previous&&<Metric label="Power change" value={`${signed(current.peakHorsepower-previous.peakHorsepower)} hp`} rpm={null}/>}</div></>:<div className="dyno-idle"><div className="dyno-idle__vehicle"><VehiclePortrait carId={car.id} appearance={appearance}/><div className="dyno-idle__rollers"><i/><i/></div></div><strong>Dyno standing by</strong><span>Run the fitted build to record its power and torque curves.</span></div>}
       <p className="dyno-note">The dyno measures the fitted engine build. Gear ratios affect the pass, not engine output.</p>
     </section>
-  </div>;
+    </div>
+  </section>;
 }
 
 function Metric({label,value,rpm}:{label:string;value:string;rpm:number|null}){return <div><span>{label}</span><strong>{value}</strong>{rpm!==null&&<small>@ {rpm.toLocaleString()} rpm</small>}</div>;}

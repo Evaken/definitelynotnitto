@@ -2,6 +2,14 @@
 
 ## Unreleased - Garage presentation
 
+- Unified the entire Garage into one compact pixel-era workshop language. The
+  overview, Modification Bay, Dyno Cell, Paint Booth and Service Bay now share
+  the same steel shell, square controls, cyan/gold hierarchy, scene lighting,
+  typography, status rail and stepped view transition without page scrollbars.
+- Added the selected painted car to the idle dyno rollers, rebuilt Paint and
+  Maintenance as physical garage bays, and normalised vehicle scale and scene
+  treatment so each subsection displays the same owned car rather than feeling
+  like an unrelated dashboard.
 - Rebuilt Modifications as five physical workshop departments with flat system
   slots, a stable hoist-mounted car and stepped pixel-art work lights that move
   to the relevant zone without remounting or flashing the vehicle render.
