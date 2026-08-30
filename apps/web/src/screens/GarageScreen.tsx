@@ -1,8 +1,9 @@
-import { useEffect,useMemo,useState } from 'react';
-import { averageQuarterMileEt,factoryPaintAppearance, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, repairCost, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
+import { useEffect,useMemo,useRef,useState } from 'react';
+import { averageQuarterMileEt,factoryPaintAppearance, getCar, getPart, kwToHp, partList, peakTorque, powerKwAtRpm, repairCost, resolveBuild, type Appearance, type GarageState, type OwnedCarState, type Car, type Part, type PartCategory, type TimingSlip, type Tune } from '@nitto/game-core';
 import { CarBay, categoriesForGroup, categoryLabel, partBrand, partsForGroup, VehiclePortrait, WORKSHOP_GROUPS, WorkshopFrame, type WorkshopGroupId } from './WorkshopFrame.js';
 import { TuneDynoPanel } from './TuneDynoPanel.js';
 import {useEdgePan} from '../useEdgePan.js';
+import {garageBrowseDirection,garageGlideProgress,nextGarageIndex,type GarageBrowseDirection} from '../garageCarousel.js';
 
 type GarageView='overview'|'setup'|'tune'|'paint'|'maintenance';
 export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowroom,onFit,onRemove,onTune,onRepair,onAppearance,onSelect,initialView='overview',initialGroup='intake'}:{state:GarageState;car:Car;history:readonly TimingSlip[];message:string;onVisitShop:(group:WorkshopGroupId)=>void;onVisitShowroom:()=>void;onFit:(id:string)=>void;onRemove:(id:string)=>void;onTune:(tune:Tune)=>void;onRepair:()=>void;onAppearance:(appearance:Appearance)=>void;onSelect:(id:string)=>void;initialView?:GarageView;initialGroup?:WorkshopGroupId}){
@@ -16,17 +17,49 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
   const fittedHere=owned.filter(part=>state.build.fittedPartIds.includes(part.id));
   const selected=owned.find(part=>part.id===selectedId)??owned[0];
   const fittedParts=state.build.fittedPartIds.map(getPart);
-  const completed=history.filter(slip=>!slip.incomplete);
-  const averageEt=averageQuarterMileEt(history);
-  const bestEt=completed.length?Math.min(...completed.map(slip=>slip.quarterMileEt)):null;
   let peakHp=0;
   for(let rpm=car.engine.idleRpm;rpm<=car.engine.redlineRpm;rpm+=100)peakHp=Math.max(peakHp,kwToHp(powerKwAtRpm(car.engine.curve,rpm)));
   const torque=peakTorque(car.engine.curve);
-  const activeCar:OwnedCarState={vehicleId:state.selectedVehicleId??'selected',build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};
-  const garageCars=state.hasSelectedCar?[activeCar,...state.ownedCars]:[];
+  const garageCars=useMemo<readonly OwnedCarState[]>(()=>{
+    if(!state.hasSelectedCar)return[];
+    const active:OwnedCarState={vehicleId:state.selectedVehicleId??'selected',build:state.build,ownedPartIds:state.ownedPartIds,tune:state.tune,condition:state.condition,appearance:state.appearance};
+    return[active,...state.ownedCars].sort((a,b)=>a.vehicleId.localeCompare(b.vehicleId,undefined,{numeric:true,sensitivity:'base'}));
+  },[state]);
   const actionMessage=message==='Selected vehicle changed.'?'':message;
   const [pendingSetup,setPendingSetup]=useState<string|null>(null);
-  const garagePan=useEdgePan<HTMLDivElement>(),categoryPan=useEdgePan<HTMLElement>(),subcategoryPan=useEdgePan<HTMLElement>();
+  const [focusedVehicleId,setFocusedVehicleId]=useState(state.selectedVehicleId??garageCars[0]?.vehicleId??'');
+  const [browseIntent,setBrowseIntent]=useState<GarageBrowseDirection>(0);
+  const garageCarousel=useRef<HTMLDivElement|null>(null),garageScrollFrame=useRef<number|null>(null),browseIntentRef=useRef<GarageBrowseDirection>(0),browseRepeat=useRef<number|null>(null);
+  const categoryPan=useEdgePan<HTMLElement>(),subcategoryPan=useEdgePan<HTMLElement>();
+  const focusedIndex=Math.max(0,garageCars.findIndex(item=>item.vehicleId===focusedVehicleId));
+  const focusedVehicle=garageCars[focusedIndex]??garageCars[0];
+  const focusedCar=focusedVehicle?getCar(focusedVehicle.build.carId):car;
+  const focusedBuild=focusedVehicle?resolveBuild(focusedVehicle.build,focusedVehicle.condition):car;
+  const focusedIsSelected=focusedVehicle?.vehicleId===state.selectedVehicleId;
+  const focusedCompleted=focusedIsSelected?history.filter(slip=>!slip.incomplete):[];
+  const focusedAverage=focusedIsSelected?averageQuarterMileEt(history):null;
+  const focusedBest=focusedCompleted.length?Math.min(...focusedCompleted.map(slip=>slip.quarterMileEt)):null;
+  let focusedPeakHp=0;
+  for(let rpm=focusedBuild.engine.idleRpm;rpm<=focusedBuild.engine.redlineRpm;rpm+=100)focusedPeakHp=Math.max(focusedPeakHp,kwToHp(powerKwAtRpm(focusedBuild.engine.curve,rpm)));
+
+  const browseGarage=(direction:-1|1)=>setFocusedVehicleId(current=>{
+    const currentIndex=Math.max(0,garageCars.findIndex(item=>item.vehicleId===current));
+    return garageCars[nextGarageIndex(currentIndex,garageCars.length,direction)]?.vehicleId??current;
+  });
+  const setBrowseDirection=(direction:GarageBrowseDirection)=>{
+    if(browseIntentRef.current===direction)return;
+    browseIntentRef.current=direction;setBrowseIntent(direction);
+    if(direction!==0)browseGarage(direction);
+  };
+  const onGaragePointerMove=(event:React.PointerEvent<HTMLDivElement>)=>{
+    if(event.pointerType==='touch')return;const bounds=event.currentTarget.getBoundingClientRect();
+    setBrowseDirection(garageBrowseDirection(event.clientX-bounds.left,bounds.width));
+  };
+  const onGarageKeyDown=(event:React.KeyboardEvent<HTMLDivElement>)=>{
+    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();browseGarage(event.key==='ArrowLeft'?-1:1);}
+    if(event.key==='Home'){event.preventDefault();setFocusedVehicleId(garageCars[0]?.vehicleId??'');}
+    if(event.key==='End'){event.preventDefault();setFocusedVehicleId(garageCars.at(-1)?.vehicleId??'');}
+  };
 
   /**
    * Open Vehicle Setup on a system the player owns something in.
@@ -43,30 +76,53 @@ export function GarageScreen({state,car,history,message,onVisitShop,onVisitShowr
     setView('setup');
   };
   useEffect(()=>{if(!pendingSetup||state.selectedVehicleId!==pendingSetup)return;setPendingSetup(null);openSetup();},[pendingSetup,state.selectedVehicleId]);
-  useEffect(()=>{if(view!=='overview')return;const frame=requestAnimationFrame(()=>{const node=garagePan.ref.current,selectedCard=node?.querySelector<HTMLElement>('[aria-current="true"]');if(node&&selectedCard)node.scrollTo({left:selectedCard.offsetLeft-(node.clientWidth-selectedCard.clientWidth)/2,behavior:'smooth'});});return()=>cancelAnimationFrame(frame);},[state.selectedVehicleId,view,garageCars.length]);
+  useEffect(()=>{if(!garageCars.some(item=>item.vehicleId===focusedVehicleId))setFocusedVehicleId(state.selectedVehicleId??garageCars[0]?.vehicleId??'');},[focusedVehicleId,garageCars,state.selectedVehicleId]);
+  useEffect(()=>{if(browseIntent===0)return;const delay=window.setTimeout(()=>{browseGarage(browseIntent);const repeat=window.setInterval(()=>browseGarage(browseIntent),1300);browseRepeat.current=repeat;},950);return()=>{window.clearTimeout(delay);if(browseRepeat.current!==null){window.clearInterval(browseRepeat.current);browseRepeat.current=null;}};},[browseIntent,garageCars]);
+  useEffect(()=>{if(view!=='overview')return;const begin=requestAnimationFrame(()=>{
+    const node=garageCarousel.current,focusedCard=node?.querySelector<HTMLElement>('[data-focused="true"]');if(!node||!focusedCard)return;
+    if(garageScrollFrame.current!==null)cancelAnimationFrame(garageScrollFrame.current);
+    const start=node.scrollLeft,target=focusedCard.offsetLeft-(node.clientWidth-focusedCard.clientWidth)/2,distance=target-start,started=performance.now(),duration=1050;
+    const move=(now:number)=>{const progress=Math.min(1,(now-started)/duration),eased=garageGlideProgress(progress);node.scrollLeft=start+distance*eased;if(progress<1)garageScrollFrame.current=requestAnimationFrame(move);else{node.scrollLeft=target;garageScrollFrame.current=null;}};
+    garageScrollFrame.current=requestAnimationFrame(move);
+  });return()=>{cancelAnimationFrame(begin);if(garageScrollFrame.current!==null){cancelAnimationFrame(garageScrollFrame.current);garageScrollFrame.current=null;}};},[focusedVehicleId,view,garageCars.length]);
 
   const carLabel=`${car.manufacturer} ${car.displayName}`;
   if(!state.hasSelectedCar)return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash}><section className="garage-overview garage-overview--empty"><header><span>Your Garage</span><h2>No Vehicles Owned</h2><p>Your first purchase becomes the selected car. Keep buying cars and switch between every build stored here.</p></header><div className="empty-garage-bay"><strong>0 CARS GARAGED</strong><p>Every car keeps its own parts, tune, paint, wheels, ride height and condition.</p><button type="button" onClick={onVisitShowroom}>Visit Car Showroom</button></div></section></WorkshopFrame></div>;
-  if(view==='overview')return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} carLabel={carLabel}>
-    <section className="garage-overview garage-overview--cars">
+  if(view==='overview'&&focusedVehicle)return <div className="screen screen--workshop"><WorkshopFrame cash={state.cash} carLabel={carLabel}>
+    <section className="garage-overview garage-overview--cars garage-overview--focused">
       <div className="garage-gallery-chrome" aria-hidden="true"/>
-      <div className="garage-carousel edge-pan" aria-label="Owned vehicles. Move the pointer toward either edge to browse." {...garagePan}>
-        {garageCars.map(item=>{
-          const itemCar=getCar(item.build.carId);const isSelected=item.vehicleId===state.selectedVehicleId;
-          const average=isSelected?averageEt:null;const bracket=isSelected?bestEt:null;
-          return <article key={item.vehicleId} className={`garage-vehicle-card${isSelected?' garage-vehicle-card--selected':''}`} aria-current={isSelected?'true':undefined}>
+      <div className="garage-bay-spotlight" aria-hidden="true"/>
+      <div ref={garageCarousel} className="garage-carousel garage-focus-carousel" role="listbox" tabIndex={0} aria-label="Owned vehicles. Move the pointer toward either edge or use the arrow keys to browse." onPointerMove={onGaragePointerMove} onPointerLeave={()=>setBrowseDirection(0)} onPointerCancel={()=>setBrowseDirection(0)} onBlur={()=>setBrowseDirection(0)} onKeyDown={onGarageKeyDown}>
+        {garageCars.map((item,index)=>{
+          const itemCar=getCar(item.build.carId),isSelected=item.vehicleId===state.selectedVehicleId,isFocused=item.vehicleId===focusedVehicle.vehicleId,distance=index-focusedIndex;
+          return <article key={item.vehicleId} role="option" aria-selected={isFocused} data-focused={isFocused} data-selected={isSelected} data-distance={Math.max(-2,Math.min(2,distance))} className={`garage-vehicle-card${isFocused?' garage-vehicle-card--focused':''}${isSelected?' garage-vehicle-card--selected':''}`}>
+            <button type="button" data-sound="select" className="garage-vehicle-card__focus-hit" aria-label={`Focus ${itemCar.manufacturer} ${itemCar.displayName}, bay ${index+1}`} onClick={()=>setFocusedVehicleId(item.vehicleId)}/>
             <header><span>{itemCar.manufacturer}</span><strong>{itemCar.displayName}</strong></header>
-            <button type="button" className="vehicle-setup-button" onClick={()=>{if(isSelected)openSetup();else{setPendingSetup(item.vehicleId);onSelect(item.vehicleId);}}}>Vehicle Setup</button>
-            <dl className="garage-records">
-              <div><dt>Average ET</dt><dd>{average===null?'--.---':average.toFixed(3)}</dd></div>
-              <div><dt>Bracket ET</dt><dd>{bracket===null?'--.---':bracket.toFixed(3)}</dd></div>
-            </dl>
             <VehiclePortrait carId={item.build.carId} appearance={item.appearance} className="garage-vehicle-card__portrait"/>
-            <button type="button" className="selected-car-button" disabled={isSelected} onClick={()=>onSelect(item.vehicleId)}>{isSelected?'Selected Car':'Garaged'}</button>
+            <span className="garage-bay-number">Bay {String(index+1).padStart(2,'0')}</span>
+            {isSelected&&<span className="garage-current-ribbon">Current Car</span>}
           </article>;
         })}
       </div>
-      {garageCars.length>2&&<p className="garage-pan-instruction">Move pointer left or right to browse your garage</p>}
+      <button type="button" data-sound="select" className="garage-browse garage-browse--previous" aria-label="Previous garage bay" disabled={focusedIndex===0} onClick={()=>browseGarage(-1)}>◀</button>
+      <button type="button" data-sound="select" className="garage-browse garage-browse--next" aria-label="Next garage bay" disabled={focusedIndex===garageCars.length-1} onClick={()=>browseGarage(1)}>▶</button>
+      <div className="garage-bay-occlusion" aria-hidden="true"><i/><i/></div>
+      <section key={focusedVehicle.vehicleId} className="garage-focus-console" aria-label={`Focused vehicle: ${focusedCar.manufacturer} ${focusedCar.displayName}`}>
+        <header><span>Bay {focusedIndex+1} of {garageCars.length} · {focusedCar.year}</span><strong>{focusedCar.manufacturer} {focusedCar.displayName}</strong><small>Vehicle ID {focusedVehicle.vehicleId.toUpperCase()}</small></header>
+        <dl>
+          <div><dt>Power</dt><dd>{Math.round(focusedPeakHp)} HP</dd></div>
+          <div><dt>Condition</dt><dd>{focusedVehicle.condition.toFixed(0)}%</dd></div>
+          <div><dt>Modified</dt><dd>{focusedVehicle.build.fittedPartIds.length}</dd></div>
+          <div><dt>Best ET</dt><dd>{focusedBest===null?'--.---':focusedBest.toFixed(3)}</dd></div>
+          <div><dt>Average</dt><dd>{focusedAverage===null?'--.---':focusedAverage.toFixed(3)}</dd></div>
+        </dl>
+        <div className="garage-focus-actions">
+          <button type="button" data-sound="select" onClick={()=>{if(focusedIsSelected)openSetup();else{setPendingSetup(focusedVehicle.vehicleId);onSelect(focusedVehicle.vehicleId);}}}>Vehicle Setup</button>
+          <button type="button" data-sound="select" className="primary" disabled={focusedIsSelected} onClick={()=>onSelect(focusedVehicle.vehicleId)}>{focusedIsSelected?'Current Car':'Select Car'}</button>
+          <button type="button" data-sound="select" onClick={onVisitShowroom}>+ Add Vehicle</button>
+        </div>
+      </section>
+      {garageCars.length>1&&<p className="garage-pan-instruction">Move pointer toward either edge · Arrow keys browse · Select from the centre bay</p>}
     </section>
   </WorkshopFrame></div>;
 

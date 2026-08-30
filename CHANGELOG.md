@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased - Garage presentation
+
+- Rebuilt the owned-car browser as a centre-focused physical garage bay with
+  adjacent cars receding behind foreground pillars instead of a scrollbar of
+  repeated interface cards.
+- Added one focused-vehicle console for identity, build condition, performance
+  and selection actions, while retaining the selected vehicle's immutable
+  ownership id and existing setup flow.
+- Added mouse-edge browsing, keyboard controls and a deliberate 1.05-second
+  eased bay glide with a short visual settle so browsing feels like moving
+  through a garage rather than switching UI panels.
+
 ## Unreleased - Driveability
 
 - Made full throttle the quickest way down the strip on eleven of the thirteen

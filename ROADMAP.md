@@ -361,6 +361,11 @@ is retained as dormant scaffolding until calibrated art exists for each option.
   closed-bonnet red sprite and a true-alpha body mask. Factory rendering no
   longer paints guessed bonnet or headlight polygons, and the detached canvas
   shadow is replaced with a tight Garage-only tyre-contact shadow.
+- The owned-car overview now presents one focused physical bay, with adjacent
+  vehicles visible behind foreground structure and one shared vehicle console.
+  Mouse-edge browsing, arrow keys and direct car selection all use a deliberate
+  eased glide and settle; the selected vehicle id and setup workflow remain the
+  existing ownership source of truth.
 
 Completion criteria met:
 
