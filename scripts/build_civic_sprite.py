@@ -10,7 +10,7 @@ import argparse
 from collections import deque
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageChops, ImageFilter
 
 
 def is_checker_pixel(pixel: tuple[int, int, int]) -> bool:
@@ -20,7 +20,12 @@ def is_checker_pixel(pixel: tuple[int, int, int]) -> bool:
 
 def extract_sprite(source: Image.Image) -> Image.Image:
     if "A" in source.getbands() and source.getchannel("A").getextrema()[0] == 0:
-        return source.convert("RGBA")
+        result = source.convert("RGBA")
+        # Authored pixel sprites need a hard silhouette. Image-generation
+        # outputs can contain an almost-invisible antialiased halo even when
+        # they have a transparent background, so normalise that edge here.
+        result.putalpha(result.getchannel("A").point(lambda value: 255 if value >= 128 else 0))
+        return result
     rgb = source.convert("RGB")
     width, height = rgb.size
     pixels = rgb.load()
@@ -72,22 +77,39 @@ def body_mask(sprite: Image.Image) -> Image.Image:
         else 0
         for red, green, blue, alpha in pixels.getdata()
     ])
-    return mask.filter(ImageFilter.GaussianBlur(radius=0.45))
+    return mask.point(lambda value: 255 if value >= 128 else 0)
+
+
+def clip_to_silhouette(sprite: Image.Image, silhouette_source: Image.Image) -> Image.Image:
+    """Remove generated backdrop glow using a known clean car silhouette."""
+    silhouette = extract_sprite(silhouette_source).resize(sprite.size, Image.Resampling.NEAREST)
+    allowance = silhouette.getchannel("A").filter(ImageFilter.MaxFilter(11))
+    result = sprite.copy()
+    result.putalpha(ImageChops.multiply(sprite.getchannel("A"), allowance))
+    return result
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
     parser.add_argument("output_dir", type=Path)
+    parser.add_argument("--silhouette", type=Path)
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     sprite = extract_sprite(Image.open(args.source))
-    sprite = sprite.resize((768, 512), Image.Resampling.LANCZOS)
+    if args.silhouette:
+        sprite = clip_to_silhouette(sprite, Image.open(args.silhouette))
+    # Author the runtime image on a genuinely small grid, then enlarge by an
+    # integer factor. This makes the pixel clusters survive browser scaling;
+    # merely shrinking the high-resolution source once still reads as a photo.
+    low_resolution = sprite.resize((256, 170), Image.Resampling.NEAREST)
+    sprite = Image.new("RGBA", (768, 512), (0, 0, 0, 0))
+    sprite.paste(low_resolution.resize((768, 510), Image.Resampling.NEAREST), (0, 1))
     mask = body_mask(sprite)
     alpha_mask = Image.new("RGBA", mask.size, (255, 255, 255, 0))
     alpha_mask.putalpha(mask)
-    sprite.save(args.output_dir / "garage-body.webp", "WEBP", quality=94, method=6)
+    sprite.save(args.output_dir / "garage-body.webp", "WEBP", lossless=True, method=6, exact=True)
     alpha_mask.save(args.output_dir / "garage-paint-mask.png", optimize=True)
 
 

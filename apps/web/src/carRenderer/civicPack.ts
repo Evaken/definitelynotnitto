@@ -30,10 +30,10 @@ const hidden:Quad=[[0,0],[0,0],[0,0],[0,0]];
  * same structure without changing application code.
  */
 export const CIVIC_ASSET_PACK:CivicAssetPack={
-  id:'civic-si',schemaVersion:1,assetVersion:3,
+  id:'civic-si',schemaVersion:1,assetVersion:4,
   views:{
     garage:{
-      width:768,height:512,bodyAsset:'assets/cars/civic-si/v3/garage-body.webp',paintMaskAsset:'assets/cars/civic-si/v3/garage-paint-mask.png',wheelAsset:'assets/cars/civic-si/v2/wheel-mesh.webp',baseHue:0,contactY:.86,
+      width:768,height:512,bodyAsset:'assets/cars/civic-si/v4/garage-body.webp',paintMaskAsset:'assets/cars/civic-si/v4/garage-paint-mask.png',wheelAsset:'assets/cars/civic-si/v2/wheel-mesh.webp',baseHue:0,contactY:.86,
       wheels:[{x:.548,y:.696,radius:.126,squash:.75,rotation:0},{x:.922,y:.58,radius:.096,squash:.73,rotation:0}],
       surfaces:{
         hood:[[.128,.523],[.365,.383],[.612,.393],[.453,.563]],
