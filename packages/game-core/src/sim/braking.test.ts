@@ -50,11 +50,11 @@ function brakeFromCreep(car: Car, targetSpeed: number) {
   const state = createPassState(car, stockTune(car), 7);
   const idle = { shiftUp: false, shiftDown: false, brake: false };
 
-  // R -> N -> 1, letting each selection settle.
-  for (let selection = 0; selection < 2; selection++) {
-    stepPass(state, { ...idle, throttle: 0, shiftUp: true });
-    for (let tick = 0; tick < 60; tick++) stepPass(state, { ...idle, throttle: 0 });
-  }
+  // The car starts in neutral, so one selection puts it in first. Two put it
+  // in second, which is a slower creep and a different test than the one this
+  // claims to be.
+  stepPass(state, { ...idle, throttle: 0, shiftUp: true });
+  for (let tick = 0; tick < 60; tick++) stepPass(state, { ...idle, throttle: 0 });
 
   for (let tick = 0; tick < 30_000 && state.speedMs < targetSpeed; tick++) {
     stepPass(state, { ...idle, throttle: 0.1 });
@@ -122,10 +122,8 @@ describe('stopping a built car', () => {
 
     const state = createPassState(car, stockTune(car), 7);
     const idle = { shiftUp: false, shiftDown: false, brake: false };
-    for (let selection = 0; selection < 2; selection++) {
-      stepPass(state, { ...idle, throttle: 0, shiftUp: true });
-      for (let tick = 0; tick < 60; tick++) stepPass(state, { ...idle, throttle: 0 });
-    }
+    stepPass(state, { ...idle, throttle: 0, shiftUp: true });
+    for (let tick = 0; tick < 60; tick++) stepPass(state, { ...idle, throttle: 0 });
     for (let tick = 0; tick < 30_000 && state.speedMs < 1; tick++) {
       stepPass(state, { ...idle, throttle: 0.1 });
     }
