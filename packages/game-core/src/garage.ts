@@ -19,7 +19,30 @@ export function createGarageState(carId='civic-si',cash=10_000):GarageState{retu
 /** Testing/live-service onboarding state: the player owns nothing until visiting the showroom. */
 export function createEmptyGarageState(cash=1_000_000):GarageState{return{...createGarageState('civic-si',cash),hasSelectedCar:false,selectedVehicleId:null,nextVehicleSequence:1};}
 const transaction=(state:GarageState,kind:Transaction['kind'],amount:number,description:string):readonly Transaction[]=>[...state.transactions,{id:`${state.record.races}-${state.transactions.length}-${kind}`,kind,amount,description}].slice(-50);
-export function applyTune(state:GarageState,tune:Tune):GarageResult{if(!state.hasSelectedCar)return noCar();const reason=validateTune(getCar(state.build.carId),tune);return reason?{ok:false,reason}:{ok:true,state:{...state,tune:{gearRatios:[...tune.gearRatios],finalDrive:tune.finalDrive}}};}
+/**
+ * Whether this build may change its gearing.
+ *
+ * Shut until a gearset is fitted, because a production gearbox has the ratios it
+ * has. The career specials are the exception: they arrive with a race gearbox,
+ * and gearing is the only thing about them that can be changed at all.
+ */
+export function gearboxTuningUnlocked(build:Build):boolean{
+  if(getCar(build.carId).special)return true;
+  return build.fittedPartIds.some(id=>getPart(id).effects.allowsGearRatioTuning===true);
+}
+function sameTune(a:Tune,b:Tune):boolean{
+  return a.finalDrive===b.finalDrive&&a.gearRatios.length===b.gearRatios.length&&a.gearRatios.every((ratio,index)=>ratio===b.gearRatios[index]);
+}
+export function applyTune(state:GarageState,tune:Tune):GarageResult{
+  if(!state.hasSelectedCar)return noCar();
+  const car=getCar(state.build.carId);
+  const reason=validateTune(car,tune);
+  if(reason)return{ok:false,reason};
+  // Returning to standard is always allowed, so removing the gearset cannot
+  // strand a car on ratios it is no longer entitled to.
+  if(!gearboxTuningUnlocked(state.build)&&!sameTune(tune,stockTune(car)))return{ok:false,reason:'Fit a Close-Ratio Gearset to adjust the gearbox.'};
+  return{ok:true,state:{...state,tune:{gearRatios:[...tune.gearRatios],finalDrive:tune.finalDrive}}};
+}
 export function repairCost(state:GarageState):number{return state.hasSelectedCar?Math.ceil(Math.max(0,100-state.condition)*DAMAGE.repairDollarsPerPoint.value):0;}
 export function repairCar(state:GarageState):GarageResult{if(!state.hasSelectedCar)return noCar();const cost=repairCost(state);if(cost===0)return{ok:false,reason:'No repairs required.'};if(state.cash<cost)return{ok:false,reason:'Not enough cash for repairs.'};return{ok:true,state:{...state,cash:state.cash-cost,condition:100,transactions:transaction(state,'repair',-cost,'Vehicle repairs')}};}
 export function applyPassStress(state:GarageState,stress:number):GarageState{return state.hasSelectedCar?{...state,condition:Math.max(0,state.condition-Math.max(0,stress))}:state;}

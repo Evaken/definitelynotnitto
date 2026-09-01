@@ -47,6 +47,18 @@ export interface PartEffects {
    */
   readonly tyreSlidingGripFraction?: number;
   /**
+   * Whether this part makes the gearbox adjustable.
+   *
+   * A production gearbox has the ratios it has. Changing them means changing
+   * the gearset, which is why the Tuning screen is shut until one is fitted:
+   * without this, every car arrives with a race gearbox it never paid for.
+   *
+   * This part declares no torque, no grip and no weight, and that is the point.
+   * What it sells is the tuning, which on a car geared for top speed rather than
+   * for a quarter mile is worth more than anything else at its price.
+   */
+  readonly allowsGearRatioTuning?: boolean;
+  /**
    * Gauge pressure this part adds at wide-open throttle, bar.
    *
    * Forced induction declares this INSTEAD of a torque multiplier: the torque

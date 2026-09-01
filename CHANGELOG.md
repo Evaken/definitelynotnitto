@@ -42,6 +42,11 @@
 
 ## Unreleased - Driveability
 
+- Gearbox tuning is now shut until a Close-Ratio Gearset is fitted. A production
+  gearbox has the ratios it has. Returning a car to standard is always allowed,
+  so removing the gearset cannot strand it; the career specials are exempt
+  because gearing is the only change they permit at all.
+
 - Career specials take no parts at all. The three unlock cars are supplied as
   finished race cars; gearing, through Stage 4 tuning, is the only change
   permitted. Keyed on the `special` flag so a later endgame car is covered
