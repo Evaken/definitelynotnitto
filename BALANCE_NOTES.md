@@ -648,17 +648,55 @@ of every car. It now asks for an early shift in most gears of most cars -- the
 Viper wants 5950, 5960, 5720, 5650 against a 6200 redline -- so watching it is
 worth something.
 
-Gearing itself is still a **fine** lever, not a headline one. Searching
-progressive gearsets on the same Viper now finds 0.069s over the standard road
-box, up from 0.002s. Pushing the curves to a brutal 0.44 of peak at redline only
-reaches 0.125s, and costs every car a large chunk of its top end.
+Gearing on a *standard* car is a fine lever. Searching progressive gearsets on a
+Viper with tyres and a gearset finds 0.069s over the standard road box, up from
+0.002s before these changes.
 
-That ceiling is physics rather than tuning. Elapsed time is set by the energy the
-engine puts into the car, and with six gears you are always within ten or fifteen
-percent of peak power whatever ratios you choose. Gearing is worth a tenth,
-which is roughly what it is worth in life. It is not worth a second, and no
-amount of curve shaping will make it so. A close-ratio set is a fine-tuning
-reward, and the honest way to sell it is as one.
+**On a built car it is worth over a second, and this file previously said
+otherwise.** The claim here was that gearing is worth about a tenth, "which is
+roughly what it is worth in life", and that no amount of curve shaping would
+change it. That conclusion came from measuring one car with tyres fitted and
+nothing else. Measured on fully built cars:
+
+| Build | Stock ratios | Best found | Gain | Best set finishes in |
+|---|---|---|---|---|
+| viper-srt10 | 10.81 | 9.49 | **1.32s** | 6th |
+| mustang-cobra | 11.53 | 10.27 | **1.26s** | 6th |
+| nsx | 9.90 | 9.59 | 0.31s | 5th |
+| skyline-gtr | 10.11 | 9.89 | 0.22s | 5th |
+| civic-si | 11.59 | 11.50 | 0.09s | 5th |
+| rx8 | 10.39 | 10.38 | 0.01s | 4th |
+
+The winning sets on the two big cars *do* use all six gears, which is the
+opposite of what the standard-car measurement suggested. A close-ratio set costs
+300ms in extra shift dead time and only earns it back when the power differential
+is large enough -- which it is on a 1388Nm build and is not on a 678Nm road car.
+So the reward scales with the build, which is the progression a tuning mechanic
+should have.
+
+### Why some cars still have nothing to gain
+
+Sensitivity is not the problem. Sweeping gearsets on every built car gives a
+best-to-worst spread of 4.5 to 8.9 seconds -- gearing matters enormously
+everywhere. The problem is where the *standard* box happens to sit inside that
+spread:
+
+| Build | Spread, best to worst | Headroom above stock | Stock sits |
+|---|---|---|---|
+| mustang-cobra | 7.67s | 1.26s | 16% up from optimal |
+| viper-srt10 | 8.90s | 1.32s | 15% up |
+| nsx | 4.87s | 0.31s | 6% up |
+| skyline-gtr | 4.48s | 0.22s | 5% up |
+| civic-si | 6.44s | 0.09s | 1% up |
+| rx8 | 5.76s | 0.01s | 0% -- standard is already optimal |
+
+Ten road cars share two gearsets, and the only per-car difference is the final
+drive. So whether a car rewards tuning is currently an accident of whether that
+shared set happens to suit it. The RX-8 drew the lucky ticket and has nothing to
+find; the Viper drew a bad one and has a second and a third on the table.
+
+The fix is per-car standard gearboxes, positioned a consistent distance up from
+each car's own optimum rather than shared. Not yet done.
 
 Notably a **close** drag set is not the answer on the Viper: bunching the ratios
 costs 0.111s against the standard box. The quick set is a tall one that still

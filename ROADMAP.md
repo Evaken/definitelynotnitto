@@ -543,11 +543,14 @@ that asserts an exact ET now means rewriting it later.
 
 ## Known limitations
 
-- **Gearing is a fine lever, not a headline one.** Worth about 0.07s on a Viper.
-  Elapsed time is set by the energy the engine delivers, and with six gears the
-  car is always near peak power whatever ratios are chosen. Pushing the engine
-  curves hard enough to change that costs every car its top end for 0.125s.
-  Documented in `BALANCE_NOTES.md`; not a bug and not worth chasing further.
+- **Whether gearing rewards tuning is currently an accident.** Ten road cars
+  share two gearsets, differing only in final drive, so the standard box suits
+  some cars and not others. On a fully built Viper or Mustang custom ratios are
+  worth 1.3s; on a built RX-8 the standard box is already optimal and there is
+  nothing to find. Sensitivity is not the issue -- best-to-worst spread is 4.5
+  to 8.9 seconds on every car. Per-car standard gearboxes, positioned a
+  consistent distance up from each car's own optimum, would give every car the
+  same headroom. Measured in `BALANCE_NOTES.md`; not yet done.
 - **The career specials take no parts.** The three unlock cars are supplied as
   finished race cars; gearing is the only change permitted, through Stage 4
   tuning. Applied to all three cars carrying the `special` flag, including the
