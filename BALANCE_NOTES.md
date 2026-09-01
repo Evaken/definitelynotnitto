@@ -259,25 +259,25 @@ Against the engine, one number means the same thing everywhere. Sports holds
 1.08x peak, Race 1.35x, and neither is ever worse than the clutch the car came
 with.
 
-| Build | Grip | Stock pass | Flat out | Managed | Gap |
-|---|---|---|---|---|---|
-| skyline-gtr | 1.81 | 12.90 @ 107 | **9.56 @ 143** | 10.03 @ 142 | −0.47 |
-| nsx | 1.78 | 13.20 @ 106 | **9.58 @ 149** | 9.68 @ 149 | −0.09 |
-| viper-srt10 | 1.75 | 12.60 @ 120 | 10.27 @ 155 | 9.33 @ 157 | 0.94 |
-| rx8 | 1.73 | 14.27 @ 98 | **10.30 @ 140** | 10.34 @ 139 | −0.04 |
-| evo-vii | 1.80 | 12.81 @ 105 | **10.55 @ 128** | 10.66 @ 128 | −0.11 |
-| supra-tt | 1.72 | 13.83 @ 106 | 11.02 @ 133 | 10.68 @ 133 | 0.35 |
-| rsx-type-s | 1.68 | 14.99 @ 94 | 11.52 @ 134 | 11.39 @ 133 | 0.13 |
-| civic-si | 1.67 | 15.29 @ 91 | **11.61 @ 129** | 11.67 @ 128 | −0.06 |
-| mustang-cobra | 1.68 | 14.06 @ 109 | 12.50 @ 138 | 10.23 @ 143 | 2.27 |
-| neon-srt4 | 1.65 | 14.46 @ 101 | 13.33 @ 118 | 11.88 @ 121 | 1.45 |
-| mopar-drag | 2.62 | 9.10 @ 166 | 7.52 @ 168 | 7.01 @ 168 | 0.51 |
-| f-type-drag | 2.94 | 8.17 @ 168 | **6.54 @ 168** | 6.48 @ 168 | 0.06 |
-| funny-car | 3.42 | 7.09 @ 215 | **5.24 @ 219** | 5.16 @ 219 | 0.09 |
+| Build | Stock pass | Flat out | Managed | Gap |
+|---|---|---|---|---|
+| skyline-gtr | 12.90 @ 107 | **9.62 @ 142** | 10.03 @ 142 | −0.53 |
+| nsx | 13.20 @ 106 | **9.67 @ 149** | 9.68 @ 149 | −0.24 |
+| viper-srt10 | 12.60 @ 120 | 10.28 @ 155 | 9.27 @ 157 | 1.02 |
+| rx8 | 14.27 @ 98 | **10.11 @ 140** | 10.35 @ 139 | −0.25 |
+| evo-vii | 12.81 @ 105 | **10.49 @ 128** | 10.65 @ 128 | −0.15 |
+| supra-tt | 13.83 @ 106 | 10.69 @ 133 | 10.66 @ 133 | 0.01 |
+| rsx-type-s | 14.99 @ 94 | 11.25 @ 134 | 11.31 @ 133 | 0.04 |
+| civic-si | 15.29 @ 91 | **11.79 @ 128** | 11.61 @ 129 | −0.02 |
+| mustang-cobra | 14.06 @ 109 | 10.92 @ 143 | 10.17 @ 143 | 0.57 |
+| neon-srt4 | 14.46 @ 101 | 11.86 @ 121 | 11.85 @ 121 | 0.02 |
+| mopar-drag | 9.10 @ 166 | 7.40 @ 168 | 6.79 @ 168 | 0.59 |
+| f-type-drag | 8.17 @ 168 | **6.25 @ 168** | 6.32 @ 168 | −0.04 |
+| funny-car | 7.09 @ 215 | **5.66 @ 219** | 5.16 @ 219 | −0.15 |
 
 A negative gap means **flooring it is the quickest way down the track**, which is
-how the game should feel: the driver sees green and pins it. Eleven of the
-thirteen are at or inside half a second either way.
+how the game should feel: the driver sees green and pins it. Ten of the thirteen
+are inside a tenth either way, and only the Viper is out past a second.
 
 Getting there took three separate fixes, and only one of them was about grip.
 
@@ -300,13 +300,46 @@ simply could not put its power down and a driver who lifted was three seconds
 quicker. Street tyres now give 15% and drag radials 45%. These are invented
 figures chosen for feel, which is what this file is for.
 
-**The Mustang and the Neon still reward a lift**, by 2.25s and 1.45s. They are
-the two cars whose torque is furthest ahead of what their tyres and drivetrain
-can use — 1083Nm through the back wheels, and 533Nm through the front of a car
-that unloads its drive wheels as it accelerates. Both still run well flat out
-(12.47 @ 138 and 13.33 @ 118); they are simply not at their best. Closing that
-too would mean either more grip for everyone, which makes the other eight a
-grip-fest, or cutting their torque specifically.
+**What finally fixed the last two.** The Mustang and the Neon used to give away
+2.27s and 1.45s for being floored, and the explanation written here was wrong: it
+said their torque was further ahead of their tyres than anyone else's. Ranking
+the roster by how much first-gear torque each car asks of its driven axle put the
+Neon *last* of the thirteen at 1.40x, below the Civic, while the Funny Car sat at
+5.15x with no penalty at all. The static ratio predicts nothing.
+
+Splitting the runs showed the whole gap is made in the sixty foot and never
+recovered. Counting ticks spent past the slip peak showed why: flat out, the Neon
+spins for 97% of its sixty foot, the Mustang 87%, the Viper 86% -- against 18%
+for the NSX and 31% for the Civic. These cars do not briefly light the tyres up,
+they spend the entire launch sliding.
+
+Which makes the tyre's *sliding* grip the term that decides the race, not its
+peak. Every car sat at 84-85% -- once past the peak they threw away a sixth of
+their grip and kept it thrown away for two seconds. Raising the peak, which is
+what the grip parts did, does nothing for a car that is never at the peak.
+
+So the tyre parts now flatten the curve as well as raising it:
+`tyreSlidingGripFraction`, set rather than multiplied, 0.90 on street tyres and
+0.93 on drag radials. Real drag radials are known for exactly this. It is the
+right shape of fix -- cars that spin gain, cars that do not are untouched:
+
+| | 60ft before | 60ft after |
+|---|---|---|
+| viper-srt10 | 1.89 | 1.74 |
+| mustang-cobra | 2.12 | 1.94 |
+| neon-srt4 | 2.34 | 2.22 |
+| nsx | 2.10 | 2.08 |
+| civic-si | 2.58 | 2.57 |
+
+0.93 was chosen by sweeping it. At 0.90 the Mustang still gives away 1.83s and
+the Neon 1.16s; at 0.97 the Civic and the Funny Car start being *punished* for
+lifting instead, which is its own kind of wrong. 0.93 is the flattest point
+across all thirteen.
+
+**The Viper is what is left**, at 1.02s. 1388Nm through the back wheels of a car
+with half its weight over them. Its flat-out pass is still a 10.28 at 155mph, so
+it works -- it is simply not at its best, and it is the one car where a driver
+who can feather it is rewarded for the skill.
 
 Every car finishes, standard and fully built. Before this the Skyline finished
 neither.

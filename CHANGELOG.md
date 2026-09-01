@@ -42,6 +42,18 @@
 
 ## Unreleased - Driveability
 
+- Closed the last two cars that punished full throttle. The Mustang gave away
+  2.27s and the Neon 1.45s for being floored; they are now 0.57s and 0.02s. The
+  cause was not that their torque outran their tyres -- ranked that way the Neon
+  was last of thirteen. It was that they spend the whole sixty foot past the slip
+  peak (Neon 97% of it, Mustang 87%), where only the tyre's *sliding* grip
+  matters, and every tyre threw away a sixth of its grip there. The tyre parts
+  now flatten the curve as well as raising it.
+- Populated `compatibleCarIds` for the first time: supercharger parts fit only
+  cars without factory forced induction, derived from the roster so adding a car
+  cannot leave a stale list. Every other part stays universal. Part ownership was
+  already per vehicle and is now covered by tests.
+
 - Made full throttle the quickest way down the strip on eleven of the thirteen
   cars, by fixing a shift re-arm that could never fire against the limiter's own
   hysteresis, deriving clutch capacity from built torque, and scaling the grip

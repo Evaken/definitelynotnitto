@@ -34,6 +34,19 @@ export type ExclusionGroup = string;
 export interface PartEffects {
   readonly torqueMultiplier?: number;
   /**
+   * How much of its peak grip this tyre still makes once it is sliding.
+   *
+   * Separate from `tyreGripMultiplier`, which raises the peak. A drag radial
+   * does both: it grips harder AND holds on to more of that grip past the peak,
+   * which is the property that actually decides whether flooring it off the
+   * line costs you the race. Raising the peak alone does not help a car that
+   * spends the whole sixty foot past it.
+   *
+   * Set rather than multiplied, and the highest fitted value wins, because a
+   * tyre replaces rather than stacks.
+   */
+  readonly tyreSlidingGripFraction?: number;
+  /**
    * Gauge pressure this part adds at wide-open throttle, bar.
    *
    * Forced induction declares this INSTEAD of a torque multiplier: the torque

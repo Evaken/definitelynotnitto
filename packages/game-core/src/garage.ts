@@ -104,12 +104,15 @@ export function resolveBuild(build:Build,condition=100):Car{
   const factoryBoostBar=factory?.factoryBoostBar??0;
   let induction:InductionType|null=factory?.type??null;
   let nitrous:NitrousSpec|undefined;
+  let slidingFraction=base.tyres.slidingGripFraction;
 
   for(const id of build.fittedPartIds){
     const e=getPart(id).effects;
     tm*=e.torqueMultiplier??1;
     kg+=e.massDeltaKg??0;
     grip*=e.tyreGripMultiplier??1;
+    // Highest wins: a tyre replaces rather than stacks.
+    slidingFraction=Math.max(slidingFraction,e.tyreSlidingGripFraction??0);
     eff+=e.drivelineEfficiencyDelta??0;
     // A clutch replaces rather than stacks: the strongest fitted one holds.
     clutchRatio=Math.max(clutchRatio,e.clutchHoldsTorqueRatio??0);
@@ -143,7 +146,7 @@ export function resolveBuild(build:Build,condition=100):Car{
       curve,
     },
     chassis:{...base.chassis,massKg:Math.max(500,base.chassis.massKg+kg)},
-    tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip},
+    tyres:{...base.tyres,peakGrip:base.tyres.peakGrip*grip,slidingGripFraction:slidingFraction},
     gearbox:{...base.gearbox,
       ...(clutchCapacityNm===undefined?{}:{clutchCapacityNm}),
       driveEfficiency:Math.min(.98,base.gearbox.driveEfficiency+eff)},
