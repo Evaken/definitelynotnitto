@@ -695,8 +695,45 @@ drive. So whether a car rewards tuning is currently an accident of whether that
 shared set happens to suit it. The RX-8 drew the lucky ticket and has nothing to
 find; the Viper drew a bad one and has a second and a third on the table.
 
-The fix is per-car standard gearboxes, positioned a consistent distance up from
-each car's own optimum rather than shared. Not yet done.
+### Per-car gearboxes were tried, and do not work on their own
+
+The obvious fix is a standard gearbox per car, positioned a consistent distance
+up from that car's own optimum. Built and measured, it fails on a constraint
+nobody had written down.
+
+Three things are wanted at once:
+
+1. every car has real tuning headroom, say a second;
+2. a standard car finishes the quarter in fourth, so the unused gears hint at
+   what a gearset would buy;
+3. the standard performance ladder matches the price ladder, because a dearer
+   car has to be quicker.
+
+Searching for boxes that satisfy the first alone gives every car 0.6-1.2s of
+headroom, but the Evo ends up finishing in **second of five** and several cars in
+third of six. That is not a road gearbox, it is a broken one.
+
+Adding the fourth-gear constraint fixes the character and gives 0.23-1.69s, but
+scrambles the ladder: a standard RX-8 lands at 15.73 against a Civic at 15.29,
+and the NSX falls behind the Mustang. A car that costs four times as much cannot
+be slower.
+
+Adding the ladder constraint as well leaves 0.19-1.70s, with the RSX at 0.19 and
+the Evo at 0.20 -- back to two cars rewarding tuning and the rest not, which is
+where we started.
+
+The reason is structural rather than a failure of searching. **Headroom and
+standard ET are the same knob.** A car has something to find exactly because its
+standard box is far from its optimum, which is also what makes it slow as
+standard. Giving every car the same headroom therefore means slowing every car by
+the same amount *relative to its own potential*, and cars differ in how much
+potential they have. The ladder cannot survive that unless the underlying cars
+are rebalanced -- torque, mass and gearing together -- rather than the gearbox
+alone.
+
+So this is left as it is: shared road gearboxes, with the two big rear-drive
+cars holding most of the headroom. Equalising it is a full roster rebalance and
+should be done as one, not smuggled in through the gearbox.
 
 Notably a **close** drag set is not the answer on the Viper: bunching the ratios
 costs 0.111s against the standard box. The quick set is a tall one that still

@@ -548,9 +548,11 @@ that asserts an exact ET now means rewriting it later.
   some cars and not others. On a fully built Viper or Mustang custom ratios are
   worth 1.3s; on a built RX-8 the standard box is already optimal and there is
   nothing to find. Sensitivity is not the issue -- best-to-worst spread is 4.5
-  to 8.9 seconds on every car. Per-car standard gearboxes, positioned a
-  consistent distance up from each car's own optimum, would give every car the
-  same headroom. Measured in `BALANCE_NOTES.md`; not yet done.
+  to 8.9 seconds on every car. Per-car standard gearboxes were built and
+  measured, and do not fix it on their own: headroom and standard ET are the
+  same knob, so equalising the first reorders the second and breaks the price
+  ladder. Equalising it properly is a roster rebalance of torque, mass and
+  gearing together. Measured in `BALANCE_NOTES.md`.
 - **The career specials take no parts.** The three unlock cars are supplied as
   finished race cars; gearing is the only change permitted, through Stage 4
   tuning. Applied to all three cars carrying the `special` flag, including the
