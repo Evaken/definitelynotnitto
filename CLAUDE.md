@@ -34,7 +34,8 @@ stock image or pre-rendered combination.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 116 tests, ~2s
+npm test           # ~350 tests, ~3s
+npm run baseline   # re-record the performance baseline after an intended change
 npm run typecheck
 npm run build
 ```
@@ -107,6 +108,13 @@ and are there to catch a change that makes the car wildly fast or slow.
 
 `testing/drive.ts` is a scripted driver for tests only. It is not a CPU opponent
 — those are Stage 6, and building one early is explicitly out of scope.
+
+**A change to the numbers has to be re-recorded.** `sim/baseline.test.ts` pins
+every car in the roster, standard and fully built, to three decimal places. It
+runs in under a second and it names the cars that moved and by how much, which
+is the thing a comparative test cannot do. If you meant the change, run
+`npm run baseline` to re-record it and regenerate `BALANCE_NOTES.md` in the same
+commit. If you did not mean it, you have just found a regression.
 
 **`testing/drive.ts` is load-bearing for `BALANCE_NOTES.md`.** Every figure in
 that file is produced by this driver, so a change to how it drives silently

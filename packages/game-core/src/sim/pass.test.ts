@@ -284,10 +284,15 @@ describe('a complete pass', () => {
   });
 
   it('runs a plausible time for a stock Civic Si', () => {
-    // Deliberately wide. The Civic's figures are real-world approximations,
-    // not values recovered from the original game, and calibrating them is
-    // Stage 15's job. This band exists to catch a change that makes the car
-    // wildly fast or wildly slow, not to assert a correct ET.
+    // Deliberately wide, and staying wide. The Civic's figures are real-world
+    // approximations, not values recovered from the original game, so a tight
+    // band here would be asserting an invented number as fact and would have to
+    // be rewritten every time the car is tuned.
+    //
+    // What a wide band cannot do is notice a regression, and it twice failed
+    // to. That job now belongs to sim/baseline.test.ts, which pins every car in
+    // the roster to three decimal places and names whatever moved. This one
+    // only catches a change that makes the car wildly fast or wildly slow.
     expect(result.slip.quarterMileEt).toBeGreaterThan(13);
     expect(result.slip.quarterMileEt).toBeLessThan(19);
     expect(result.slip.quarterMileMph).toBeGreaterThan(70);

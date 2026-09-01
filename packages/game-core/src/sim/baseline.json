@@ -1,0 +1,144 @@
+{
+  "stock": [
+    {
+      "id": "civic-si",
+      "quarterMileEt": 15.468,
+      "quarterMileMph": 90.82,
+      "sixtyFoot": 2.492
+    },
+    {
+      "id": "rsx-type-s",
+      "quarterMileEt": 14.989,
+      "quarterMileMph": 93.7,
+      "sixtyFoot": 2.478
+    },
+    {
+      "id": "evo-vii",
+      "quarterMileEt": 12.819,
+      "quarterMileMph": 105.39,
+      "sixtyFoot": 1.801
+    },
+    {
+      "id": "supra-tt",
+      "quarterMileEt": 13.835,
+      "quarterMileMph": 106.32,
+      "sixtyFoot": 2.522
+    },
+    {
+      "id": "mustang-cobra",
+      "quarterMileEt": 14.1,
+      "quarterMileMph": 108.69,
+      "sixtyFoot": 2.754
+    },
+    {
+      "id": "skyline-gtr",
+      "quarterMileEt": 13.067,
+      "quarterMileMph": 107.42,
+      "sixtyFoot": 2.123
+    },
+    {
+      "id": "neon-srt4",
+      "quarterMileEt": 14.464,
+      "quarterMileMph": 100.74,
+      "sixtyFoot": 2.619
+    },
+    {
+      "id": "rx8",
+      "quarterMileEt": 14.306,
+      "quarterMileMph": 97.5,
+      "sixtyFoot": 2.272
+    },
+    {
+      "id": "nsx",
+      "quarterMileEt": 13.204,
+      "quarterMileMph": 105.59,
+      "sixtyFoot": 2.079
+    },
+    {
+      "id": "viper-srt10",
+      "quarterMileEt": 12.679,
+      "quarterMileMph": 120.14,
+      "sixtyFoot": 2.469
+    },
+    {
+      "id": "mopar-drag",
+      "quarterMileEt": 9.099,
+      "quarterMileMph": 165.54,
+      "sixtyFoot": 1.755
+    },
+    {
+      "id": "f-type-drag",
+      "quarterMileEt": 8.169,
+      "quarterMileMph": 167.94,
+      "sixtyFoot": 1.578
+    },
+    {
+      "id": "funny-car",
+      "quarterMileEt": 7.098,
+      "quarterMileMph": 215.06,
+      "sixtyFoot": 1.403
+    }
+  ],
+  "built": [
+    {
+      "id": "civic-si",
+      "quarterMileEt": 11.636,
+      "quarterMileMph": 128.79,
+      "sixtyFoot": 2.152
+    },
+    {
+      "id": "rsx-type-s",
+      "quarterMileEt": 11.33,
+      "quarterMileMph": 133.8,
+      "sixtyFoot": 2.158
+    },
+    {
+      "id": "evo-vii",
+      "quarterMileEt": 10.561,
+      "quarterMileMph": 127.95,
+      "sixtyFoot": 1.466
+    },
+    {
+      "id": "supra-tt",
+      "quarterMileEt": 11.204,
+      "quarterMileMph": 132.67,
+      "sixtyFoot": 1.994
+    },
+    {
+      "id": "mustang-cobra",
+      "quarterMileEt": 10.762,
+      "quarterMileMph": 142.7,
+      "sixtyFoot": 2.022
+    },
+    {
+      "id": "skyline-gtr",
+      "quarterMileEt": 9.968,
+      "quarterMileMph": 142.05,
+      "sixtyFoot": 1.65
+    },
+    {
+      "id": "neon-srt4",
+      "quarterMileEt": 11.938,
+      "quarterMileMph": 121.3,
+      "sixtyFoot": 2.116
+    },
+    {
+      "id": "rx8",
+      "quarterMileEt": 10.432,
+      "quarterMileMph": 139.53,
+      "sixtyFoot": 1.861
+    },
+    {
+      "id": "nsx",
+      "quarterMileEt": 9.652,
+      "quarterMileMph": 148.93,
+      "sixtyFoot": 1.659
+    },
+    {
+      "id": "viper-srt10",
+      "quarterMileEt": 10.361,
+      "quarterMileMph": 155.12,
+      "sixtyFoot": 2.051
+    }
+  ]
+}

@@ -42,6 +42,17 @@
 
 ## Unreleased - Driveability
 
+- Career specials take no parts at all. The three unlock cars are supplied as
+  finished race cars; gearing, through Stage 4 tuning, is the only change
+  permitted. Keyed on the `special` flag so a later endgame car is covered
+  automatically.
+- Added `sim/baseline.test.ts`: a recorded performance baseline for all thirteen
+  cars, standard and fully built, pinned to three decimal places. It catches a
+  0.01 change to a single tyre parameter and names the cars that moved.
+  `npm run baseline` re-records it after an intended change. The wide
+  plausibility bands stay wide on purpose -- nothing is calibrated to the
+  original game, so a tight absolute band would assert an invented number.
+
 - Closed the last two cars that punished full throttle. The Mustang gave away
   2.27s and the Neon 1.45s for being floored; they are now 0.57s and 0.02s. The
   cause was not that their torque outran their tyres -- ranked that way the Neon

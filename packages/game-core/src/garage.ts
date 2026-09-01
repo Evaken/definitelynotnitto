@@ -32,7 +32,24 @@ export function selectCar(state:GarageState,vehicleId:string):GarageResult{if(!s
 export type CpuDifficulty='easy'|'medium'|'hard';
 export const CPU_PRIZES:Readonly<Record<CpuDifficulty,number>>={easy:450,medium:900,hard:1800};
 export function settleCpuRace(state:GarageState,difficulty:CpuDifficulty,won:boolean):GarageState{const prize=won?CPU_PRIZES[difficulty]:0;const label=difficulty[0]!.toUpperCase()+difficulty.slice(1);return{...state,cash:state.cash+prize,record:{wins:state.record.wins+(won?1:0),losses:state.record.losses+(won?0:1),races:state.record.races+1},transactions:prize?transaction(state,'cpu-prize',prize,`${label} CPU race win`):state.transactions};}
+/**
+ * Why this car cannot be modified at all, or null if it can.
+ *
+ * The career specials arrive as finished race cars. Nothing bolts on: they are
+ * already running the biggest engine, the stickiest tyre and the strongest
+ * clutch anyone would fit, and a parts ladder designed around a road car has
+ * nothing to offer them. The one thing a crew does change between rounds is the
+ * gearing, and that is Stage 4 tuning, which stays open to them.
+ *
+ * Keyed on the `special` flag rather than on car ids, so an endgame car added
+ * later is covered without touching this.
+ */
+export function modificationBan(carId:string):string|null{
+  return getCar(carId).special?'Race specials are supplied built. Gearing is the only change permitted.':null;
+}
 export function canFit(build:Build,part:Part):string|null{
+  const banned=modificationBan(build.carId);
+  if(banned)return banned;
   if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(build.carId))return'Not compatible with this car.';
   if(build.fittedPartIds.includes(part.id))return'Already installed.';
   const missing=part.requires.filter(id=>!build.fittedPartIds.includes(id));
@@ -40,7 +57,7 @@ export function canFit(build:Build,part:Part):string|null{
   const conflict=build.fittedPartIds.map(getPart).find(f=>f.exclusionGroups.some(g=>part.exclusionGroups.includes(g)));
   return conflict?`Conflicts with ${conflict.displayName}.`:null;
 }
-export function buyPart(state:GarageState,id:string):GarageResult{if(!state.hasSelectedCar)return noCar();const part=getPart(id);if(state.ownedPartIds.includes(id))return{ok:false,reason:'Already owned.'};if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(state.build.carId))return{ok:false,reason:'Not compatible with this car.'};if(state.cash<part.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-part.price,ownedPartIds:[...state.ownedPartIds,id],transactions:transaction(state,'part',-part.price,part.displayName)}};}
+export function buyPart(state:GarageState,id:string):GarageResult{if(!state.hasSelectedCar)return noCar();const banned=modificationBan(state.build.carId);if(banned)return{ok:false,reason:banned};const part=getPart(id);if(state.ownedPartIds.includes(id))return{ok:false,reason:'Already owned.'};if(part.compatibleCarIds.length&&!part.compatibleCarIds.includes(state.build.carId))return{ok:false,reason:'Not compatible with this car.'};if(state.cash<part.price)return{ok:false,reason:'Not enough cash.'};return{ok:true,state:{...state,cash:state.cash-part.price,ownedPartIds:[...state.ownedPartIds,id],transactions:transaction(state,'part',-part.price,part.displayName)}};}
 export function fitPart(state:GarageState,id:string):GarageResult{if(!state.hasSelectedCar)return noCar();if(!state.ownedPartIds.includes(id))return{ok:false,reason:'Buy this part first.'};const reason=canFit(state.build,getPart(id));if(reason)return{ok:false,reason};return{ok:true,state:{...state,build:{...state.build,fittedPartIds:[...state.build.fittedPartIds,id]}}};}
 export function removePart(state:GarageState,id:string):GarageResult{if(!state.hasSelectedCar)return noCar();if(!state.build.fittedPartIds.includes(id))return{ok:false,reason:'Not installed.'};const dependent=state.build.fittedPartIds.map(getPart).find(p=>p.requires.includes(id));if(dependent)return{ok:false,reason:`${dependent.displayName} requires this part.`};return{ok:true,state:{...state,build:{...state.build,fittedPartIds:state.build.fittedPartIds.filter(x=>x!==id)}}};}
 

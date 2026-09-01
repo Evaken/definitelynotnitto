@@ -167,11 +167,23 @@ Stage 2 acceptance criteria:
       pass is done, `Reset Run` mid-pass, and the history survives both.
 - [x] Best ET tracking across runs. Session bests for ET, MPH, 60ft and R/T,
       with the quickest pass called out in the table (`sim/records.ts`).
-- [ ] Historical-style timing slip presentation refined against references.
+- [x] Historical-style timing slip presentation. **Closed as not applicable.**
+      The project owner, who played the original, reports there was no printed
+      slip at all: times appeared on the timing board at the end of the race and
+      in the in/out race boxes. Our shareable slip image is therefore a modern
+      quality-of-life addition rather than a fidelity gap, and is deliberately
+      kept. Recorded as owner recollection, not screenshot-confirmed.
       **Blocked, not skipped:** none of the three surviving screenshots shows a
       timing slip, so there is no reference to refine against. Reopen this if
       one turns up.
-- [ ] Physics calibration tests tightened from today's wide plausibility bands.
+- [x] Physics calibration tests. **Resolved differently, on purpose.** The bands
+      stay wide: nothing is calibrated to the original game, so a tight absolute
+      band would assert an invented ET as fact and need rewriting on every tune.
+      What the wide bands could not do was notice a regression, and twice they
+      did not. `sim/baseline.test.ts` now pins all thirteen cars, standard and
+      fully built, to three decimal places and names whatever moved.
+      `npm run baseline` re-records it after an intended change. Tightening the
+      bands to *historical* values remains Stage 15 and remains evidence-blocked.
       **Deferred to Stage 15.** Tightening them now would mean inventing a
       target, since nothing is known about the original's numbers. The bands
       exist to catch a wildly wrong change, and that is all they can honestly do
@@ -531,6 +543,10 @@ that asserts an exact ET now means rewriting it later.
 
 ## Known limitations
 
+- **The career specials take no parts.** The three unlock cars are supplied as
+  finished race cars; gearing is the only change permitted, through Stage 4
+  tuning. Applied to all three cars carrying the `special` flag, including the
+  Mopar Drag Car.
 - **The Civic's figures are real-world approximations, not values recovered
   from Nitto 1320 Challenge.** It runs about 15.3s at 91mph, which is reasonable
   for a real 1999 Civic Si. Whether it matches the original game is still

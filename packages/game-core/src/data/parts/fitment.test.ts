@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { getPart } from './index.js';
 import { CARS } from '../cars/index.js';
-import { createEmptyGarageState, buyCar, selectCar, buyPart, fitPart, partList, purchaseAndFitPart, type GarageState } from '../../garage.js';
+import { applyTune, createEmptyGarageState, buyCar, selectCar, buyPart, fitPart, modificationBan, partList, purchaseAndFitPart, type GarageState } from '../../garage.js';
+import { stockTune } from '../../types/tune.js';
 
 /**
  * What fits what, and what "owning a part" means.
@@ -101,5 +102,57 @@ describe('owning a part', () => {
 
     expect(state.build.carId).toBe('mustang-cobra');
     expect(state.build.fittedPartIds).toContain('sports-muffler');
+  });
+});
+
+describe('the career specials', () => {
+  const specials = [...CARS.values()].filter((car) => car.special);
+  const roadCars = [...CARS.values()].filter((car) => !car.special);
+
+  it('covers the endgame cars', () => {
+    expect(specials.map((car) => car.id).sort()).toEqual(['f-type-drag', 'funny-car', 'mopar-drag']);
+  });
+
+  it('refuses every part in the catalogue', () => {
+    // They arrive as finished race cars. There is no ladder to climb: they
+    // already have the biggest engine, the stickiest tyre and the strongest
+    // clutch a parts list designed around a road car could offer.
+    for (const car of specials) {
+      const bought = buyCar({ ...createEmptyGarageState(50_000_000), record: { wins: 999, losses: 0, races: 999 } }, car.id, 'v1');
+      expect(bought.ok, car.id).toBe(true);
+      if (!bought.ok) continue;
+      for (const part of partList()) {
+        const attempt = buyPart(bought.state, part.id);
+        expect(attempt.ok, `${car.id} should refuse ${part.id}`).toBe(false);
+      }
+    }
+  });
+
+  it('still lets the road cars buy parts', () => {
+    // The ban has to be the special flag and nothing broader.
+    for (const car of roadCars) {
+      const bought = buyCar({ ...createEmptyGarageState(50_000_000), record: { wins: 999, losses: 0, races: 999 } }, car.id, 'v1');
+      if (!bought.ok) throw new Error(bought.reason);
+      expect(buyPart(bought.state, 'panel-filter').ok, car.id).toBe(true);
+    }
+  });
+
+  it('leaves gearing open, which is the one thing a crew does change', () => {
+    for (const car of specials) {
+      const bought = buyCar({ ...createEmptyGarageState(50_000_000), record: { wins: 999, losses: 0, races: 999 } }, car.id, 'v1');
+      if (!bought.ok) throw new Error(bought.reason);
+      const taller = {
+        ...stockTune(car),
+        gearRatios: car.gearbox.gearRatios.map((ratio) => ratio * 0.92),
+      };
+      const tuned = applyTune(bought.state, taller);
+      expect(tuned.ok, `${car.id}: ${tuned.ok ? '' : tuned.reason}`).toBe(true);
+      if (tuned.ok) expect(tuned.state.tune.gearRatios[0]).toBeCloseTo(car.gearbox.gearRatios[0]! * 0.92);
+    }
+  });
+
+  it('says why, rather than failing silently', () => {
+    expect(modificationBan('funny-car')).toMatch(/gearing/i);
+    expect(modificationBan('civic-si')).toBeNull();
   });
 });

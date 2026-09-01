@@ -271,13 +271,24 @@ with.
 | civic-si | 15.29 @ 91 | **11.79 @ 128** | 11.61 @ 129 | −0.02 |
 | mustang-cobra | 14.06 @ 109 | 10.92 @ 143 | 10.17 @ 143 | 0.57 |
 | neon-srt4 | 14.46 @ 101 | 11.86 @ 121 | 11.85 @ 121 | 0.02 |
-| mopar-drag | 9.10 @ 166 | 7.40 @ 168 | 6.79 @ 168 | 0.59 |
-| f-type-drag | 8.17 @ 168 | **6.25 @ 168** | 6.32 @ 168 | −0.04 |
-| funny-car | 7.09 @ 215 | **5.66 @ 219** | 5.16 @ 219 | −0.15 |
+
+The three career specials take no parts at all, so they have no built column.
+As supplied:
+
+| Special | Flat out | Managed | Gap |
+|---|---|---|---|
+| mopar-drag | 9.10 @ 166 | 8.79 @ 166 | 0.31 |
+| f-type-drag | 8.17 @ 168 | 7.73 @ 168 | 0.44 |
+| funny-car | 7.09 @ 215 | 6.53 @ 215 | 0.56 |
 
 A negative gap means **flooring it is the quickest way down the track**, which is
-how the game should feel: the driver sees green and pins it. Ten of the thirteen
-are inside a tenth either way, and only the Viper is out past a second.
+how the game should feel: the driver sees green and pins it. Seven of the ten
+road cars are inside a tenth either way, and only the Viper is out past a second.
+
+The specials sit between a third and half a second, and are left there. They are
+finished race cars with no parts ladder and nothing to tune but the gearing, so
+a driver who can feather 2600Nm off the line having an edge is the only skill
+they have left to express.
 
 Getting there took three separate fixes, and only one of them was about grip.
 
