@@ -261,6 +261,45 @@ with.
 
 | Build | Stock pass | Flat out | Managed | Gap |
 |---|---|---|---|---|
+| skyline-gtr | 13.01 @ 105 | **9.84 @ 138** | 10.24 @ 137 | −0.40 |
+| nsx | 13.48 @ 102 | **9.73 @ 144** | 9.81 @ 144 | −0.08 |
+| viper-srt10 | 12.63 @ 118 | 10.81 @ 148 | 9.52 @ 150 | 1.28 |
+| rx8 | 14.60 @ 95 | **10.45 @ 135** | 10.49 @ 135 | −0.05 |
+| evo-vii | 13.19 @ 102 | **10.88 @ 123** | 10.98 @ 123 | −0.10 |
+| supra-tt | 14.08 @ 104 | 11.15 @ 127 | 10.86 @ 128 | 0.28 |
+| rsx-type-s | 15.19 @ 91 | 11.45 @ 129 | 11.38 @ 129 | 0.07 |
+| civic-si | 15.29 @ 91 | **11.60 @ 129** | 11.62 @ 129 | −0.02 |
+| mustang-cobra | 14.14 @ 105 | 11.51 @ 136 | 10.44 @ 137 | 1.06 |
+| neon-srt4 | 14.70 @ 97 | 12.11 @ 118 | 12.09 @ 118 | 0.02 |
+| rsx-type-s | 12.05 | 12.07 | 0.02 |
+| viper-srt10 | 11.81 | 12.01 | 0.21 |
+| supra-tt | 12.34 | 13.07 | 0.73 |
+
+**It is not a free win.** On the stock Civic it is 0.5s *slower*, because that
+car's best launch deliberately uses some slip. It measures a driver who refuses
+to spin the tyres, which is the right reference for a car that cannot help it and
+the wrong one for a car that can.
+
+### The clutch holds what you have built
+
+A clutch part promises a share of the **built engine's** peak torque, not a
+figure in newton-metres and not a multiple of the car's standard clutch. Both of
+those were tried and neither survives a thirteen-car roster:
+
+- **Absolute (340 / 560Nm).** A large upgrade on a Civic, none at all on an Evo
+  whose standard clutch already holds 517. The Skyline could never lock: 560
+  against 786Nm, so the engine ran free — 8002rpm in sixth while the car did
+  81mph — and the pass never finished.
+- **A multiple of the standard clutch.** Starves the Civic, whose fallback is a
+  flat 240Nm default rather than a share of its torque, so the hard CPU opponent
+  — a turbocharged Civic — became slower than the medium one.
+
+Against the engine, one number means the same thing everywhere. Sports holds
+1.08x peak, Race 1.35x, and neither is ever worse than the clutch the car came
+with.
+
+| Build | Stock pass | Flat out | Managed | Gap |
+|---|---|---|---|---|
 | skyline-gtr | 12.90 @ 107 | **9.62 @ 142** | 10.03 @ 142 | −0.53 |
 | nsx | 13.20 @ 106 | **9.67 @ 149** | 9.68 @ 149 | −0.24 |
 | viper-srt10 | 12.60 @ 120 | 10.28 @ 155 | 9.27 @ 157 | 1.02 |
@@ -277,13 +316,17 @@ As supplied:
 
 | Special | Flat out | Managed | Gap |
 |---|---|---|---|
-| mopar-drag | 9.10 @ 166 | 8.79 @ 166 | 0.31 |
-| f-type-drag | 8.17 @ 168 | 7.73 @ 168 | 0.44 |
-| funny-car | 7.09 @ 215 | 6.53 @ 215 | 0.56 |
+| mopar-drag | 9.15 @ 164 | 8.83 @ 164 | 0.31 |
+| f-type-drag | 8.17 @ 168 | 7.74 @ 168 | 0.43 |
+| funny-car | 7.09 @ 215 | 6.54 @ 215 | 0.54 |
 
 A negative gap means **flooring it is the quickest way down the track**, which is
 how the game should feel: the driver sees green and pins it. Seven of the ten
-road cars are inside a tenth either way, and only the Viper is out past a second.
+road cars are inside a tenth either way. The Mustang and the Viper are out at
+1.06 and 1.28 -- both worse than they were, and the road-gearbox change below is
+why: with less power at the top of the rev range the launch is a larger share of
+the run, so the two cars that spin hardest pay more for it. Accepted as the price
+of making the gearbox and the shift light worth anything.
 
 The specials sit between a third and half a second, and are left there. They are
 finished race cars with no parts ladder and nothing to tune but the gearing, so
@@ -560,3 +603,68 @@ The three career specials demand a deliberate blip and an early lift -- the Funn
 Car cannot simply be driven into the window at all, and has to be braked well
 before it. That is left as it is: it is the fastest thing in the game by three
 seconds and asking for precision on the line is a fair price.
+
+## Gearing, and why it is a small lever
+
+The gearboxes were the same two shared sets across the roster, and by accident
+they were already close to drag ratios. A player fitting a gearset and tuning had
+essentially nothing to find: on a Viper with tyres and a gearset and nothing
+else, searching about five hundred sets beat the standard gearing by **0.002s**.
+The whole legal final-drive range, 2.20 to 5.50, spanned 11.14 to 11.61, with
+standard sitting within 0.02s of the best value in it.
+
+The reason was the engine curves, not the ratios. Every car in the roster made
+92-100% of its peak power *at the limiter*:
+
+| Car | Peak power at | Power left at redline |
+|---|---|---|
+| neon-srt4 | 100% of redline | 100% |
+| evo-vii | 100% | 100% |
+| mustang-cobra | 99% | 100% |
+| viper-srt10 | 84% | 96% |
+
+An engine that makes peak power at the limiter is an engine you hold to the
+limiter in every gear, and one whose gearing decides nothing: whatever ratio you
+pick, you are near peak power. `shift.test.ts` had already recorded the symptom
+for the Civic and nobody noticed it was roster-wide.
+
+Two changes, both to car data:
+
+**The generated curves now fall away at the top** -- 0.88 of peak at the midpoint
+and 0.62 at the redline, against 0.94 and 0.76. Peak power now lands at 78-88% of
+redline instead of 84-100%.
+
+**The shared gearboxes are now road gearboxes.** Five-speed
+`[3.55, 2.05, 1.35, 1, 0.76]`, six-speed `[3.55, 2.1, 1.45, 1, 0.76, 0.6]`: wide
+gaps low down, a fourth tall enough for any road speed, and overdrives above it
+for motorway revs. A standard car now runs out of strip in third or fourth and
+never touches the top two gears, which is the quiet hint that the gearbox is
+worth changing.
+
+### What that bought, honestly
+
+The shift light became a real instrument. It used to say "limiter" in every gear
+of every car. It now asks for an early shift in most gears of most cars -- the
+Viper wants 5950, 5960, 5720, 5650 against a 6200 redline -- so watching it is
+worth something.
+
+Gearing itself is still a **fine** lever, not a headline one. Searching
+progressive gearsets on the same Viper now finds 0.069s over the standard road
+box, up from 0.002s. Pushing the curves to a brutal 0.44 of peak at redline only
+reaches 0.125s, and costs every car a large chunk of its top end.
+
+That ceiling is physics rather than tuning. Elapsed time is set by the energy the
+engine puts into the car, and with six gears you are always within ten or fifteen
+percent of peak power whatever ratios you choose. Gearing is worth a tenth,
+which is roughly what it is worth in life. It is not worth a second, and no
+amount of curve shaping will make it so. A close-ratio set is a fine-tuning
+reward, and the honest way to sell it is as one.
+
+Notably a **close** drag set is not the answer on the Viper: bunching the ratios
+costs 0.111s against the standard box. The quick set is a tall one that still
+finishes in fourth. That is a real decision for a player to get wrong, which is
+the point.
+
+The Civic is untouched by all of this. Its curve is a hand-written B16A2
+approximation rather than a generated one, and its ratios are the real S4C
+five-speed, which is genuinely close. It remains the reference car.

@@ -8,74 +8,74 @@
     },
     {
       "id": "rsx-type-s",
-      "quarterMileEt": 14.989,
-      "quarterMileMph": 93.7,
-      "sixtyFoot": 2.478
+      "quarterMileEt": 15.231,
+      "quarterMileMph": 91.25,
+      "sixtyFoot": 2.476
     },
     {
       "id": "evo-vii",
-      "quarterMileEt": 12.819,
-      "quarterMileMph": 105.39,
-      "sixtyFoot": 1.801
+      "quarterMileEt": 13.193,
+      "quarterMileMph": 101.75,
+      "sixtyFoot": 1.827
     },
     {
       "id": "supra-tt",
-      "quarterMileEt": 13.835,
-      "quarterMileMph": 106.32,
-      "sixtyFoot": 2.522
+      "quarterMileEt": 14.09,
+      "quarterMileMph": 103.57,
+      "sixtyFoot": 2.516
     },
     {
       "id": "mustang-cobra",
-      "quarterMileEt": 14.1,
-      "quarterMileMph": 108.69,
-      "sixtyFoot": 2.754
+      "quarterMileEt": 14.174,
+      "quarterMileMph": 105.41,
+      "sixtyFoot": 2.65
     },
     {
       "id": "skyline-gtr",
-      "quarterMileEt": 13.067,
-      "quarterMileMph": 107.42,
-      "sixtyFoot": 2.123
+      "quarterMileEt": 13.14,
+      "quarterMileMph": 104.58,
+      "sixtyFoot": 1.956
     },
     {
       "id": "neon-srt4",
-      "quarterMileEt": 14.464,
-      "quarterMileMph": 100.74,
-      "sixtyFoot": 2.619
+      "quarterMileEt": 14.698,
+      "quarterMileMph": 97.3,
+      "sixtyFoot": 2.615
     },
     {
       "id": "rx8",
-      "quarterMileEt": 14.306,
-      "quarterMileMph": 97.5,
-      "sixtyFoot": 2.272
+      "quarterMileEt": 14.603,
+      "quarterMileMph": 94.77,
+      "sixtyFoot": 2.277
     },
     {
       "id": "nsx",
-      "quarterMileEt": 13.204,
-      "quarterMileMph": 105.59,
+      "quarterMileEt": 13.491,
+      "quarterMileMph": 102.08,
       "sixtyFoot": 2.079
     },
     {
       "id": "viper-srt10",
-      "quarterMileEt": 12.679,
-      "quarterMileMph": 120.14,
-      "sixtyFoot": 2.469
+      "quarterMileEt": 12.661,
+      "quarterMileMph": 118.23,
+      "sixtyFoot": 2.359
     },
     {
       "id": "mopar-drag",
-      "quarterMileEt": 9.099,
-      "quarterMileMph": 165.54,
-      "sixtyFoot": 1.755
+      "quarterMileEt": 9.151,
+      "quarterMileMph": 164.28,
+      "sixtyFoot": 1.752
     },
     {
       "id": "f-type-drag",
       "quarterMileEt": 8.169,
-      "quarterMileMph": 167.94,
-      "sixtyFoot": 1.578
+      "quarterMileMph": 167.89,
+      "sixtyFoot": 1.577
     },
     {
       "id": "funny-car",
-      "quarterMileEt": 7.098,
-      "quarterMileMph": 215.06,
+      "quarterMileEt": 7.088,
+      "quarterMileMph": 214.94,
       "sixtyFoot": 1.403
     }
   ],
@@ -88,57 +88,57 @@
     },
     {
       "id": "rsx-type-s",
-      "quarterMileEt": 11.33,
-      "quarterMileMph": 133.8,
-      "sixtyFoot": 2.158
+      "quarterMileEt": 11.45,
+      "quarterMileMph": 129.35,
+      "sixtyFoot": 2.171
     },
     {
       "id": "evo-vii",
-      "quarterMileEt": 10.561,
-      "quarterMileMph": 127.95,
-      "sixtyFoot": 1.466
+      "quarterMileEt": 10.916,
+      "quarterMileMph": 122.86,
+      "sixtyFoot": 1.489
     },
     {
       "id": "supra-tt",
-      "quarterMileEt": 11.204,
-      "quarterMileMph": 132.67,
-      "sixtyFoot": 1.994
+      "quarterMileEt": 11.522,
+      "quarterMileMph": 126.76,
+      "sixtyFoot": 2.014
     },
     {
       "id": "mustang-cobra",
-      "quarterMileEt": 10.762,
-      "quarterMileMph": 142.7,
-      "sixtyFoot": 2.022
+      "quarterMileEt": 11.549,
+      "quarterMileMph": 135.9,
+      "sixtyFoot": 2.25
     },
     {
       "id": "skyline-gtr",
-      "quarterMileEt": 9.968,
-      "quarterMileMph": 142.05,
-      "sixtyFoot": 1.65
+      "quarterMileEt": 10.149,
+      "quarterMileMph": 137.36,
+      "sixtyFoot": 1.554
     },
     {
       "id": "neon-srt4",
-      "quarterMileEt": 11.938,
-      "quarterMileMph": 121.3,
-      "sixtyFoot": 2.116
+      "quarterMileEt": 12.162,
+      "quarterMileMph": 117.77,
+      "sixtyFoot": 2.118
     },
     {
       "id": "rx8",
-      "quarterMileEt": 10.432,
-      "quarterMileMph": 139.53,
-      "sixtyFoot": 1.861
+      "quarterMileEt": 10.538,
+      "quarterMileMph": 135.4,
+      "sixtyFoot": 1.767
     },
     {
       "id": "nsx",
-      "quarterMileEt": 9.652,
-      "quarterMileMph": 148.93,
-      "sixtyFoot": 1.659
+      "quarterMileEt": 9.727,
+      "quarterMileMph": 143.67,
+      "sixtyFoot": 1.54
     },
     {
       "id": "viper-srt10",
-      "quarterMileEt": 10.361,
-      "quarterMileMph": 155.12,
-      "sixtyFoot": 2.051
+      "quarterMileEt": 10.858,
+      "quarterMileMph": 148.03,
+      "sixtyFoot": 2.152
     }
   ]
 }

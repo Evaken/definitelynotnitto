@@ -5,10 +5,25 @@ interface CarSeed {id:string;displayName:string;manufacturer:string;year:number;
   factoryBoost?:number;
   /** Where that turbo comes on song. */
   factorySpool?:number;}
-function car(seed:CarSeed):Car{const idle=800;const r=seed.redline,p=seed.peakRpm,t=seed.torque;return{id:seed.id,displayName:seed.displayName,manufacturer:seed.manufacturer,year:seed.year,price:seed.price,...(seed.unlockWins===undefined?{}:{unlockWins:seed.unlockWins}),...(seed.special?{special:true}:{}),drivetrain:seed.drivetrain,engine:{code:`${seed.manufacturer.slice(0,2).toUpperCase()}-${seed.id.slice(0,4).toUpperCase()}`,idleRpm:idle,redlineRpm:r,inertiaKgM2:.16,...(seed.factoryBoost?{forcedInduction:{type:'turbo' as const,peakBoostBar:seed.factoryBoost,spoolRpm:seed.factorySpool??2600,factoryBoostBar:seed.factoryBoost}}:{}),curve:[{rpm:idle,torqueNm:t*.56},{rpm:Math.round(p*.45),torqueNm:t*.76},{rpm:Math.round(p*.7),torqueNm:t*.91},{rpm:p,torqueNm:t},{rpm:Math.round((p+r)/2),torqueNm:t*.94},{rpm:r,torqueNm:t*.76}]},gearbox:{gearRatios:seed.gears,reverseRatio:3.1,finalDrive:seed.finalDrive,driveEfficiency:seed.drivetrain==='AWD'?.84:.89},tyres:{radiusM:.315,peakGrip:seed.grip,peakSlipRatio:.14,slidingGripFraction:.84,inertiaKgM2:1.55},chassis:{massKg:seed.mass,wheelbaseM:2.65,cgHeightM:.52,frontWeightBias:seed.frontBias,dragCoefficient:seed.drag,frontalAreaM2:seed.area,rollingResistance:.013}};}
+function car(seed:CarSeed):Car{const idle=800;const r=seed.redline,p=seed.peakRpm,t=seed.torque;return{id:seed.id,displayName:seed.displayName,manufacturer:seed.manufacturer,year:seed.year,price:seed.price,...(seed.unlockWins===undefined?{}:{unlockWins:seed.unlockWins}),...(seed.special?{special:true}:{}),drivetrain:seed.drivetrain,engine:{code:`${seed.manufacturer.slice(0,2).toUpperCase()}-${seed.id.slice(0,4).toUpperCase()}`,idleRpm:idle,redlineRpm:r,inertiaKgM2:.16,...(seed.factoryBoost?{forcedInduction:{type:'turbo' as const,peakBoostBar:seed.factoryBoost,spoolRpm:seed.factorySpool??2600,factoryBoostBar:seed.factoryBoost}}:{}),curve:[{rpm:idle,torqueNm:t*.56},{rpm:Math.round(p*.45),torqueNm:t*.76},{rpm:Math.round(p*.7),torqueNm:t*.91},{rpm:p,torqueNm:t},{rpm:Math.round((p+r)/2),torqueNm:t*.88},{rpm:r,torqueNm:t*.62}]},gearbox:{gearRatios:seed.gears,reverseRatio:3.1,finalDrive:seed.finalDrive,driveEfficiency:seed.drivetrain==='AWD'?.84:.89},tyres:{radiusM:.315,peakGrip:seed.grip,peakSlipRatio:.14,slidingGripFraction:.84,inertiaKgM2:1.55},chassis:{massKg:seed.mass,wheelbaseM:2.65,cgHeightM:.52,frontWeightBias:seed.frontBias,dragCoefficient:seed.drag,frontalAreaM2:seed.area,rollingResistance:.013}};}
 function specialCar(seed:CarSeed):Car{const base=car(seed);return{...base,gearbox:{...base.gearbox,clutchCapacityNm:seed.torque*2.5}};}
 
-const five=[3.27,1.89,1.28,.95,.74] as const;const six=[3.27,2.13,1.52,1.15,.92,.74] as const;
+/**
+ * Road gearboxes, deliberately.
+ *
+ * These cars are sold as street cars, and a street gearbox is built for
+ * driveability and economy rather than for a quarter mile: wide gaps low down,
+ * a fourth tall enough to reach any speed the law allows, and two overdrives
+ * above it that exist for motorway revs. A stock car runs out of strip in
+ * fourth and never touches fifth or sixth.
+ *
+ * That is the point. It is the quiet hint that the gearbox is worth changing --
+ * a player who notices two unused gears and fits a Close-Ratio Gearset can pull
+ * the whole set down into the power band and find real time. The previous
+ * shared sets were, by accident, already close to a drag ratio, so there was
+ * nothing left for a tuner to discover.
+ */
+const five=[3.55,2.05,1.35,1,.76] as const;const six=[3.55,2.1,1.45,1,.76,.6] as const;
 export const CORE_ROSTER:readonly Car[]=[
  car({id:'rsx-type-s',displayName:'RSX Type-S',manufacturer:'Acura',year:2002,price:18500,drivetrain:'FWD',mass:1265,torque:193,peakRpm:6000,redline:8000,gears:six,finalDrive:4.39,grip:1.06,drag:.32,area:2.0,frontBias:.63}),
  car({id:'evo-vii',displayName:'Lancer Evolution VII',manufacturer:'Mitsubishi',year:2001,price:28500,drivetrain:'AWD',mass:1400,torque:383,peakRpm:3500,redline:7000,gears:five,finalDrive:4.53,grip:1.13,factoryBoost:1,factorySpool:2600,drag:.35,area:2.12,frontBias:.58}),

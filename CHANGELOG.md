@@ -42,6 +42,22 @@
 
 ## Unreleased - Driveability
 
+- Made the gearbox worth thinking about. The generated engine curves now fall
+  away at the top (0.62 of peak at redline, was 0.76) so peak power lands at
+  78-88% of redline instead of 84-100%, and the shared gearboxes are now road
+  gearboxes with tall fourths and two overdrives. A standard car finishes the
+  quarter in third or fourth and never uses its top two gears.
+- The shift light is a real instrument as a result: it used to read "limiter" in
+  every gear of every car, and now asks for an early shift in most of them.
+- Gearing itself remains a fine lever, ~0.07s on a Viper rather than the 0.002s
+  it was worth before. That ceiling is physics, not tuning: with six gears you
+  are always near peak power whatever you pick. Recorded in BALANCE_NOTES.md
+  rather than chased further.
+- Cost: with less power up top the launch is a larger share of the run, so the
+  Mustang and Viper give away more for being floored than they did (1.06s and
+  1.28s, from 0.57s and 1.02s). Re-sweeping the tyre sliding-grip figure no
+  longer moves them; accepted as the price.
+
 - Gearbox tuning is now shut until a Close-Ratio Gearset is fitted. A production
   gearbox has the ratios it has. Returning a car to standard is always allowed,
   so removing the gearset cannot strand it; the career specials are exempt

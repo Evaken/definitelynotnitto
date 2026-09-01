@@ -543,6 +543,11 @@ that asserts an exact ET now means rewriting it later.
 
 ## Known limitations
 
+- **Gearing is a fine lever, not a headline one.** Worth about 0.07s on a Viper.
+  Elapsed time is set by the energy the engine delivers, and with six gears the
+  car is always near peak power whatever ratios are chosen. Pushing the engine
+  curves hard enough to change that costs every car its top end for 0.125s.
+  Documented in `BALANCE_NOTES.md`; not a bug and not worth chasing further.
 - **The career specials take no parts.** The three unlock cars are supplied as
   finished race cars; gearing is the only change permitted, through Stage 4
   tuning. Applied to all three cars carrying the `special` flag, including the
